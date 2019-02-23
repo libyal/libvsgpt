@@ -1,0 +1,689 @@
+= GUID Partition Table (GPT) format specification
+Analysis of the GPT partition table format
+
+:toc:
+:toclevels: 4
+
+:numbered!:
+[abstract]
+== Summary
+
+The GUID Partition Table (GPT) is a partitioning schema that is the successor
+to the Master Boot Record (MBR) Partition Table for Intel x86 based computers.
+
+This document is intended as a working document for the GUID Partition Table
+(GPT) format specification.
+
+[preface]
+== Document information
+
+[cols="1,5"]
+|===
+| Author(s): | Joachim Metz <joachim.metz@gmail.com>
+| Abstract: | This document contains information about the GUID Partition Table (GPT).
+| Classification: | Public
+| Keywords: | GPT, GUID Partition Table
+|===
+
+[preface]
+== License
+
+....
+Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>.
+Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version 1.3 or any later version
+published by the Free Software Foundation; with no Invariant Sections, no
+Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included
+in the section entitled "GNU Free Documentation License".
+....
+
+[preface]
+== Revision history
+
+[cols="1,1,1,5",options="header"]
+|===
+| Version | Author | Date | Comments
+| 0.0.1 | J.B. Metz | February 2019 | Initial version.
+|===
+
+:numbered:
+== Overview
+
+A GUID Partition Table (GPT) consists of:
+
+* A protective or hybrid Master Boot Record (MBR) stored in block (LBA) 0
+* A GPT partition table header stored in block (LBA) 1
+* GPT partition entries stored in blocks (LBA) 2 - 33
+* A backup GPT partition table header typically stored in the last block (LBA)
+
+The GPT partition table header signature can be used to determine the block
+(LBA) (or sector) size.
+
+[cols="1,5",options="header"]
+|===
+| Characteristics | Description
+| Byte order | little-endian
+| Character strings | Unicode strings are stored in UTF-16 little-endian without the byte order mark (BOM).
+|===
+
+== Master Boot Record (MBR)
+
+=== Hybrid Master Boot Record (MBR)
+
+[yellow-background]*TODO: complete section*
+
+=== Protective Master Boot Record (MBR)
+
+The Protective Master Boot Record (MBR) is an MBR with a single partition of
+type "EFI GPT protective partition" (0xee) that allocated as much of the drive
+as possible.
+
+== GPT partition table header
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 8 | "EFI PART" | Signature
+| 8 | 2 | 0 | Minor format version
+| 10 | 2 | 1 | Major format version
+| 12 | 4 | 92 | Header data size +
+This value contains the size of the GPT partition table header data
+| 16 | 4 | | Header data checksum +
+[yellow-background]*CRC32/zlib of header (offset +0 up to header size) in little endian, with this field zeroed during calculation*
+| 20 | 4 | 0 | [yellow-background]*Unknown (Reserved)*
+| 24 | 8 | | Partition header block number (LBA)
+| 32 | 8 | | Backup partition header block number (LBA)
+| 40 | 8 | | Partitions area start block number (LBA)
+| 48 | 8 | | Partitions area end block number (LBA) +
+The block number is included in the partition aread block range
+| 56 | 16 | | Disk identifier (GUID)
+| 72 | 8 | | Partition entries start block number (LBA)
+| 80 | 4 | | Number of partition entries
+| 84 | 4 | 128 | Partition entry data size
+| 88 | 4 | | Partition entries data checksum +
+[yellow-background]*CRC32/zlib of partition entries array in little endian*
+| 92 | ... | 0 | [yellow-background]*Unknown (Reserved)*
+|===
+
+== GPT partition entries
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 16 | | Partition type identifier (GUID)
+| 16 | 16 | | Partition identifier (GUID)
+| 32 | 8 | | Partition start block number (LBA)
+| 40 | 8 | | Partition end block number (LBA) +
+The block number is included in the partition block range
+| 48 | 8 | | Attribute flags +
+See section: <<attribute_flags,GPT partition attribute flags>>
+| 56 | 72 | | Partition name +
+UTF-16 little-endian string without the byte order mark (BOM)
+|===
+
+=== Partition type identifiers
+
+Operating system	Partition type	Globally unique identifier (GUID)[d]
+N/A	Unused entry	00000000-0000-0000-0000-000000000000
+MBR partition scheme	024DEE41-33E7-11D3-9D69-0008C781F39F
+EFI System partition	C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+BIOS boot partition[e]	21686148-6449-6E6F-744E-656564454649
+Intel Fast Flash (iFFS) partition (for Intel Rapid Start technology)[31][32]	D3BFE2DE-3DAF-11DF-BA40-E3A556D89593
+Sony boot partition[f]	F4019732-066E-4E12-8273-346C5641494F
+Lenovo boot partition[f]	BFBFAFE7-A34F-448A-9A5B-6213EB736C22
+Windows	Microsoft Reserved Partition (MSR)	E3C9E316-0B5C-4DB8-817D-F92DF00215AE
+Basic data partition[g]	EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+Logical Disk Manager (LDM) metadata partition	5808C8AA-7E8F-42E0-85D2-E1E90434CFB3
+Logical Disk Manager data partition	AF9B60A0-1431-4F62-BC68-3311714A69AD
+Windows Recovery Environment	DE94BBA4-06D1-4D40-A16A-BFD50179D6AC
+IBM General Parallel File System (GPFS) partition	37AFFC90-EF7D-4E96-91C3-2D7AE055B174
+Storage Spaces partition	E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D
+HP-UX	Data partition	75894C1E-3AEB-11D3-B7C1-7B03A0000000
+Service Partition	E2A1E728-32E3-11D6-A682-7B03A0000000
+Linux	Linux filesystem data[g]	0FC63DAF-8483-4772-8E79-3D69D8477DE4
+RAID partition	A19D880F-05FC-4D3B-A006-743F0F84911E
+Root partition (x86)[35]	44479540-F297-41B2-9AF7-D131D5F0458A
+Root partition (x86-64)[35]	4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709
+Root partition (32-bit ARM)[35]	69DAD710-2CE4-4E3C-B16C-21A1D49ABED3
+Root partition (64-bit ARM/AArch64)[35]	B921B045-1DF0-41C3-AF44-4C6F280D3FAE
+Swap partition	0657FD6D-A4AB-43C4-84E5-0933C84B4F4F
+Logical Volume Manager (LVM) partition	E6D6D379-F507-44C2-A23C-238F2A3DF928
+/home partition[35]	933AC7E1-2EB4-4F13-B844-0E14E2AEF915
+/srv (server data) partition[35]	3B8F8425-20E0-4F3B-907F-1A25A76F98E8
+Plain dm-crypt partition[36][37][38]	7FFEC5C9-2D00-49B7-8941-3EA10A5586B7
+LUKS partition[36][37][38][39]	CA7D7CCB-63ED-4C53-861C-1742536059CC
+Reserved	8DA63339-0007-60C0-C436-083AC8230908
+FreeBSD	Boot partition	83BD6B9D-7F41-11DC-BE0B-001560B84F0F
+Data partition	516E7CB4-6ECF-11D6-8FF8-00022D09712B
+Swap partition	516E7CB5-6ECF-11D6-8FF8-00022D09712B
+Unix File System (UFS) partition	516E7CB6-6ECF-11D6-8FF8-00022D09712B
+Vinum volume manager partition	516E7CB8-6ECF-11D6-8FF8-00022D09712B
+ZFS partition	516E7CBA-6ECF-11D6-8FF8-00022D09712B
+macOS
+Darwin	Hierarchical File System Plus (HFS+) partition	48465300-0000-11AA-AA11-00306543ECAC
+Apple APFS	7C3457EF-0000-11AA-AA11-00306543ECAC
+Apple UFS container	55465300-0000-11AA-AA11-00306543ECAC
+ZFS[h]	6A898CC3-1DD2-11B2-99A6-080020736631
+Apple RAID partition	52414944-0000-11AA-AA11-00306543ECAC
+Apple RAID partition, offline	52414944-5F4F-11AA-AA11-00306543ECAC
+Apple Boot partition (Recovery HD)	426F6F74-0000-11AA-AA11-00306543ECAC
+Apple Label	4C616265-6C00-11AA-AA11-00306543ECAC
+Apple TV Recovery partition	5265636F-7665-11AA-AA11-00306543ECAC
+Apple Core Storage (i.e. Lion FileVault) partition	53746F72-6167-11AA-AA11-00306543ECAC
+SoftRAID_Status	B6FA30DA-92D2-4A9A-96F1-871EC6486200
+SoftRAID_Scratch	2E313465-19B9-463F-8126-8A7993773801
+SoftRAID_Volume	FA709C7E-65B1-4593-BFD5-E71D61DE9B02
+SoftRAID_Cache	BBBA6DF5-F46F-4A89-8F59-8765B2727503
+Solaris
+illumos	Boot partition	6A82CB45-1DD2-11B2-99A6-080020736631
+Root partition	6A85CF4D-1DD2-11B2-99A6-080020736631
+Swap partition	6A87C46F-1DD2-11B2-99A6-080020736631
+Backup partition	6A8B642B-1DD2-11B2-99A6-080020736631
+/usr partition[h]	6A898CC3-1DD2-11B2-99A6-080020736631
+/var partition	6A8EF2E9-1DD2-11B2-99A6-080020736631
+/home partition	6A90BA39-1DD2-11B2-99A6-080020736631
+Alternate sector	6A9283A5-1DD2-11B2-99A6-080020736631
+Reserved partition	6A945A3B-1DD2-11B2-99A6-080020736631
+6A9630D1-1DD2-11B2-99A6-080020736631
+6A980767-1DD2-11B2-99A6-080020736631
+6A96237F-1DD2-11B2-99A6-080020736631
+6A8D2AC7-1DD2-11B2-99A6-080020736631
+NetBSD[40][i]	Swap partition	49F48D32-B10E-11DC-B99B-0019D1879648
+FFS partition	49F48D5A-B10E-11DC-B99B-0019D1879648
+LFS partition	49F48D82-B10E-11DC-B99B-0019D1879648
+RAID partition	49F48DAA-B10E-11DC-B99B-0019D1879648
+Concatenated partition	2DB519C4-B10F-11DC-B99B-0019D1879648
+Encrypted partition	2DB519EC-B10F-11DC-B99B-0019D1879648
+Chrome OS[41]	Chrome OS kernel	FE3A2A5D-4F32-41A7-B725-ACCC3285A309
+Chrome OS rootfs	3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC
+Chrome OS future use	2E0A753D-9E48-43B0-8337-B15192CB1B5E
+Container Linux by CoreOS[42]	/usr partition (coreos-usr)	5DFBF5F4-2848-4BAC-AA5E-0D9A20B745A6
+Resizable rootfs (coreos-resize)	3884DD41-8582-4404-B9A8-E9B84F2DF50E
+OEM customizations (coreos-reserved)	C95DC21A-DF0E-4340-8D7B-26CBFA9A03E0
+Root filesystem on RAID (coreos-root-raid)	BE9067B9-EA49-4F15-B4F6-F36F8C9E1818
+Haiku[43]	Haiku BFS	42465331-3BA3-10F1-802A-4861696B7521
+MidnightBSD[44][i]	Boot partition	85D5E45E-237C-11E1-B4B3-E89A8F7FC3A7
+Data partition	85D5E45A-237C-11E1-B4B3-E89A8F7FC3A7
+Swap partition	85D5E45B-237C-11E1-B4B3-E89A8F7FC3A7
+Unix File System (UFS) partition	0394EF8B-237E-11E1-B4B3-E89A8F7FC3A7
+Vinum volume manager partition	85D5E45C-237C-11E1-B4B3-E89A8F7FC3A7
+ZFS partition	85D5E45D-237C-11E1-B4B3-E89A8F7FC3A7
+Ceph[j]	Journal	45B0969E-9B03-4F30-B4C6-B4B80CEFF106
+dm-crypt journal	45B0969E-9B03-4F30-B4C6-5EC00CEFF106
+OSD	4FBD7E29-9D25-41B8-AFD0-062C0CEFF05D
+dm-crypt OSD	4FBD7E29-9D25-41B8-AFD0-5EC00CEFF05D
+Disk in creation	89C57F98-2FE5-4DC0-89C1-F3AD0CEFF2BE
+dm-crypt disk in creation	89C57F98-2FE5-4DC0-89C1-5EC00CEFF2BE
+Block	CAFECAFE-9B03-4F30-B4C6-B4B80CEFF106
+Block DB	30CD0809-C2B2-499C-8879-2D6B78529876
+Block write-ahead log	5CE17FCE-4087-4169-B7FF-056CC58473F9
+Lockbox for dm-crypt keys	FB3AABF9-D25F-47CC-BF5E-721D1816496B
+Multipath OSD	4FBD7E29-8AE0-4982-BF9D-5A8D867AF560
+Multipath journal	45B0969E-8AE0-4982-BF9D-5A8D867AF560
+Multipath block	CAFECAFE-8AE0-4982-BF9D-5A8D867AF560
+Multipath block	7F4A666A-16F3-47A2-8445-152EF4D03F6C
+Multipath block DB	EC6D6385-E346-45DC-BE91-DA2A7C8B3261
+Multipath block write-ahead log	01B41E1B-002A-453C-9F17-88793989FF8F
+dm-crypt block	CAFECAFE-9B03-4F30-B4C6-5EC00CEFF106
+dm-crypt block DB	93B0052D-02D9-4D8A-A43B-33A3EE4DFBC3
+dm-crypt block write-ahead log	306E8683-4FE2-4330-B7C0-00A917C16966
+dm-crypt LUKS journal	45B0969E-9B03-4F30-B4C6-35865CEFF106
+dm-crypt LUKS block	CAFECAFE-9B03-4F30-B4C6-35865CEFF106
+dm-crypt LUKS block DB	166418DA-C469-4022-ADF4-B30AFD37F176
+dm-crypt LUKS block write-ahead log	86A32090-3647-40B9-BBBD-38D8C573AA86
+dm-crypt LUKS OSD	4FBD7E29-9D25-41B8-AFD0-35865CEFF05D
+OpenBSD	Data partition	824CC7A0-36A8-11E3-890A-952519AD3F61
+QNX	Power-safe (QNX6) file system[46]	CEF5A9AD-73BC-4601-89F3-CDEEEEE321A1
+Plan 9	Plan 9 partition	C91818F9-8025-47AF-89D2-F030D7000C2C
+VMware ESX	vmkcore (coredump partition)	9D275380-40AD-11DB-BF97-000C2911D1B8
+VMFS filesystem partition	AA31E02A-400F-11DB-9590-000C2911D1B8
+VMware Reserved	9198EFFC-31C0-11DB-8F78-000C2911D1B8
+Android-IA[47][48][49][50]	Bootloader	2568845D-2332-4675-BC39-8FA5A4748D15
+Bootloader2	114EAFFE-1552-4022-B26E-9B053604CF84
+Boot	49A4D17F-93A3-45C1-A0DE-F50B2EBE2599
+Recovery	4177C722-9E92-4AAB-8644-43502BFD5506
+Misc	EF32A33B-A409-486C-9141-9FFB711F6266
+Metadata	20AC26BE-20B7-11E3-84C5-6CFDB94711E9
+System	38F428E6-D326-425D-9140-6E0EA133647C
+Cache	A893EF21-E428-470A-9E55-0668FD91A2D9
+Data	DC76DDA9-5AC1-491C-AF42-A82591580C0D
+Persistent	EBC597D0-2053-4B15-8B64-E0AAC75F4DB1
+Vendor	C5A0AEEC-13EA-11E5-A1B1-001E67CA0C3C
+Config	BD59408B-4514-490D-BF12-9878D963F378
+Factory	8F68CC74-C5E5-48DA-BE91-A0C8C15E9C80
+Factory (alt)[51]	9FDAA6EF-4B3F-40D2-BA8D-BFF16BFB887B
+Fastboot / Tertiary[52][53]	767941D0-2085-11E3-AD3B-6CFDB94711E9
+OEM	AC6D7924-EB71-4DF8-B48D-E267B27148FF
+Android 6.0+ ARM	Android Meta	19A710A2-B3CA-11E4-B026-10604B889DCF
+Android EXT	193D1EA4-B3CA-11E4-B075-10604B889DCF
+Open Network Install Environment (ONIE)	Boot	7412F7D5-A156-4B13-81DC-867174929325
+Config	D4E6E2CD-4469-46F3-B5CB-1BFF57AFC149
+PowerPC	PReP boot	9E1A2D38-C612-4316-AA26-8B49521E5A8B
+freedesktop.org OSes (Linux, etc.)	Shared boot loader configuration[54]	BC13C2FF-59E6-4262-A352-B275FD6F7172
+Atari TOS	Basic data partition (GEM, BGM, F32)	734E5AFE-F61A-11E6-BC64-92361F002671
+
+=== [[attribute_flags]]GPT partition attribute flags
+
+Bit	Content
+
+0	Platform required (required by the computer to function properly, OEM partition for example, disk partitioning utilities must preserve the partition as is)
+1	EFI firmware should ignore the content of the partition and not try to read from it
+2	Legacy BIOS bootable (equivalent to active flag (typically bit 7 set) at offset +0h in partition entries of the MBR partition table)[10]
+3 - 47	Reserved for future use
+48 - 63	Defined and used by the individual partition type
+
+ChromeOS
+56	Successful boot flag
+55 - 52	Tries remaining
+51 - 48	Priority (15: highest, 1: lowest, 0: not bootable)
+
+Basic
+60	Read-only
+61	Shadow copy (of another partition)
+62	Hidden
+63	No drive letter (i.e. do not automount)
+
+:numbered!:
+[appendix]
+== References
+
+`[REFERENCE]`
+
+[cols="1,5",options="header"]
+|===
+| Title: |
+| Author(s): |
+| Date: |
+| URL: |
+|===
+
+[appendix]
+== GNU Free Documentation License
+
+Version 1.3, 3 November 2008
+Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
+<http://fsf.org/>
+
+Everyone is permitted to copy and distribute verbatim copies of this license
+document, but changing it is not allowed.
+
+=== 0. PREAMBLE
+
+The purpose of this License is to make a manual, textbook, or other functional
+and useful document "free" in the sense of freedom: to assure everyone the
+effective freedom to copy and redistribute it, with or without modifying it,
+either commercially or noncommercially. Secondarily, this License preserves for
+the author and publisher a way to get credit for their work, while not being
+considered responsible for modifications made by others.
+
+This License is a kind of "copyleft", which means that derivative works of the
+document must themselves be free in the same sense. It complements the GNU
+General Public License, which is a copyleft license designed for free software.
+
+We have designed this License in order to use it for manuals for free software,
+because free software needs free documentation: a free program should come with
+manuals providing the same freedoms that the software does. But this License is
+not limited to software manuals; it can be used for any textual work,
+regardless of subject matter or whether it is published as a printed book. We
+recommend this License principally for works whose purpose is instruction or
+reference.
+
+=== 1. APPLICABILITY AND DEFINITIONS
+
+This License applies to any manual or other work, in any medium, that contains
+a notice placed by the copyright holder saying it can be distributed under the
+terms of this License. Such a notice grants a world-wide, royalty-free license,
+unlimited in duration, to use that work under the conditions stated herein. The
+"Document", below, refers to any such manual or work. Any member of the public
+is a licensee, and is addressed as "you". You accept the license if you copy,
+modify or distribute the work in a way requiring permission under copyright law.
+
+A "Modified Version" of the Document means any work containing the Document or
+a portion of it, either copied verbatim, or with modifications and/or
+translated into another language.
+
+A "Secondary Section" is a named appendix or a front-matter section of the
+Document that deals exclusively with the relationship of the publishers or
+authors of the Document to the Document's overall subject (or to related
+matters) and contains nothing that could fall directly within that overall
+subject. (Thus, if the Document is in part a textbook of mathematics, a
+Secondary Section may not explain any mathematics.) The relationship could be a
+matter of historical connection with the subject or with related matters, or of
+legal, commercial, philosophical, ethical or political position regarding them.
+
+The "Invariant Sections" are certain Secondary Sections whose titles are
+designated, as being those of Invariant Sections, in the notice that says that
+the Document is released under this License. If a section does not fit the
+above definition of Secondary then it is not allowed to be designated as
+Invariant. The Document may contain zero Invariant Sections. If the Document
+does not identify any Invariant Sections then there are none.
+
+The "Cover Texts" are certain short passages of text that are listed, as
+Front-Cover Texts or Back-Cover Texts, in the notice that says that the
+Document is released under this License. A Front-Cover Text may be at most 5
+words, and a Back-Cover Text may be at most 25 words.
+
+A "Transparent" copy of the Document means a machine-readable copy, represented
+in a format whose specification is available to the general public, that is
+suitable for revising the document straightforwardly with generic text editors
+or (for images composed of pixels) generic paint programs or (for drawings)
+some widely available drawing editor, and that is suitable for input to text
+formatters or for automatic translation to a variety of formats suitable for
+input to text formatters. A copy made in an otherwise Transparent file format
+whose markup, or absence of markup, has been arranged to thwart or discourage
+subsequent modification by readers is not Transparent. An image format is not
+Transparent if used for any substantial amount of text. A copy that is not
+"Transparent" is called "Opaque".
+
+Examples of suitable formats for Transparent copies include plain ASCII without
+markup, Texinfo input format, LaTeX input format, SGML or XML using a publicly
+available DTD, and standard-conforming simple HTML, PostScript or PDF designed
+for human modification. Examples of transparent image formats include PNG, XCF
+and JPG. Opaque formats include proprietary formats that can be read and edited
+only by proprietary word processors, SGML or XML for which the DTD and/or
+processing tools are not generally available, and the machine-generated HTML,
+PostScript or PDF produced by some word processors for output purposes only.
+
+The "Title Page" means, for a printed book, the title page itself, plus such
+following pages as are needed to hold, legibly, the material this License
+requires to appear in the title page. For works in formats which do not have
+any title page as such, "Title Page" means the text near the most prominent
+appearance of the work's title, preceding the beginning of the body of the text.
+
+The "publisher" means any person or entity that distributes copies of the
+Document to the public.
+
+A section "Entitled XYZ" means a named subunit of the Document whose title
+either is precisely XYZ or contains XYZ in parentheses following text that
+translates XYZ in another language. (Here XYZ stands for a specific section
+name mentioned below, such as "Acknowledgements", "Dedications",
+"Endorsements", or "History".) To "Preserve the Title" of such a section when
+you modify the Document means that it remains a section "Entitled XYZ"
+according to this definition.
+
+The Document may include Warranty Disclaimers next to the notice which states
+that this License applies to the Document. These Warranty Disclaimers are
+considered to be included by reference in this License, but only as regards
+disclaiming warranties: any other implication that these Warranty Disclaimers
+may have is void and has no effect on the meaning of this License.
+
+=== 2. VERBATIM COPYING
+
+You may copy and distribute the Document in any medium, either commercially or
+noncommercially, provided that this License, the copyright notices, and the
+license notice saying this License applies to the Document are reproduced in
+all copies, and that you add no other conditions whatsoever to those of this
+License. You may not use technical measures to obstruct or control the reading
+or further copying of the copies you make or distribute. However, you may
+accept compensation in exchange for copies. If you distribute a large enough
+number of copies you must also follow the conditions in section 3.
+
+You may also lend copies, under the same conditions stated above, and you may
+publicly display copies.
+
+=== 3. COPYING IN QUANTITY
+
+If you publish printed copies (or copies in media that commonly have printed
+covers) of the Document, numbering more than 100, and the Document's license
+notice requires Cover Texts, you must enclose the copies in covers that carry,
+clearly and legibly, all these Cover Texts: Front-Cover Texts on the front
+cover, and Back-Cover Texts on the back cover. Both covers must also clearly
+and legibly identify you as the publisher of these copies. The front cover must
+present the full title with all words of the title equally prominent and
+visible. You may add other material on the covers in addition. Copying with
+changes limited to the covers, as long as they preserve the title of the
+Document and satisfy these conditions, can be treated as verbatim copying in
+other respects.
+
+If the required texts for either cover are too voluminous to fit legibly, you
+should put the first ones listed (as many as fit reasonably) on the actual
+cover, and continue the rest onto adjacent pages.
+
+If you publish or distribute Opaque copies of the Document numbering more than
+100, you must either include a machine-readable Transparent copy along with
+each Opaque copy, or state in or with each Opaque copy a computer-network
+location from which the general network-using public has access to download
+using public-standard network protocols a complete Transparent copy of the
+Document, free of added material. If you use the latter option, you must take
+reasonably prudent steps, when you begin distribution of Opaque copies in
+quantity, to ensure that this Transparent copy will remain thus accessible at
+the stated location until at least one year after the last time you distribute
+an Opaque copy (directly or through your agents or retailers) of that edition
+to the public.
+
+It is requested, but not required, that you contact the authors of the Document
+well before redistributing any large number of copies, to give them a chance to
+provide you with an updated version of the Document.
+
+=== 4. MODIFICATIONS
+
+You may copy and distribute a Modified Version of the Document under the
+conditions of sections 2 and 3 above, provided that you release the Modified
+Version under precisely this License, with the Modified Version filling the
+role of the Document, thus licensing distribution and modification of the
+Modified Version to whoever possesses a copy of it. In addition, you must do
+these things in the Modified Version:
+
+A. Use in the Title Page (and on the covers, if any) a title distinct from that
+of the Document, and from those of previous versions (which should, if there
+were any, be listed in the History section of the Document). You may use the
+same title as a previous version if the original publisher of that version
+gives permission.
+
+B. List on the Title Page, as authors, one or more persons or entities
+responsible for authorship of the modifications in the Modified Version,
+together with at least five of the principal authors of the Document (all of
+its principal authors, if it has fewer than five), unless they release you from
+this requirement.
+
+C. State on the Title page the name of the publisher of the Modified Version,
+as the publisher.
+
+D. Preserve all the copyright notices of the Document.
+
+E. Add an appropriate copyright notice for your modifications adjacent to the
+other copyright notices.
+
+F. Include, immediately after the copyright notices, a license notice giving
+the public permission to use the Modified Version under the terms of this
+License, in the form shown in the Addendum below.
+
+G. Preserve in that license notice the full lists of Invariant Sections and
+required Cover Texts given in the Document's license notice.
+
+H. Include an unaltered copy of this License.
+
+I. Preserve the section Entitled "History", Preserve its Title, and add to it
+an item stating at least the title, year, new authors, and publisher of the
+Modified Version as given on the Title Page. If there is no section Entitled
+"History" in the Document, create one stating the title, year, authors, and
+publisher of the Document as given on its Title Page, then add an item
+describing the Modified Version as stated in the previous sentence.
+
+J. Preserve the network location, if any, given in the Document for public
+access to a Transparent copy of the Document, and likewise the network
+locations given in the Document for previous versions it was based on. These
+may be placed in the "History" section. You may omit a network location for a
+work that was published at least four years before the Document itself, or if
+the original publisher of the version it refers to gives permission.
+
+K. For any section Entitled "Acknowledgements" or "Dedications", Preserve the
+Title of the section, and preserve in the section all the substance and tone of
+each of the contributor acknowledgements and/or dedications given therein.
+
+L. Preserve all the Invariant Sections of the Document, unaltered in their text
+and in their titles. Section numbers or the equivalent are not considered part
+of the section titles.
+
+M. Delete any section Entitled "Endorsements". Such a section may not be
+included in the Modified Version.
+
+N. Do not retitle any existing section to be Entitled "Endorsements" or to
+conflict in title with any Invariant Section.
+
+O. Preserve any Warranty Disclaimers.
+
+If the Modified Version includes new front-matter sections or appendices that
+qualify as Secondary Sections and contain no material copied from the Document,
+you may at your option designate some or all of these sections as invariant. To
+do this, add their titles to the list of Invariant Sections in the Modified
+Version's license notice. These titles must be distinct from any other section
+titles.
+
+You may add a section Entitled "Endorsements", provided it contains nothing but
+endorsements of your Modified Version by various parties—for example,
+statements of peer review or that the text has been approved by an organization
+as the authoritative definition of a standard.
+
+You may add a passage of up to five words as a Front-Cover Text, and a passage
+of up to 25 words as a Back-Cover Text, to the end of the list of Cover Texts
+in the Modified Version. Only one passage of Front-Cover Text and one of
+Back-Cover Text may be added by (or through arrangements made by) any one
+entity. If the Document already includes a cover text for the same cover,
+previously added by you or by arrangement made by the same entity you are
+acting on behalf of, you may not add another; but you may replace the old one,
+on explicit permission from the previous publisher that added the old one.
+
+The author(s) and publisher(s) of the Document do not by this License give
+permission to use their names for publicity for or to assert or imply
+endorsement of any Modified Version.
+
+=== 5. COMBINING DOCUMENTS
+
+You may combine the Document with other documents released under this License,
+under the terms defined in section 4 above for modified versions, provided that
+you include in the combination all of the Invariant Sections of all of the
+original documents, unmodified, and list them all as Invariant Sections of your
+combined work in its license notice, and that you preserve all their Warranty
+Disclaimers.
+
+The combined work need only contain one copy of this License, and multiple
+identical Invariant Sections may be replaced with a single copy. If there are
+multiple Invariant Sections with the same name but different contents, make the
+title of each such section unique by adding at the end of it, in parentheses,
+the name of the original author or publisher of that section if known, or else
+a unique number. Make the same adjustment to the section titles in the list of
+Invariant Sections in the license notice of the combined work.
+
+In the combination, you must combine any sections Entitled "History" in the
+various original documents, forming one section Entitled "History"; likewise
+combine any sections Entitled "Acknowledgements", and any sections Entitled
+"Dedications". You must delete all sections Entitled "Endorsements".
+
+=== 6. COLLECTIONS OF DOCUMENTS
+
+You may make a collection consisting of the Document and other documents
+released under this License, and replace the individual copies of this License
+in the various documents with a single copy that is included in the collection,
+provided that you follow the rules of this License for verbatim copying of each
+of the documents in all other respects.
+
+You may extract a single document from such a collection, and distribute it
+individually under this License, provided you insert a copy of this License
+into the extracted document, and follow this License in all other respects
+regarding verbatim copying of that document.
+
+=== 7. AGGREGATION WITH INDEPENDENT WORKS
+
+A compilation of the Document or its derivatives with other separate and
+independent documents or works, in or on a volume of a storage or distribution
+medium, is called an "aggregate" if the copyright resulting from the
+compilation is not used to limit the legal rights of the compilation's users
+beyond what the individual works permit. When the Document is included in an
+aggregate, this License does not apply to the other works in the aggregate
+which are not themselves derivative works of the Document.
+
+If the Cover Text requirement of section 3 is applicable to these copies of the
+Document, then if the Document is less than one half of the entire aggregate,
+the Document's Cover Texts may be placed on covers that bracket the Document
+within the aggregate, or the electronic equivalent of covers if the Document is
+in electronic form. Otherwise they must appear on printed covers that bracket
+the whole aggregate.
+
+=== 8. TRANSLATION
+
+Translation is considered a kind of modification, so you may distribute
+translations of the Document under the terms of section 4. Replacing Invariant
+Sections with translations requires special permission from their copyright
+holders, but you may include translations of some or all Invariant Sections in
+addition to the original versions of these Invariant Sections. You may include
+a translation of this License, and all the license notices in the Document, and
+any Warranty Disclaimers, provided that you also include the original English
+version of this License and the original versions of those notices and
+disclaimers. In case of a disagreement between the translation and the original
+version of this License or a notice or disclaimer, the original version will
+prevail.
+
+If a section in the Document is Entitled "Acknowledgements", "Dedications", or
+"History", the requirement (section 4) to Preserve its Title (section 1) will
+typically require changing the actual title.
+
+=== 9. TERMINATION
+
+You may not copy, modify, sublicense, or distribute the Document except as
+expressly provided under this License. Any attempt otherwise to copy, modify,
+sublicense, or distribute it is void, and will automatically terminate your
+rights under this License.
+
+However, if you cease all violation of this License, then your license from a
+particular copyright holder is reinstated (a) provisionally, unless and until
+the copyright holder explicitly and finally terminates your license, and (b)
+permanently, if the copyright holder fails to notify you of the violation by
+some reasonable means prior to 60 days after the cessation.
+
+Moreover, your license from a particular copyright holder is reinstated
+permanently if the copyright holder notifies you of the violation by some
+reasonable means, this is the first time you have received notice of violation
+of this License (for any work) from that copyright holder, and you cure the
+violation prior to 30 days after your receipt of the notice.
+
+Termination of your rights under this section does not terminate the licenses
+of parties who have received copies or rights from you under this License. If
+your rights have been terminated and not permanently reinstated, receipt of a
+copy of some or all of the same material does not give you any rights to use it.
+
+=== 10. FUTURE REVISIONS OF THIS LICENSE
+
+The Free Software Foundation may publish new, revised versions of the GNU Free
+Documentation License from time to time. Such new versions will be similar in
+spirit to the present version, but may differ in detail to address new problems
+or concerns. See http://www.gnu.org/copyleft/.
+
+Each version of the License is given a distinguishing version number. If the
+Document specifies that a particular numbered version of this License "or any
+later version" applies to it, you have the option of following the terms and
+conditions either of that specified version or of any later version that has
+been published (not as a draft) by the Free Software Foundation. If the
+Document does not specify a version number of this License, you may choose any
+version ever published (not as a draft) by the Free Software Foundation. If the
+Document specifies that a proxy can decide which future versions of this
+License can be used, that proxy's public statement of acceptance of a version
+permanently authorizes you to choose that version for the Document.
+
+=== 11. RELICENSING
+
+"Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide
+Web server that publishes copyrightable works and also provides prominent
+facilities for anybody to edit those works. A public wiki that anybody can edit
+is an example of such a server. A "Massive Multiauthor Collaboration" (or
+"MMC") contained in the site means any set of copyrightable works thus
+published on the MMC site.
+
+"CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0 license
+published by Creative Commons Corporation, a not-for-profit corporation with a
+principal place of business in San Francisco, California, as well as future
+copyleft versions of that license published by that same organization.
+
+"Incorporate" means to publish or republish a Document, in whole or in part, as
+part of another Document.
+
+An MMC is "eligible for relicensing" if it is licensed under this License, and
+if all works that were first published under this License somewhere other than
+this MMC, and subsequently incorporated in whole or in part into the MMC, (1)
+had no cover texts or invariant sections, and (2) were thus incorporated prior
+to November 1, 2008.
+
+The operator of an MMC Site may republish an MMC contained in the site under
+CC-BY-SA on the same site at any time before August 1, 2009, provided the MMC
+is eligible for relicensing.
+

@@ -1,0 +1,81 @@
+Source: libvsgpt
+Priority: extra
+Maintainer: Joachim Metz <joachim.metz@gmail.com>
+Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, python-dev, python3-dev
+Standards-Version: 3.9.5
+Section: libs
+Homepage: https://github.com/libyal/libvsgpt
+
+Package: libvsgpt
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libvsgpt1
+Replaces: libvsgpt1
+Suggests: libvsgpt-dbg
+Description: Library to access the GUID Partition Table (GPT) volume system format
+ libvsgpt is a library to access the GUID Partition Table (GPT) volume system format.
+
+Package: libvsgpt-dbg
+Architecture: any
+Section: debug
+Depends: libvsgpt (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libvsgpt
+ Debugging symbols for libvsgpt.
+
+Package: libvsgpt-dev
+Section: libdevel
+Architecture: any
+Depends: libvsgpt (= ${binary:Version}), ${misc:Depends}
+Description: Header files and libraries for developing applications for libvsgpt
+ Header files and libraries for developing applications for libvsgpt.
+
+Package: libvsgpt-tools
+Section: utils
+Architecture: any
+Depends: libvsgpt (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libvsgpt-utils
+Replaces: libvsgpt-utils
+Description: Several tools for Several tools for reading GUID Partition Table (GPT) volume systems
+ Several tools for Several tools for reading GUID Partition Table (GPT) volume systems.
+
+Package: libvsgpt-tools-dbg
+Section: debug
+Architecture: any
+Depends: libvsgpt-tools (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libvsgpt-tools
+ Debugging symbols for libvsgpt-tools.
+
+Package: libvsgpt-python
+Section: python
+Architecture: any
+Depends: libvsgpt (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python-libvsgpt
+Replaces: python-libvsgpt
+Suggests: libvsgpt-python-dbg
+Description: Python 2 bindings for libvsgpt
+ Python 2 bindings for libvsgpt.
+
+Package: libvsgpt-python-dbg
+Section: debug
+Architecture: any
+Depends: libvsgpt-python (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libvsgpt-python
+ Debugging symbols for libvsgpt-python.
+
+Package: libvsgpt-python3
+Section: python
+Architecture: any
+Depends: libvsgpt (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python3-libvsgpt
+Replaces: python3-libvsgpt
+Suggests: libvsgpt-python3-dbg
+Description: Python 3 bindings for libvsgpt
+ Python 3 bindings for libvsgpt.
+
+Package: libvsgpt-python3-dbg
+Section: debug
+Architecture: any
+Depends: libvsgpt-python3 (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libvsgpt-python3
+ Debugging symbols for libvsgpt-python3.
+
