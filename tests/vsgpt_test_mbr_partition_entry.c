@@ -116,6 +116,8 @@ int vsgpt_test_mbr_partition_entry_initialize(
 	          &mbr_partition_entry,
 	          &error );
 
+	mbr_partition_entry = NULL;
+
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -127,8 +129,6 @@ int vsgpt_test_mbr_partition_entry_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	mbr_partition_entry = NULL;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
 

@@ -339,6 +339,162 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvsgpt_partition_table_header_read_data function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_partition_table_header_read_data(
+     void )
+{
+	libcerror_error_t *error                                  = NULL;
+	libvsgpt_partition_table_header_t *partition_table_header = NULL;
+	int result                                                = 0;
+
+	/* Initialize test
+	 */
+	result = libvsgpt_partition_table_header_initialize(
+	          &partition_table_header,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "partition_table_header",
+	 partition_table_header );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvsgpt_partition_table_header_read_data(
+	          NULL,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          NULL,
+	          512,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libvsgpt_partition_table_header_free(
+	          &partition_table_header,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "partition_table_header",
+	 partition_table_header );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( partition_table_header != NULL )
+	{
+		libvsgpt_partition_table_header_free(
+		 &partition_table_header,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libvsgpt_partition_table_header_read_file_io_handle function
  * Returns 1 if successful or 0 if not
  */
@@ -512,7 +668,7 @@ int vsgpt_test_partition_table_header_read_file_io_handle(
 	 "error",
 	 error );
 
-	/* Test data invalid signature
+	/* Test data invalid
 	 */
 	result = vsgpt_test_open_file_io_handle(
 	          &file_io_handle,
@@ -547,6 +703,9 @@ int vsgpt_test_partition_table_header_read_file_io_handle(
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+	libcerror_error_free(
+	 &error );
 
 	result = vsgpt_test_close_file_io_handle(
 	          &file_io_handle,
@@ -607,32 +766,12 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int vsgpt_test_partition_table_header_get_disk_identifier(
-     void )
+     libvsgpt_partition_table_header_t *partition_table_header )
 {
 	uint8_t guid_data[ 16 ];
 
-	libcerror_error_t *error                                  = NULL;
-	libvsgpt_partition_table_header_t *partition_table_header = NULL;
-	int result                                                = 0;
-
-	/* Initialize test
-	 */
-	result = libvsgpt_partition_table_header_initialize(
-	          &partition_table_header,
-	          &error );
-
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition_table_header",
-	 partition_table_header );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -725,6 +864,100 @@ int vsgpt_test_partition_table_header_get_disk_identifier(
 	libcerror_error_free(
 	 &error );
 
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
+
+/* The main program
+ */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+int wmain(
+     int argc VSGPT_TEST_ATTRIBUTE_UNUSED,
+     wchar_t * const argv[] VSGPT_TEST_ATTRIBUTE_UNUSED )
+#else
+int main(
+     int argc VSGPT_TEST_ATTRIBUTE_UNUSED,
+     char * const argv[] VSGPT_TEST_ATTRIBUTE_UNUSED )
+#endif
+{
+	libcerror_error_t *error                                  = NULL;
+	int result                                                = 0;
+
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+	libvsgpt_partition_table_header_t *partition_table_header = NULL;
+#endif
+
+	VSGPT_TEST_UNREFERENCED_PARAMETER( argc )
+	VSGPT_TEST_UNREFERENCED_PARAMETER( argv )
+
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_partition_table_header_initialize",
+	 vsgpt_test_partition_table_header_initialize );
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_partition_table_header_free",
+	 vsgpt_test_partition_table_header_free );
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_partition_table_header_read_data",
+	 vsgpt_test_partition_table_header_read_data );
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_partition_table_header_read_file_io_handle",
+	 vsgpt_test_partition_table_header_read_file_io_handle );
+
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize partition_table_header for tests
+	 */
+	result = libvsgpt_partition_table_header_initialize(
+	          &partition_table_header,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "partition_table_header",
+	 partition_table_header );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	VSGPT_TEST_RUN_WITH_ARGS(
+	 "libvsgpt_partition_table_header_get_disk_identifier",
+	 vsgpt_test_partition_table_header_get_disk_identifier,
+	 partition_table_header );
+
 	/* Clean up
 	 */
 	result = libvsgpt_partition_table_header_free(
@@ -744,7 +977,11 @@ int vsgpt_test_partition_table_header_get_disk_identifier(
 	 "error",
 	 error );
 
-	return( 1 );
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
+
+	return( EXIT_SUCCESS );
 
 on_error:
 	if( error != NULL )
@@ -752,57 +989,14 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
 	if( partition_table_header != NULL )
 	{
 		libvsgpt_partition_table_header_free(
 		 &partition_table_header,
 		 NULL );
 	}
-	return( 0 );
-}
-
-#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
-
-/* The main program
- */
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-int wmain(
-     int argc VSGPT_TEST_ATTRIBUTE_UNUSED,
-     wchar_t * const argv[] VSGPT_TEST_ATTRIBUTE_UNUSED )
-#else
-int main(
-     int argc VSGPT_TEST_ATTRIBUTE_UNUSED,
-     char * const argv[] VSGPT_TEST_ATTRIBUTE_UNUSED )
 #endif
-{
-	VSGPT_TEST_UNREFERENCED_PARAMETER( argc )
-	VSGPT_TEST_UNREFERENCED_PARAMETER( argv )
-
-#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
-
-	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_table_header_initialize",
-	 vsgpt_test_partition_table_header_initialize );
-
-	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_table_header_free",
-	 vsgpt_test_partition_table_header_free );
-
-	/* TODO: add tests for libvsgpt_partition_table_header_read_data */
-
-	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_table_header_read_file_io_handle",
-	 vsgpt_test_partition_table_header_read_file_io_handle );
-
-	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_table_header_get_disk_identifier",
-	 vsgpt_test_partition_table_header_get_disk_identifier );
-
-#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
-
-	return( EXIT_SUCCESS );
-
-on_error:
 	return( EXIT_FAILURE );
 }
 

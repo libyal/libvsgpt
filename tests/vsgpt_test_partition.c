@@ -143,6 +143,8 @@ int vsgpt_test_partition_initialize(
 	          partition_values,
 	          &error );
 
+	partition = NULL;
+
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -154,8 +156,6 @@ int vsgpt_test_partition_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	partition = NULL;
 
 	result = libvsgpt_partition_initialize(
 	          &partition,

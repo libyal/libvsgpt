@@ -183,6 +183,8 @@ int vsgpt_test_boot_record_initialize(
 	          &boot_record,
 	          &error );
 
+	boot_record = NULL;
+
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -194,8 +196,6 @@ int vsgpt_test_boot_record_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	boot_record = NULL;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
 

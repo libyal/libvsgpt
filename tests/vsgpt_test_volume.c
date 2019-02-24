@@ -268,6 +268,8 @@ int vsgpt_test_volume_initialize(
 	          &volume,
 	          &error );
 
+	volume = NULL;
+
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -279,8 +281,6 @@ int vsgpt_test_volume_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	volume = NULL;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
 

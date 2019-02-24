@@ -194,6 +194,14 @@ vsgpt_test_partition_table_header_SOURCES = \
 	vsgpt_test_unused.h
 
 vsgpt_test_partition_table_header_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@
 

@@ -113,6 +113,8 @@ int vsgpt_test_section_values_initialize(
 	          &section_values,
 	          &error );
 
+	section_values = NULL;
+
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int vsgpt_test_section_values_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	section_values = NULL;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
 
