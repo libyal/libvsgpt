@@ -281,9 +281,21 @@ int libvsgpt_volume_get_bytes_per_sector(
      uint32_t *bytes_per_sector,
      libvsgpt_error_t **error );
 
+/* Retrieves the disk identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSGPT_EXTERN \
+int libvsgpt_volume_get_disk_identifier(
+     libvsgpt_volume_t *volume,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libvsgpt_error_t **error );
+
 /* Retrieves the number of partitions
  * Returns 1 if successful or -1 on error
  */
+LIBVSGPT_EXTERN \
 int libvsgpt_volume_get_number_of_partitions(
      libvsgpt_volume_t *volume,
      int *number_of_partitions,
@@ -292,6 +304,7 @@ int libvsgpt_volume_get_number_of_partitions(
 /* Retrieves a specific partition
  * Returns 1 if successful or -1 on error
  */
+LIBVSGPT_EXTERN \
 int libvsgpt_volume_get_partition_by_index(
      libvsgpt_volume_t *volume,
      int partition_index,
@@ -319,22 +332,13 @@ int libvsgpt_partition_get_type(
      uint8_t *type,
      libvsgpt_error_t **error );
 
-/* Retrieves the partition offset
+/* Retrieves the partition offset relative to the start of the volume
  * Returns 1 if successful or -1 on error
  */
 LIBVSGPT_EXTERN \
-int libvsgpt_partition_get_offset(
+int libvsgpt_partition_get_volume_offset(
      libvsgpt_partition_t *partition,
-     off64_t *offset,
-     libvsgpt_error_t **error );
-
-/* Retrieves the partition size
- * Returns 1 if successful or -1 on error
- */
-LIBVSGPT_EXTERN \
-int libvsgpt_partition_get_size(
-     libvsgpt_partition_t *partition,
-     size64_t *size,
+     off64_t *volume_offset,
      libvsgpt_error_t **error );
 
 /* Reads (partition) data at the current offset into a buffer
@@ -368,7 +372,7 @@ off64_t libvsgpt_partition_seek_offset(
          int whence,
          libvsgpt_error_t **error );
 
-/* Retrieves the partition offset
+/* Retrieves the current offset
  * Returns 1 if successful or -1 on error
  */
 LIBVSGPT_EXTERN \

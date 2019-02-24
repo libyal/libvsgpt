@@ -34,7 +34,7 @@ extern "C" {
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
-void libvsgpt_debug_print_partition_entry_flags(
+void libvsgpt_debug_print_mbr_partition_entry_flags(
       uint8_t partition_entry_flags );
 
 int libvsgpt_debug_print_guid_value(
@@ -44,6 +44,14 @@ int libvsgpt_debug_print_guid_value(
      size_t byte_stream_size,
      int byte_order,
      uint32_t string_format_flags,
+     libcerror_error_t **error );
+
+int libvsgpt_debug_print_utf16_string_value(
+     const char *function_name,
+     const char *value_name,
+     const uint8_t *byte_stream,
+     size_t byte_stream_size,
+     int byte_order,
      libcerror_error_t **error );
 
 int libvsgpt_debug_print_read_offsets(

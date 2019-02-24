@@ -1,5 +1,5 @@
 /*
- * Features of libvsgpt
+ * Checksum functions
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,32 +19,38 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBVSGPT_FEATURES_H )
-#define _LIBVSGPT_FEATURES_H
+#if !defined( _LIBVSGPT_CHECKSUM_H )
+#define _LIBVSGPT_CHECKSUM_H
 
-/* The libvsgpt type support features
- */
-#if defined( WINAPI ) || 0
-#define LIBVSGPT_HAVE_WIDE_CHARACTER_TYPE	1
+#include <common.h>
+#include <types.h>
+
+#include "libvsgpt_libcerror.h"
+
+#if defined( __cplusplus )
+extern "C" {
 #endif
 
-#if defined( WINAPI ) || 1
-#define LIBVSGPT_HAVE_MULTI_THREAD_SUPPORT	1
+void libvsgpt_checksum_initialize_crc32_table(
+      void );
+
+int libvsgpt_checksum_calculate_crc32(
+     uint32_t *checksum,
+     const uint8_t *buffer,
+     size_t size,
+     uint32_t initial_value,
+     libcerror_error_t **error );
+
+int libvsgpt_checksum_calculate_weak_crc32(
+     uint32_t *checksum,
+     const uint8_t *buffer,
+     size_t size,
+     uint32_t initial_value,
+     libcerror_error_t **error );
+
+#if defined( __cplusplus )
+}
 #endif
 
-#if defined( HAVE_LIBBFIO ) || ( !defined( WINAPI ) && 0 )
-#define LIBVSGPT_HAVE_BFIO			1
-#endif
-
-#if !defined( LIBVSGPT_DEPRECATED )
-#if defined( __GNUC__ ) && __GNUC__ >= 3
-#define LIBVSGPT_DEPRECATED	__attribute__ ((__deprecated__))
-#elif defined( _MSC_VER )
-#define LIBVSGPT_DEPRECATED	__declspec(deprecated)
-#else
-#define LIBVSGPT_DEPRECATED
-#endif
-#endif
-
-#endif /* !defined( _LIBVSGPT_FEATURES_H ) */
+#endif /* !defined( _LIBVSGPT_CHECKSUM_H ) */
 

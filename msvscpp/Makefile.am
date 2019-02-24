@@ -18,10 +18,12 @@ MSVSCPP_FILES = \
 	vsgpt_test_chs_address/vsgpt_test_chs_address.vcproj \
 	vsgpt_test_error/vsgpt_test_error.vcproj \
 	vsgpt_test_io_handle/vsgpt_test_io_handle.vcproj \
+	vsgpt_test_mbr_partition_entry/vsgpt_test_mbr_partition_entry.vcproj \
+	vsgpt_test_mbr_partition_type/vsgpt_test_mbr_partition_type.vcproj \
 	vsgpt_test_notify/vsgpt_test_notify.vcproj \
 	vsgpt_test_partition/vsgpt_test_partition.vcproj \
 	vsgpt_test_partition_entry/vsgpt_test_partition_entry.vcproj \
-	vsgpt_test_partition_type/vsgpt_test_partition_type.vcproj \
+	vsgpt_test_partition_table_header/vsgpt_test_partition_table_header.vcproj \
 	vsgpt_test_partition_values/vsgpt_test_partition_values.vcproj \
 	vsgpt_test_section_values/vsgpt_test_section_values.vcproj \
 	vsgpt_test_sector_data/vsgpt_test_sector_data.vcproj \

@@ -28,11 +28,10 @@
 #include "libvsgpt_chs_address.h"
 #include "libvsgpt_libcerror.h"
 #include "libvsgpt_libcnotify.h"
-#include "libvsgpt_partition_entry.h"
-#include "libvsgpt_partition_values.h"
+#include "libvsgpt_mbr_partition_entry.h"
 
 #include "vsgpt_boot_record.h"
-#include "vsgpt_partition_entry.h"
+#include "vsgpt_mbr_partition_entry.h"
 
 /* Creates a boot record
  * Make sure the value boot_record is referencing, is set to NULL
@@ -151,7 +150,7 @@ int libvsgpt_boot_record_free(
 	{
 		if( libcdata_array_free(
 		     &( ( *boot_record )->partition_entries ),
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libvsgpt_partition_entry_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libvsgpt_mbr_partition_entry_free,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -180,11 +179,11 @@ int libvsgpt_boot_record_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	libvsgpt_partition_entry_t *partition_entry = NULL;
-	static char *function                       = "libvsgpt_boot_record_read_data";
-	size_t data_offset                          = 0;
-	uint8_t partition_entry_index               = 0;
-	int entry_index                             = 0;
+	libvsgpt_mbr_partition_entry_t *partition_entry = NULL;
+	static char *function                           = "libvsgpt_boot_record_read_data";
+	size_t data_offset                              = 0;
+	uint8_t partition_entry_index                   = 0;
+	int entry_index                                 = 0;
 
 	if( boot_record == NULL )
 	{
@@ -268,7 +267,7 @@ int libvsgpt_boot_record_read_data(
 	     partition_entry_index < 4;
 	     partition_entry_index++ )
 	{
-		if( libvsgpt_partition_entry_initialize(
+		if( libvsgpt_mbr_partition_entry_initialize(
 		     &partition_entry,
 		     error ) != 1 )
 		{
@@ -283,10 +282,10 @@ int libvsgpt_boot_record_read_data(
 		}
 		partition_entry->index = partition_entry_index;
 
-		if( libvsgpt_partition_entry_read_data(
+		if( libvsgpt_mbr_partition_entry_read_data(
 		     partition_entry,
 		     &( data[ data_offset ] ),
-		     sizeof( vsgpt_partition_entry_t ),
+		     sizeof( vsgpt_mbr_partition_entry_t ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -298,7 +297,7 @@ int libvsgpt_boot_record_read_data(
 
 			goto on_error;
 		}
-		data_offset += sizeof( vsgpt_partition_entry_t );
+		data_offset += sizeof( vsgpt_mbr_partition_entry_t );
 
 		if( libcdata_array_append_entry(
 		     boot_record->partition_entries,
@@ -336,13 +335,13 @@ int libvsgpt_boot_record_read_data(
 on_error:
 	if( partition_entry != NULL )
 	{
-		libvsgpt_partition_entry_free(
+		libvsgpt_mbr_partition_entry_free(
 		 &partition_entry,
 		 NULL );
 	}
 	libcdata_array_empty(
 	 boot_record->partition_entries,
-	 (int (*)(intptr_t **, libcerror_error_t **)) &libvsgpt_partition_entry_free,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libvsgpt_mbr_partition_entry_free,
 	 NULL );
 
 	return( -1 );
@@ -479,7 +478,7 @@ int libvsgpt_boot_record_get_number_of_partition_entries(
 int libvsgpt_boot_record_get_partition_entry_by_index(
      libvsgpt_boot_record_t *boot_record,
      int partition_entry_index,
-     libvsgpt_partition_entry_t **partition_entry,
+     libvsgpt_mbr_partition_entry_t **partition_entry,
      libcerror_error_t **error )
 {
 	static char *function = "libvsgpt_boot_record_get_partition_entry_by_index";

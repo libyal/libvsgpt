@@ -35,25 +35,29 @@ typedef struct libvsgpt_partition_entry libvsgpt_partition_entry_t;
 
 struct libvsgpt_partition_entry
 {
-	/* The index
+	/* The type identifier
 	 */
-	uint8_t index;
+	uint8_t type_identifier[ 16 ];
 
-	/* The flags
+	/* The identifier
 	 */
-	uint8_t flags;
+	uint8_t identifier[ 16 ];
 
-	/* The type
+	/* The start block number
 	 */
-	uint8_t type;
+	uint64_t start_block_number;
 
-	/* The start address in LBA
+	/* The end block number
 	 */
-	uint32_t start_address_lba;
+	uint64_t end_block_number;
 
-	/* The number of sectors
+	/* The attribute flags
 	 */
-	uint32_t number_of_sectors;
+	uint64_t attribute_flags;
+
+	/* The name
+	 */
+	uint8_t name[ 72 ];
 };
 
 int libvsgpt_partition_entry_initialize(

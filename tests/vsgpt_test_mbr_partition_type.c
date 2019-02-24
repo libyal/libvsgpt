@@ -1,5 +1,5 @@
 /*
- * Library partition_type type test program
+ * Library mbr_partition_type type test program
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,7 +33,7 @@
 #include "vsgpt_test_memory.h"
 #include "vsgpt_test_unused.h"
 
-#include "../libvsgpt/libvsgpt_partition_type.h"
+#include "../libvsgpt/libvsgpt_mbr_partition_type.h"
 
 /* The main program
  */
@@ -52,7 +52,7 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
 
-	/* TODO: add tests for libvsgpt_partition_type_get_description */
+	/* TODO: add tests for libvsgpt_mbr_partition_type_get_description */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 

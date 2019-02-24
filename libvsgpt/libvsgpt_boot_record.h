@@ -28,7 +28,7 @@
 #include "libvsgpt_libbfio.h"
 #include "libvsgpt_libcdata.h"
 #include "libvsgpt_libcerror.h"
-#include "libvsgpt_partition_entry.h"
+#include "libvsgpt_mbr_partition_entry.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -75,7 +75,7 @@ int libvsgpt_boot_record_get_number_of_partition_entries(
 int libvsgpt_boot_record_get_partition_entry_by_index(
      libvsgpt_boot_record_t *boot_record,
      int partition_entry_index,
-     libvsgpt_partition_entry_t **partition_entry,
+     libvsgpt_mbr_partition_entry_t **partition_entry,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

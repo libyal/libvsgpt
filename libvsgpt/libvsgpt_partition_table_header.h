@@ -36,9 +36,45 @@ typedef struct libvsgpt_partition_table_header libvsgpt_partition_table_header_t
 
 struct libvsgpt_partition_table_header
 {
-	/* The disk identity
+	/* The partition header block number
 	 */
-	uint32_t disk_identity;
+	uint64_t partition_header_block_number;
+
+	/* The backup partition header block number
+	 */
+	uint64_t backup_partition_header_block_number;
+
+	/* The partition area start block number
+	 */
+	uint64_t partition_area_start_block_number;
+
+	/* The partition area end block number
+	 */
+	uint64_t partition_area_end_block_number;
+
+	/* The disk identifier
+	 */
+	uint8_t disk_identifier[ 16 ];
+
+	/* The partition entries start block number
+	 */
+	uint64_t partition_entries_start_block_number;
+
+	/* The number of partition entries
+	 */
+	uint32_t number_of_partition_entries;
+
+	/* The partition entry data size
+	 */
+	uint32_t partition_entry_data_size;
+
+	/* The partition entries data checksum
+	 */
+	uint32_t partition_entries_data_checksum;
+
+	/* Value to indicate the partition table header is corrupt
+	 */
+	uint8_t is_corrupt;
 };
 
 int libvsgpt_partition_table_header_initialize(
@@ -59,6 +95,12 @@ int libvsgpt_partition_table_header_read_file_io_handle(
      libvsgpt_partition_table_header_t *partition_table_header,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
+     libcerror_error_t **error );
+
+int libvsgpt_partition_table_header_get_disk_identifier(
+     libvsgpt_partition_table_header_t *partition_table_header,
+     uint8_t *guid_data,
+     size_t guid_data_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

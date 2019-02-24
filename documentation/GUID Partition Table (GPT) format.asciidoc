@@ -49,12 +49,16 @@ in the section entitled "GNU Free Documentation License".
 :numbered:
 == Overview
 
-A GUID Partition Table (GPT) consists of:
+A GUID Partition Table (GPT) volume consists of:
 
 * A protective or hybrid Master Boot Record (MBR) stored in block (LBA) 0
 * A GPT partition table header stored in block (LBA) 1
 * GPT partition entries stored in blocks (LBA) 2 - 33
-* A backup GPT partition table header typically stored in the last block (LBA)
+* paritions area
+** GPT partitions
+** MBR partitions if hybrid MBR/GPT
+* backup GPT partition entries (typically stored the blocks (LBA) befor the last block -33 - -2)
+* A backup GPT partition table header (typically stored in the last block (LBA) -1 )
 
 The GPT partition table header signature can be used to determine the block
 (LBA) (or sector) size.
@@ -89,7 +93,7 @@ as possible.
 | 12 | 4 | 92 | Header data size +
 This value contains the size of the GPT partition table header data
 | 16 | 4 | | Header data checksum +
-[yellow-background]*CRC32/zlib of header (offset +0 up to header size) in little endian, with this field zeroed during calculation*
+Contains a CRC-32 with polynominal 0x04c11db7 and initial value of 0 of the header data with the header data checksum set to 0
 | 20 | 4 | 0 | [yellow-background]*Unknown (Reserved)*
 | 24 | 8 | | Partition header block number (LBA)
 | 32 | 8 | | Backup partition header block number (LBA)
@@ -105,164 +109,198 @@ The block number is included in the partition aread block range
 | 92 | ... | 0 | [yellow-background]*Unknown (Reserved)*
 |===
 
+The CRC-32 algorithm is explained in `[RFC1952]`.
+
+[NOTE]
+The partition entries start block number (LBA) of the backup partition table
+header will point to the backup partition entries.
+
+[NOTE]
+The number of partition entries value contains the number of available
+partition entries not the number of used partition entries. Empty partition
+entries have a unused entry partition type identifier.
+
 == GPT partition entries
 
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 16 | | Partition type identifier (GUID)
+| 0 | 16 | | Partition type identifier (GUID) +
+See section: <<partition_type_identifiers,partition type identifiers>>
 | 16 | 16 | | Partition identifier (GUID)
 | 32 | 8 | | Partition start block number (LBA)
 | 40 | 8 | | Partition end block number (LBA) +
 The block number is included in the partition block range
 | 48 | 8 | | Attribute flags +
-See section: <<attribute_flags,GPT partition attribute flags>>
+See section: <<partition_attribute_flags,partition attribute flags>>
 | 56 | 72 | | Partition name +
 UTF-16 little-endian string without the byte order mark (BOM)
 |===
 
-=== Partition type identifiers
+=== [[partition_type_identifiers]]Partition type identifiers
 
-Operating system	Partition type	Globally unique identifier (GUID)[d]
-N/A	Unused entry	00000000-0000-0000-0000-000000000000
-MBR partition scheme	024DEE41-33E7-11D3-9D69-0008C781F39F
-EFI System partition	C12A7328-F81F-11D2-BA4B-00A0C93EC93B
-BIOS boot partition[e]	21686148-6449-6E6F-744E-656564454649
-Intel Fast Flash (iFFS) partition (for Intel Rapid Start technology)[31][32]	D3BFE2DE-3DAF-11DF-BA40-E3A556D89593
-Sony boot partition[f]	F4019732-066E-4E12-8273-346C5641494F
-Lenovo boot partition[f]	BFBFAFE7-A34F-448A-9A5B-6213EB736C22
-Windows	Microsoft Reserved Partition (MSR)	E3C9E316-0B5C-4DB8-817D-F92DF00215AE
-Basic data partition[g]	EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
-Logical Disk Manager (LDM) metadata partition	5808C8AA-7E8F-42E0-85D2-E1E90434CFB3
-Logical Disk Manager data partition	AF9B60A0-1431-4F62-BC68-3311714A69AD
-Windows Recovery Environment	DE94BBA4-06D1-4D40-A16A-BFD50179D6AC
-IBM General Parallel File System (GPFS) partition	37AFFC90-EF7D-4E96-91C3-2D7AE055B174
-Storage Spaces partition	E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D
-HP-UX	Data partition	75894C1E-3AEB-11D3-B7C1-7B03A0000000
-Service Partition	E2A1E728-32E3-11D6-A682-7B03A0000000
-Linux	Linux filesystem data[g]	0FC63DAF-8483-4772-8E79-3D69D8477DE4
-RAID partition	A19D880F-05FC-4D3B-A006-743F0F84911E
-Root partition (x86)[35]	44479540-F297-41B2-9AF7-D131D5F0458A
-Root partition (x86-64)[35]	4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709
-Root partition (32-bit ARM)[35]	69DAD710-2CE4-4E3C-B16C-21A1D49ABED3
-Root partition (64-bit ARM/AArch64)[35]	B921B045-1DF0-41C3-AF44-4C6F280D3FAE
-Swap partition	0657FD6D-A4AB-43C4-84E5-0933C84B4F4F
-Logical Volume Manager (LVM) partition	E6D6D379-F507-44C2-A23C-238F2A3DF928
-/home partition[35]	933AC7E1-2EB4-4F13-B844-0E14E2AEF915
-/srv (server data) partition[35]	3B8F8425-20E0-4F3B-907F-1A25A76F98E8
-Plain dm-crypt partition[36][37][38]	7FFEC5C9-2D00-49B7-8941-3EA10A5586B7
-LUKS partition[36][37][38][39]	CA7D7CCB-63ED-4C53-861C-1742536059CC
-Reserved	8DA63339-0007-60C0-C436-083AC8230908
-FreeBSD	Boot partition	83BD6B9D-7F41-11DC-BE0B-001560B84F0F
-Data partition	516E7CB4-6ECF-11D6-8FF8-00022D09712B
-Swap partition	516E7CB5-6ECF-11D6-8FF8-00022D09712B
-Unix File System (UFS) partition	516E7CB6-6ECF-11D6-8FF8-00022D09712B
-Vinum volume manager partition	516E7CB8-6ECF-11D6-8FF8-00022D09712B
-ZFS partition	516E7CBA-6ECF-11D6-8FF8-00022D09712B
-macOS
-Darwin	Hierarchical File System Plus (HFS+) partition	48465300-0000-11AA-AA11-00306543ECAC
-Apple APFS	7C3457EF-0000-11AA-AA11-00306543ECAC
-Apple UFS container	55465300-0000-11AA-AA11-00306543ECAC
-ZFS[h]	6A898CC3-1DD2-11B2-99A6-080020736631
-Apple RAID partition	52414944-0000-11AA-AA11-00306543ECAC
-Apple RAID partition, offline	52414944-5F4F-11AA-AA11-00306543ECAC
-Apple Boot partition (Recovery HD)	426F6F74-0000-11AA-AA11-00306543ECAC
-Apple Label	4C616265-6C00-11AA-AA11-00306543ECAC
-Apple TV Recovery partition	5265636F-7665-11AA-AA11-00306543ECAC
-Apple Core Storage (i.e. Lion FileVault) partition	53746F72-6167-11AA-AA11-00306543ECAC
-SoftRAID_Status	B6FA30DA-92D2-4A9A-96F1-871EC6486200
-SoftRAID_Scratch	2E313465-19B9-463F-8126-8A7993773801
-SoftRAID_Volume	FA709C7E-65B1-4593-BFD5-E71D61DE9B02
-SoftRAID_Cache	BBBA6DF5-F46F-4A89-8F59-8765B2727503
-Solaris
-illumos	Boot partition	6A82CB45-1DD2-11B2-99A6-080020736631
-Root partition	6A85CF4D-1DD2-11B2-99A6-080020736631
-Swap partition	6A87C46F-1DD2-11B2-99A6-080020736631
-Backup partition	6A8B642B-1DD2-11B2-99A6-080020736631
-/usr partition[h]	6A898CC3-1DD2-11B2-99A6-080020736631
-/var partition	6A8EF2E9-1DD2-11B2-99A6-080020736631
-/home partition	6A90BA39-1DD2-11B2-99A6-080020736631
-Alternate sector	6A9283A5-1DD2-11B2-99A6-080020736631
-Reserved partition	6A945A3B-1DD2-11B2-99A6-080020736631
-6A9630D1-1DD2-11B2-99A6-080020736631
-6A980767-1DD2-11B2-99A6-080020736631
-6A96237F-1DD2-11B2-99A6-080020736631
-6A8D2AC7-1DD2-11B2-99A6-080020736631
-NetBSD[40][i]	Swap partition	49F48D32-B10E-11DC-B99B-0019D1879648
-FFS partition	49F48D5A-B10E-11DC-B99B-0019D1879648
-LFS partition	49F48D82-B10E-11DC-B99B-0019D1879648
-RAID partition	49F48DAA-B10E-11DC-B99B-0019D1879648
-Concatenated partition	2DB519C4-B10F-11DC-B99B-0019D1879648
-Encrypted partition	2DB519EC-B10F-11DC-B99B-0019D1879648
-Chrome OS[41]	Chrome OS kernel	FE3A2A5D-4F32-41A7-B725-ACCC3285A309
-Chrome OS rootfs	3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC
-Chrome OS future use	2E0A753D-9E48-43B0-8337-B15192CB1B5E
-Container Linux by CoreOS[42]	/usr partition (coreos-usr)	5DFBF5F4-2848-4BAC-AA5E-0D9A20B745A6
-Resizable rootfs (coreos-resize)	3884DD41-8582-4404-B9A8-E9B84F2DF50E
-OEM customizations (coreos-reserved)	C95DC21A-DF0E-4340-8D7B-26CBFA9A03E0
-Root filesystem on RAID (coreos-root-raid)	BE9067B9-EA49-4F15-B4F6-F36F8C9E1818
-Haiku[43]	Haiku BFS	42465331-3BA3-10F1-802A-4861696B7521
-MidnightBSD[44][i]	Boot partition	85D5E45E-237C-11E1-B4B3-E89A8F7FC3A7
-Data partition	85D5E45A-237C-11E1-B4B3-E89A8F7FC3A7
-Swap partition	85D5E45B-237C-11E1-B4B3-E89A8F7FC3A7
-Unix File System (UFS) partition	0394EF8B-237E-11E1-B4B3-E89A8F7FC3A7
-Vinum volume manager partition	85D5E45C-237C-11E1-B4B3-E89A8F7FC3A7
-ZFS partition	85D5E45D-237C-11E1-B4B3-E89A8F7FC3A7
-Ceph[j]	Journal	45B0969E-9B03-4F30-B4C6-B4B80CEFF106
-dm-crypt journal	45B0969E-9B03-4F30-B4C6-5EC00CEFF106
-OSD	4FBD7E29-9D25-41B8-AFD0-062C0CEFF05D
-dm-crypt OSD	4FBD7E29-9D25-41B8-AFD0-5EC00CEFF05D
-Disk in creation	89C57F98-2FE5-4DC0-89C1-F3AD0CEFF2BE
-dm-crypt disk in creation	89C57F98-2FE5-4DC0-89C1-5EC00CEFF2BE
-Block	CAFECAFE-9B03-4F30-B4C6-B4B80CEFF106
-Block DB	30CD0809-C2B2-499C-8879-2D6B78529876
-Block write-ahead log	5CE17FCE-4087-4169-B7FF-056CC58473F9
-Lockbox for dm-crypt keys	FB3AABF9-D25F-47CC-BF5E-721D1816496B
-Multipath OSD	4FBD7E29-8AE0-4982-BF9D-5A8D867AF560
-Multipath journal	45B0969E-8AE0-4982-BF9D-5A8D867AF560
-Multipath block	CAFECAFE-8AE0-4982-BF9D-5A8D867AF560
-Multipath block	7F4A666A-16F3-47A2-8445-152EF4D03F6C
-Multipath block DB	EC6D6385-E346-45DC-BE91-DA2A7C8B3261
-Multipath block write-ahead log	01B41E1B-002A-453C-9F17-88793989FF8F
-dm-crypt block	CAFECAFE-9B03-4F30-B4C6-5EC00CEFF106
-dm-crypt block DB	93B0052D-02D9-4D8A-A43B-33A3EE4DFBC3
-dm-crypt block write-ahead log	306E8683-4FE2-4330-B7C0-00A917C16966
-dm-crypt LUKS journal	45B0969E-9B03-4F30-B4C6-35865CEFF106
-dm-crypt LUKS block	CAFECAFE-9B03-4F30-B4C6-35865CEFF106
-dm-crypt LUKS block DB	166418DA-C469-4022-ADF4-B30AFD37F176
-dm-crypt LUKS block write-ahead log	86A32090-3647-40B9-BBBD-38D8C573AA86
-dm-crypt LUKS OSD	4FBD7E29-9D25-41B8-AFD0-35865CEFF05D
-OpenBSD	Data partition	824CC7A0-36A8-11E3-890A-952519AD3F61
-QNX	Power-safe (QNX6) file system[46]	CEF5A9AD-73BC-4601-89F3-CDEEEEE321A1
-Plan 9	Plan 9 partition	C91818F9-8025-47AF-89D2-F030D7000C2C
-VMware ESX	vmkcore (coredump partition)	9D275380-40AD-11DB-BF97-000C2911D1B8
-VMFS filesystem partition	AA31E02A-400F-11DB-9590-000C2911D1B8
-VMware Reserved	9198EFFC-31C0-11DB-8F78-000C2911D1B8
-Android-IA[47][48][49][50]	Bootloader	2568845D-2332-4675-BC39-8FA5A4748D15
-Bootloader2	114EAFFE-1552-4022-B26E-9B053604CF84
-Boot	49A4D17F-93A3-45C1-A0DE-F50B2EBE2599
-Recovery	4177C722-9E92-4AAB-8644-43502BFD5506
-Misc	EF32A33B-A409-486C-9141-9FFB711F6266
-Metadata	20AC26BE-20B7-11E3-84C5-6CFDB94711E9
-System	38F428E6-D326-425D-9140-6E0EA133647C
-Cache	A893EF21-E428-470A-9E55-0668FD91A2D9
-Data	DC76DDA9-5AC1-491C-AF42-A82591580C0D
-Persistent	EBC597D0-2053-4B15-8B64-E0AAC75F4DB1
-Vendor	C5A0AEEC-13EA-11E5-A1B1-001E67CA0C3C
-Config	BD59408B-4514-490D-BF12-9878D963F378
-Factory	8F68CC74-C5E5-48DA-BE91-A0C8C15E9C80
-Factory (alt)[51]	9FDAA6EF-4B3F-40D2-BA8D-BFF16BFB887B
-Fastboot / Tertiary[52][53]	767941D0-2085-11E3-AD3B-6CFDB94711E9
-OEM	AC6D7924-EB71-4DF8-B48D-E267B27148FF
-Android 6.0+ ARM	Android Meta	19A710A2-B3CA-11E4-B026-10604B889DCF
-Android EXT	193D1EA4-B3CA-11E4-B075-10604B889DCF
-Open Network Install Environment (ONIE)	Boot	7412F7D5-A156-4B13-81DC-867174929325
-Config	D4E6E2CD-4469-46F3-B5CB-1BFF57AFC149
-PowerPC	PReP boot	9E1A2D38-C612-4316-AA26-8B49521E5A8B
-freedesktop.org OSes (Linux, etc.)	Shared boot loader configuration[54]	BC13C2FF-59E6-4262-A352-B275FD6F7172
-Atari TOS	Basic data partition (GEM, BGM, F32)	734E5AFE-F61A-11E6-BC64-92361F002671
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 00000000-0000-0000-0000-000000000000 | | Unused entry
+| 024DEE41-33E7-11D3-9D69-0008C781F39F | | MBR partition scheme
+| C12A7328-F81F-11D2-BA4B-00A0C93EC93B | | EFI System partition
+| 21686148-6449-6E6F-744E-656564454649 | | BIOS boot partition
+| D3BFE2DE-3DAF-11DF-BA40-E3A556D89593 | | Intel Fast Flash (iFFS) partition (for Intel Rapid Start technology)
+| F4019732-066E-4E12-8273-346C5641494F | | Sony boot partition
+| BFBFAFE7-A34F-448A-9A5B-6213EB736C22 | | Lenovo boot partition
+4+| _Windows_
+| E3C9E316-0B5C-4DB8-817D-F92DF00215AE | | Microsoft Reserved Partition (MSR)
+| EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 | | Basic data partition
+| 5808C8AA-7E8F-42E0-85D2-E1E90434CFB3 | | Logical Disk Manager (LDM) metadata partition
+| AF9B60A0-1431-4F62-BC68-3311714A69AD | | Logical Disk Manager data partition
+| DE94BBA4-06D1-4D40-A16A-BFD50179D6AC | | Windows Recovery Environment
+| 37AFFC90-EF7D-4E96-91C3-2D7AE055B174 | | IBM General Parallel File System (GPFS) partition
+| E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D | | Storage Spaces partition
+4+| _HP-UX_
+| 75894C1E-3AEB-11D3-B7C1-7B03A0000000 | | Data partition
+| E2A1E728-32E3-11D6-A682-7B03A0000000 | | Service Partition
+4+| _Linux_
+| 0FC63DAF-8483-4772-8E79-3D69D8477DE4 | | Linux filesystem data
+| A19D880F-05FC-4D3B-A006-743F0F84911E | | RAID partition
+| 44479540-F297-41B2-9AF7-D131D5F0458A | | Root partition (x86)
+| 4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709 | | Root partition (x86-64)
+| 69DAD710-2CE4-4E3C-B16C-21A1D49ABED3 | | Root partition (32-bit ARM)
+| B921B045-1DF0-41C3-AF44-4C6F280D3FAE | | Root partition (64-bit ARM/AArch64)
+| 0657FD6D-A4AB-43C4-84E5-0933C84B4F4F | | Swap partition
+| E6D6D379-F507-44C2-A23C-238F2A3DF928 | | Logical Volume Manager (LVM) partition
+| 933AC7E1-2EB4-4F13-B844-0E14E2AEF915 | | /home partition
+| 3B8F8425-20E0-4F3B-907F-1A25A76F98E8 | | /srv (server data) partition
+| 7FFEC5C9-2D00-49B7-8941-3EA10A5586B7 | | Plain dm-crypt partition
+| CA7D7CCB-63ED-4C53-861C-1742536059CC | | LUKS partition
+| 8DA63339-0007-60C0-C436-083AC8230908 | | Reserved
+| 83BD6B9D-7F41-11DC-BE0B-001560B84F0F | | Boot partition | FreeBSD
+| 516E7CB4-6ECF-11D6-8FF8-00022D09712B | | Data partition
+| 516E7CB5-6ECF-11D6-8FF8-00022D09712B | | Swap partition
+| 516E7CB6-6ECF-11D6-8FF8-00022D09712B | | Unix File System (UFS) partition
+| 516E7CB8-6ECF-11D6-8FF8-00022D09712B | | Vinum volume manager partition
+| 516E7CBA-6ECF-11D6-8FF8-00022D09712B | | ZFS partition
+4+| _Darwin / Mac OS_
+| 48465300-0000-11AA-AA11-00306543ECAC | | Hierarchical File System Plus (HFS+) partition
+| 7C3457EF-0000-11AA-AA11-00306543ECAC | | Apple APFS
+| 55465300-0000-11AA-AA11-00306543ECAC | | Apple UFS container
+| 6A898CC3-1DD2-11B2-99A6-080020736631 | | ZFS
+| 52414944-0000-11AA-AA11-00306543ECAC | | Apple RAID partition
+| 52414944-5F4F-11AA-AA11-00306543ECAC | | Apple RAID partition, offline
+| 426F6F74-0000-11AA-AA11-00306543ECAC | | Apple Boot partition (Recovery HD)
+| 4C616265-6C00-11AA-AA11-00306543ECAC | | Apple Label
+| 5265636F-7665-11AA-AA11-00306543ECAC | | Apple TV Recovery partition
+| 53746F72-6167-11AA-AA11-00306543ECAC | | Apple Core Storage (i.e. Lion FileVault) partition
+| B6FA30DA-92D2-4A9A-96F1-871EC6486200 | | SoftRAID_Status
+| 2E313465-19B9-463F-8126-8A7993773801 | | SoftRAID_Scratch
+| FA709C7E-65B1-4593-BFD5-E71D61DE9B02 | | SoftRAID_Volume
+| BBBA6DF5-F46F-4A89-8F59-8765B2727503 | | SoftRAID_Cache
+4+| _Solaris / illumos_
+| 6A82CB45-1DD2-11B2-99A6-080020736631 | | Boot partition
+| 6A85CF4D-1DD2-11B2-99A6-080020736631 | | Root partition
+| 6A87C46F-1DD2-11B2-99A6-080020736631 | | Swap partition
+| 6A8B642B-1DD2-11B2-99A6-080020736631 | | Backup partition
+| 6A898CC3-1DD2-11B2-99A6-080020736631 | | /usr partition
+| 6A8EF2E9-1DD2-11B2-99A6-080020736631 | | /var partition
+| 6A90BA39-1DD2-11B2-99A6-080020736631 | | /home partition
+| 6A9283A5-1DD2-11B2-99A6-080020736631 | | Alternate sector
+| 6A8D2AC7-1DD2-11B2-99A6-080020736631 +
+6A945A3B-1DD2-11B2-99A6-080020736631 +
+6A96237F-1DD2-11B2-99A6-080020736631 +
+6A9630D1-1DD2-11B2-99A6-080020736631 +
+6A980767-1DD2-11B2-99A6-080020736631 | | Reserved partition
+4+| _NetBSD_
+| 49F48D32-B10E-11DC-B99B-0019D1879648 | | Swap partition
+| 49F48D5A-B10E-11DC-B99B-0019D1879648 | | FFS partition
+| 49F48D82-B10E-11DC-B99B-0019D1879648 | | LFS partition
+| 49F48DAA-B10E-11DC-B99B-0019D1879648 | | RAID partition
+| 2DB519C4-B10F-11DC-B99B-0019D1879648 | | Concatenated partition
+| 2DB519EC-B10F-11DC-B99B-0019D1879648 | | Encrypted partition
+4+| _Chrome OS_
+| FE3A2A5D-4F32-41A7-B725-ACCC3285A309 | | Chrome OS kernel
+| 3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC | | Chrome OS rootfs
+| 2E0A753D-9E48-43B0-8337-B15192CB1B5E | | Chrome OS future use
+4+| _Container Linux by CoreOS_
+| 5DFBF5F4-2848-4BAC-AA5E-0D9A20B745A6 | | /usr partition (coreos-usr)
+| 3884DD41-8582-4404-B9A8-E9B84F2DF50E | | Resizable rootfs (coreos-resize)
+| C95DC21A-DF0E-4340-8D7B-26CBFA9A03E0 | | OEM customizations (coreos-reserved)
+| BE9067B9-EA49-4F15-B4F6-F36F8C9E1818 | | Root filesystem on RAID (coreos-root-raid)
+4+| _Haiku_
+| 42465331-3BA3-10F1-802A-4861696B7521 | | Haiku BFS
+4+| _MidnightBSD_
+| 85D5E45E-237C-11E1-B4B3-E89A8F7FC3A7 | | Boot partition
+| 85D5E45A-237C-11E1-B4B3-E89A8F7FC3A7 | | Data partition
+| 85D5E45B-237C-11E1-B4B3-E89A8F7FC3A7 | | Swap partition
+| 0394EF8B-237E-11E1-B4B3-E89A8F7FC3A7 | | Unix File System (UFS) partition
+| 85D5E45C-237C-11E1-B4B3-E89A8F7FC3A7 | | Vinum volume manager partition
+| 85D5E45D-237C-11E1-B4B3-E89A8F7FC3A7 | | ZFS partition
+4+| _Ceph_
+| 45B0969E-9B03-4F30-B4C6-B4B80CEFF106 | | Journal
+| 45B0969E-9B03-4F30-B4C6-5EC00CEFF106 | | dm-crypt journal
+| 4FBD7E29-9D25-41B8-AFD0-062C0CEFF05D | | OSD
+| 4FBD7E29-9D25-41B8-AFD0-5EC00CEFF05D | | dm-crypt OSD
+| 89C57F98-2FE5-4DC0-89C1-F3AD0CEFF2BE | | Disk in creation
+| 89C57F98-2FE5-4DC0-89C1-5EC00CEFF2BE | | dm-crypt disk in creation
+| CAFECAFE-9B03-4F30-B4C6-B4B80CEFF106 | | Block
+| 30CD0809-C2B2-499C-8879-2D6B78529876 | | Block DB
+| 5CE17FCE-4087-4169-B7FF-056CC58473F9 | | Block write-ahead log
+| FB3AABF9-D25F-47CC-BF5E-721D1816496B | | Lockbox for dm-crypt keys
+| 4FBD7E29-8AE0-4982-BF9D-5A8D867AF560 | | Multipath OSD
+| 45B0969E-8AE0-4982-BF9D-5A8D867AF560 | | Multipath journal
+| CAFECAFE-8AE0-4982-BF9D-5A8D867AF560 | | Multipath block
+| 7F4A666A-16F3-47A2-8445-152EF4D03F6C | | Multipath block
+| EC6D6385-E346-45DC-BE91-DA2A7C8B3261 | | Multipath block DB
+| 01B41E1B-002A-453C-9F17-88793989FF8F | | Multipath block write-ahead log
+| CAFECAFE-9B03-4F30-B4C6-5EC00CEFF106 | | dm-crypt block
+| 93B0052D-02D9-4D8A-A43B-33A3EE4DFBC3 | | dm-crypt block DB
+| 306E8683-4FE2-4330-B7C0-00A917C16966 | | dm-crypt block write-ahead log
+| 45B0969E-9B03-4F30-B4C6-35865CEFF106 | | dm-crypt LUKS journal
+| CAFECAFE-9B03-4F30-B4C6-35865CEFF106 | | dm-crypt LUKS block
+| 166418DA-C469-4022-ADF4-B30AFD37F176 | | dm-crypt LUKS block DB
+| 86A32090-3647-40B9-BBBD-38D8C573AA86 | | dm-crypt LUKS block write-ahead log
+| 4FBD7E29-9D25-41B8-AFD0-35865CEFF05D | | dm-crypt LUKS OSD
+4+| _OpenBSD_
+| 824CC7A0-36A8-11E3-890A-952519AD3F61 | | Data partition
+4+| _QNX_
+| CEF5A9AD-73BC-4601-89F3-CDEEEEE321A1 | | Power-safe (QNX6) file system
+4+| _Plan 9_
+| C91818F9-8025-47AF-89D2-F030D7000C2C | | Plan 9 partition
+4+| _VMware ESX_
+| 9D275380-40AD-11DB-BF97-000C2911D1B8 | | vmkcore (coredump partition)
+| AA31E02A-400F-11DB-9590-000C2911D1B8 | | VMFS filesystem partition
+| 9198EFFC-31C0-11DB-8F78-000C2911D1B8 | | VMware Reserved
+4+| _Android-IA_
+| 2568845D-2332-4675-BC39-8FA5A4748D15 | | Bootloader
+| 114EAFFE-1552-4022-B26E-9B053604CF84 | | Bootloader2
+| 49A4D17F-93A3-45C1-A0DE-F50B2EBE2599 | | Boot
+| 4177C722-9E92-4AAB-8644-43502BFD5506 | | Recovery
+| EF32A33B-A409-486C-9141-9FFB711F6266 | | Misc
+| 20AC26BE-20B7-11E3-84C5-6CFDB94711E9 | | Metadata
+| 38F428E6-D326-425D-9140-6E0EA133647C | | System
+| A893EF21-E428-470A-9E55-0668FD91A2D9 | | Cache
+| DC76DDA9-5AC1-491C-AF42-A82591580C0D | | Data
+| EBC597D0-2053-4B15-8B64-E0AAC75F4DB1 | | Persistent
+| C5A0AEEC-13EA-11E5-A1B1-001E67CA0C3C | | Vendor
+| BD59408B-4514-490D-BF12-9878D963F378 | | Config
+| 8F68CC74-C5E5-48DA-BE91-A0C8C15E9C80 | | Factory
+| 9FDAA6EF-4B3F-40D2-BA8D-BFF16BFB887B | | Factory (alt)
+| 767941D0-2085-11E3-AD3B-6CFDB94711E9 | | Fastboot / Tertiary
+| AC6D7924-EB71-4DF8-B48D-E267B27148FF | | OEM
+4+| _Android 6.0+ ARM_
+| 19A710A2-B3CA-11E4-B026-10604B889DCF | | Android Meta
+| 193D1EA4-B3CA-11E4-B075-10604B889DCF | | Android EXT
+4+| _Open Network Install Environment (ONIE)_
+| 7412F7D5-A156-4B13-81DC-867174929325 | | Boot
+| D4E6E2CD-4469-46F3-B5CB-1BFF57AFC149 | | Config
+4+| _PowerPC_
+| 9E1A2D38-C612-4316-AA26-8B49521E5A8B | | PReP boot
+4+| _freedesktop.org OSes (Linux, etc.)_
+| BC13C2FF-59E6-4262-A352-B275FD6F7172 | | Shared boot loader configuration
+4+| _Atari TOS_
+| 734E5AFE-F61A-11E6-BC64-92361F002671 | | Basic data partition (GEM, BGM, F32)
+|===
 
-=== [[attribute_flags]]GPT partition attribute flags
+=== [[partition_attribute_flags]]Partition attribute flags
 
 Bit	Content
 
@@ -287,14 +325,18 @@ Basic
 [appendix]
 == References
 
-`[REFERENCE]`
+`[RFC1952]`
 
 [cols="1,5",options="header"]
 |===
-| Title: |
-| Author(s): |
-| Date: |
-| URL: |
+| Title: | RFC 1952: GZIP file format specification version 4.3
+| URL: | https://www.ietf.org/rfc/rfc1952.txt
+|===
+
+[cols="1,5",options="header"]
+|===
+| Title: | Wikipedia: GUID Partition Table
+| URL: | https://en.wikipedia.org/wiki/GUID_Partition_Table
 |===
 
 [appendix]

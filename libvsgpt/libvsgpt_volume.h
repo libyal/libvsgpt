@@ -31,6 +31,8 @@
 #include "libvsgpt_libbfio.h"
 #include "libvsgpt_libcdata.h"
 #include "libvsgpt_libcerror.h"
+#include "libvsgpt_libcthreads.h"
+#include "libvsgpt_partition_table_header.h"
 #include "libvsgpt_types.h"
 
 #if defined( __cplusplus )
@@ -41,6 +43,14 @@ typedef struct libvsgpt_internal_volume libvsgpt_internal_volume_t;
 
 struct libvsgpt_internal_volume
 {
+	/* The volume size
+	 */
+	size64_t size;
+
+	/* The partition table header
+	 */
+	libvsgpt_partition_table_header_t *partition_table_header;
+
 	/* The partitions array
 	 */
 	libcdata_array_t *partitions;
@@ -60,6 +70,16 @@ struct libvsgpt_internal_volume
 	/* Value to indicate if the file IO handle was opened inside the library
 	 */
 	uint8_t file_io_handle_opened_in_library;
+
+	/* Value to indicate the volume is corrupt
+	 */
+	uint8_t is_corrupt;
+
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	/* The read/write lock
+	 */
+	libcthreads_read_write_lock_t *read_write_lock;
+#endif
 };
 
 LIBVSGPT_EXTERN \
@@ -107,12 +127,23 @@ int libvsgpt_volume_close(
      libvsgpt_volume_t *volume,
      libcerror_error_t **error );
 
-int libvsgpt_volume_open_read(
+int libvsgpt_internal_volume_open_read(
      libvsgpt_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
-int libvsgpt_volume_read_partition_entries(
+int libvsgpt_internal_volume_read_partition_table_headers(
+     libvsgpt_internal_volume_t *internal_volume,
+     libbfio_handle_t *file_io_handle,
+     libcerror_error_t **error );
+
+int libvsgpt_internal_volume_read_partition_entries(
+     libvsgpt_internal_volume_t *internal_volume,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error );
+
+int libvsgpt_internal_volume_read_mbr_partition_entries(
      libvsgpt_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
@@ -124,6 +155,13 @@ LIBVSGPT_EXTERN \
 int libvsgpt_volume_get_bytes_per_sector(
      libvsgpt_volume_t *volume,
      uint32_t *bytes_per_sector,
+     libcerror_error_t **error );
+
+LIBVSGPT_EXTERN \
+int libvsgpt_volume_get_disk_identifier(
+     libvsgpt_volume_t *volume,
+     uint8_t *guid_data,
+     size_t guid_data_size,
      libcerror_error_t **error );
 
 LIBVSGPT_EXTERN \

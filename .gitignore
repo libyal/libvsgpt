@@ -130,10 +130,12 @@ stamp-h[1-9]
 /tests/vsgpt_test_chs_address
 /tests/vsgpt_test_error
 /tests/vsgpt_test_io_handle
+/tests/vsgpt_test_mbr_partition_entry
+/tests/vsgpt_test_mbr_partition_type
 /tests/vsgpt_test_notify
 /tests/vsgpt_test_partition
 /tests/vsgpt_test_partition_entry
-/tests/vsgpt_test_partition_type
+/tests/vsgpt_test_partition_table_header
 /tests/vsgpt_test_partition_values
 /tests/vsgpt_test_section_values
 /tests/vsgpt_test_sector_data

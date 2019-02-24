@@ -33,6 +33,8 @@
 #include "libvsgpt_libbfio.h"
 #include "libvsgpt_libcerror.h"
 #include "libvsgpt_libcnotify.h"
+#include "libvsgpt_libcthreads.h"
+#include "libvsgpt_mbr_partition_entry.h"
 #include "libvsgpt_partition.h"
 #include "libvsgpt_partition_entry.h"
 #include "libvsgpt_partition_table_header.h"
@@ -131,6 +133,21 @@ int libvsgpt_volume_initialize(
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_initialize(
+	     &( internal_volume->read_write_lock ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize read/write lock.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	*volume = (libvsgpt_volume_t *) internal_volume;
 
 	return( 1 );
@@ -194,6 +211,21 @@ int libvsgpt_volume_free(
 		}
 		*volume = NULL;
 
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+		if( libcthreads_read_write_lock_free(
+		     &( internal_volume->read_write_lock ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free read/write lock.",
+			 function );
+
+			result = -1;
+		}
+#endif
 		if( libcdata_array_free(
 		     &( internal_volume->partitions ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libvsgpt_partition_values_free,
@@ -278,6 +310,7 @@ int libvsgpt_volume_open(
 	libbfio_handle_t *file_io_handle            = NULL;
 	libvsgpt_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libvsgpt_volume_open";
+	size_t filename_length                      = 0;
 
 	if( volume == NULL )
 	{
@@ -345,29 +378,31 @@ int libvsgpt_volume_open(
 	     1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set track offsets read in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set track offsets read in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
 #endif
+	filename_length = narrow_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     narrow_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set filename in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set filename in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
@@ -381,14 +416,44 @@ int libvsgpt_volume_open(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file: %s.",
+		 "%s: unable to open volume: %s.",
 		 function,
 		 filename );
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	internal_volume->file_io_handle_created_in_library = 1;
 
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 
 on_error:
@@ -415,6 +480,7 @@ int libvsgpt_volume_open_wide(
 	libbfio_handle_t *file_io_handle            = NULL;
 	libvsgpt_internal_volume_t *internal_volume = NULL;
 	static char *function                       = "libvsgpt_volume_open_wide";
+	size_t filename_length                      = 0;
 
 	if( volume == NULL )
 	{
@@ -482,29 +548,31 @@ int libvsgpt_volume_open_wide(
 	     1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set track offsets read in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set track offsets read in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
 #endif
+	filename_length = wide_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     wide_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set filename in file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set filename in file IO handle.",
+		 function );
 
 		goto on_error;
 	}
@@ -518,14 +586,44 @@ int libvsgpt_volume_open_wide(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file: %ls.",
+		 "%s: unable to open volume: %ls.",
 		 function,
 		 filename );
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	internal_volume->file_io_handle_created_in_library = 1;
 
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 
 on_error:
@@ -574,7 +672,7 @@ int libvsgpt_volume_open_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid volume - file IO handle already set.",
+		 "%s: invalid volume - file IO handle value already set.",
 		 function );
 
 		return( -1 );
@@ -627,7 +725,7 @@ int libvsgpt_volume_open_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file.",
+		 "%s: unable to open volume.",
 		 function );
 
 		goto on_error;
@@ -650,7 +748,7 @@ int libvsgpt_volume_open_file_io_handle(
 		}
 		file_io_handle_opened_in_library = 1;
 	}
-	if( libvsgpt_volume_open_read(
+	if( libvsgpt_internal_volume_open_read(
 	     internal_volume,
 	     file_io_handle,
 	     error ) != 1 )
@@ -664,14 +762,43 @@ int libvsgpt_volume_open_file_io_handle(
 
 		goto on_error;
 	}
-	internal_volume->file_io_handle                   = file_io_handle;
-	internal_volume->file_io_handle_opened_in_library = (uint8_t) file_io_handle_opened_in_library;
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
 
+		return( -1 );
+	}
+#endif
+	internal_volume->file_io_handle                   = file_io_handle;
+	internal_volume->file_io_handle_opened_in_library = file_io_handle_opened_in_library;
+
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 
 on_error:
-	if( ( file_io_handle_is_open == 0 )
-	 && ( file_io_handle_opened_in_library != 0 ) )
+	if( file_io_handle_opened_in_library != 0 )
 	{
 		libbfio_handle_close(
 		 file_io_handle,
@@ -715,10 +842,25 @@ int libvsgpt_volume_close(
 
 		return( -1 );
 	}
-	if( internal_volume->file_io_handle_created_in_library != 0 )
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
 	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
+	{
+		if( internal_volume->file_io_handle_created_in_library != 0 )
 		{
 			if( libvsgpt_debug_print_read_offsets(
 			     internal_volume->file_io_handle,
@@ -734,7 +876,10 @@ int libvsgpt_volume_close(
 				result = -1;
 			}
 		}
+	}
 #endif
+	if( internal_volume->file_io_handle_opened_in_library != 0 )
+	{
 		if( libbfio_handle_close(
 		     internal_volume->file_io_handle,
 		     error ) != 0 )
@@ -748,6 +893,10 @@ int libvsgpt_volume_close(
 
 			result = -1;
 		}
+		internal_volume->file_io_handle_opened_in_library = 0;
+	}
+	if( internal_volume->file_io_handle_created_in_library != 0 )
+	{
 		if( libbfio_handle_free(
 		     &( internal_volume->file_io_handle ),
 		     error ) != 1 )
@@ -761,9 +910,9 @@ int libvsgpt_volume_close(
 
 			result = -1;
 		}
+		internal_volume->file_io_handle_created_in_library = 0;
 	}
-	internal_volume->file_io_handle                    = NULL;
-	internal_volume->file_io_handle_created_in_library = 0;
+	internal_volume->file_io_handle = NULL;
 
 	if( libvsgpt_io_handle_clear(
 	     internal_volume->io_handle,
@@ -774,6 +923,19 @@ int libvsgpt_volume_close(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to clear the IO handle.",
+		 function );
+
+		result = -1;
+	}
+	if( libvsgpt_partition_table_header_free(
+	     &( internal_volume->partition_table_header ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free partition table header.",
 		 function );
 
 		result = -1;
@@ -792,21 +954,35 @@ int libvsgpt_volume_close(
 
 		result = -1;
 	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( result );
 }
 
 /* Opens a volume for reading
  * Returns 1 if successful or -1 on error
  */
-int libvsgpt_volume_open_read(
+int libvsgpt_internal_volume_open_read(
      libvsgpt_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	libvsgpt_boot_record_t *master_boot_record                = NULL;
-	libvsgpt_partition_table_header_t *partition_table_header = NULL;
-	static char *function                                     = "libvsgpt_volume_open_read";
-	int result                                                = 0;
+	libvsgpt_boot_record_t *master_boot_record = NULL;
+	static char *function                      = "libvsgpt_internal_volume_open_read";
+	off64_t file_offset                        = 0;
 
 	if( internal_volume == NULL )
 	{
@@ -815,6 +991,184 @@ int libvsgpt_volume_open_read(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( libbfio_handle_get_size(
+	     file_io_handle,
+	     &( internal_volume->size ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size from file IO handle.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvsgpt_internal_volume_read_partition_table_headers(
+	     internal_volume,
+	     file_io_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read partition table header and backup.",
+		 function );
+
+		goto on_error;
+	}
+	if( internal_volume->partition_table_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing partition table header.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading GUID Partition Table (GPT) entries.\n",
+		 function );
+	}
+#endif
+	file_offset = internal_volume->partition_table_header->partition_entries_start_block_number * internal_volume->io_handle->bytes_per_sector;
+
+	if( libvsgpt_internal_volume_read_partition_entries(
+	     internal_volume,
+	     file_io_handle,
+	     file_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read partition entries.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading Master Boot Record (MBR).\n",
+		 function );
+	}
+#endif
+	if( libvsgpt_boot_record_initialize(
+	     &master_boot_record,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create master boot record.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvsgpt_boot_record_read_file_io_handle(
+	     master_boot_record,
+	     file_io_handle,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read master boot record.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvsgpt_internal_volume_read_mbr_partition_entries(
+	     internal_volume,
+	     file_io_handle,
+	     0,
+	     master_boot_record,
+	     1,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read partition entries.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvsgpt_boot_record_free(
+	     &master_boot_record,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free master boot record.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( master_boot_record != NULL )
+	{
+		libvsgpt_boot_record_free(
+		 &master_boot_record,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Reads the partition table header and the backup
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_internal_volume_read_partition_table_headers(
+     libvsgpt_internal_volume_t *internal_volume,
+     libbfio_handle_t *file_io_handle,
+     libcerror_error_t **error )
+{
+	libvsgpt_partition_table_header_t *backup_partition_table_header = NULL;
+	libvsgpt_partition_table_header_t *partition_table_header        = NULL;
+	static char *function                                            = "libvsgpt_internal_volume_read_partition_table_headers";
+	off64_t file_offset                                              = 0;
+	int result                                                       = 0;
+
+	if( internal_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_volume->partition_table_header != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid volume - partition table header already set.",
 		 function );
 
 		return( -1 );
@@ -870,92 +1224,241 @@ int libvsgpt_volume_open_read(
 
 		goto on_error;
 	}
-	if( libvsgpt_partition_table_header_free(
-	     &partition_table_header,
-	     error ) != 1 )
+	if( partition_table_header->partition_header_block_number != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free partition table header.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: unsupported partition table header block number: %" PRIu64 ".",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: reading Master Boot Record (MBR).\n",
+		 "%s: reading backup GUID Partition Table (GPT) header.\n",
 		 function );
 	}
 #endif
-	if( libvsgpt_boot_record_initialize(
-	     &master_boot_record,
+	if( libvsgpt_partition_table_header_initialize(
+	     &backup_partition_table_header,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create master boot record.",
+		 "%s: unable to create backup partition table header.",
 		 function );
 
 		goto on_error;
 	}
-	if( libvsgpt_boot_record_read_file_io_handle(
-	     master_boot_record,
-	     file_io_handle,
-	     0,
-	     error ) != 1 )
+	result      = 0;
+	file_offset = partition_table_header->backup_partition_header_block_number * internal_volume->io_handle->bytes_per_sector;
+
+	if( file_offset > 0 )
+	{
+		result = libvsgpt_partition_table_header_read_file_io_handle(
+		          backup_partition_table_header,
+		          file_io_handle,
+		          file_offset,
+		          error );
+	}
+	if( ( result == 0 )
+	 || ( file_offset == 0 ) )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: invalid backup partition header block number fallback to last block.\n",
+			 function );
+		}
+#endif
+		file_offset = internal_volume->size - internal_volume->io_handle->bytes_per_sector;
+
+		result = libvsgpt_partition_table_header_read_file_io_handle(
+		          backup_partition_table_header,
+		          file_io_handle,
+		          file_offset,
+		          error );
+	}
+	if( result != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read master boot record.",
+		 "%s: unable to read backup partition table header.",
 		 function );
 
 		goto on_error;
 	}
-	if( libvsgpt_volume_read_partition_entries(
-	     internal_volume,
-	     file_io_handle,
-	     0,
-	     master_boot_record,
-	     1,
-	     error ) != 1 )
+	if( ( partition_table_header->is_corrupt != 0 )
+	 && ( backup_partition_table_header->is_corrupt != 0 ) )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read partition entries.",
+		 LIBCERROR_ERROR_DOMAIN_INPUT,
+		 LIBCERROR_INPUT_ERROR_INVALID_DATA,
+		 "%s: partition table header and backup are both corrupt.",
 		 function );
 
 		goto on_error;
 	}
-	if( libvsgpt_boot_record_free(
-	     &master_boot_record,
-	     error ) != 1 )
+	if( ( partition_table_header->is_corrupt != 0 )
+	 || ( backup_partition_table_header->is_corrupt != 0 ) )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free master boot record.",
-		 function );
+		internal_volume->is_corrupt = 1;
+	}
+	else
+	{
+		if( partition_table_header->partition_header_block_number != backup_partition_table_header->backup_partition_header_block_number )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of partition table header block number.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		if( partition_table_header->backup_partition_header_block_number != backup_partition_table_header->partition_header_block_number )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of backup partition table header block number.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		if( partition_table_header->partition_area_start_block_number != backup_partition_table_header->partition_area_start_block_number )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of partition area start block number.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		if( partition_table_header->partition_area_end_block_number != backup_partition_table_header->partition_area_end_block_number )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of partition area end block number.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		if( memory_compare(
+		     partition_table_header->disk_identifier,
+		     backup_partition_table_header->disk_identifier,
+		     16 ) != 0 )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of disk identifier.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		/* The partition entries start block number will be different
+		 */
+		if( partition_table_header->number_of_partition_entries != backup_partition_table_header->number_of_partition_entries )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of number of partition entries.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		if( partition_table_header->partition_entry_data_size != backup_partition_table_header->partition_entry_data_size )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of partition entry data size.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+		if( partition_table_header->partition_entries_data_checksum != backup_partition_table_header->partition_entries_data_checksum )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch of partition entries data checksum.\n",
+				 function );
+			}
+#endif
+			internal_volume->is_corrupt = 1;
+		}
+	}
+	if( partition_table_header->is_corrupt != 0 )
+	{
+		if( libvsgpt_partition_table_header_free(
+		     &partition_table_header,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free partition table header.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
+		internal_volume->partition_table_header = backup_partition_table_header;
+	}
+	else
+	{
+		if( libvsgpt_partition_table_header_free(
+		     &backup_partition_table_header,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free backup partition table header.",
+			 function );
+
+			goto on_error;
+		}
+		internal_volume->partition_table_header = partition_table_header;
 	}
 	return( 1 );
 
 on_error:
-	if( master_boot_record != NULL )
+	if( backup_partition_table_header != NULL )
 	{
-		libvsgpt_boot_record_free(
-		 &master_boot_record,
+		libvsgpt_partition_table_header_free(
+		 &backup_partition_table_header,
 		 NULL );
 	}
 	if( partition_table_header != NULL )
@@ -967,10 +1470,333 @@ on_error:
 	return( -1 );
 }
 
+/* Reads partition entries
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_internal_volume_read_partition_entries(
+     libvsgpt_internal_volume_t *internal_volume,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error )
+{
+	uint8_t *empty_partition_type[ 16 ]           = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	libvsgpt_partition_entry_t *partition_entry   = NULL;
+	libvsgpt_partition_values_t *partition_values = NULL;
+	uint8_t *partition_entries_data               = NULL;
+	static char *function                         = "libvsgpt_internal_volume_read_partition_entries";
+	size_t data_offset                            = 0;
+	size_t partition_entries_data_size            = 0;
+	ssize_t read_count                            = 0;
+	uint32_t maximum_number_of_partition_entries  = 0;
+	uint32_t partition_entry_index                = 0;
+	int entry_index                               = 0;
+
+	if( internal_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_volume->partition_table_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing partition table header.",
+		 function );
+
+		return( -1 );
+	}
+#if ( SIZEOF_SIZE_T <= 4 )
+	if( ( internal_volume->partition_table_header->partition_entry_data_size < 128 )
+	 || ( internal_volume->partition_table_header->partition_entry_data_size > (size_t) SSIZE_MAX ) )
+#else
+	if( internal_volume->partition_table_header->partition_entry_data_size < 128 )
+#endif
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid volume - invalid partition table table header - partition entry data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	maximum_number_of_partition_entries = ( 32 * internal_volume->io_handle->bytes_per_sector ) / internal_volume->partition_table_header->partition_entry_data_size;
+
+	if( internal_volume->partition_table_header->number_of_partition_entries > maximum_number_of_partition_entries )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid volume - invalid partition table table header - number of partition entries  value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	partition_entries_data_size = (size_t) internal_volume->partition_table_header->partition_entry_data_size * (size_t) internal_volume->partition_table_header->number_of_partition_entries;
+
+	if( partition_entries_data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid partition entries data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading partition entries at offset: %" PRIu64 " (0x%08" PRIx64 ").\n",
+		 function,
+		 file_offset,
+		 file_offset );
+	}
+#endif
+	if( libbfio_handle_seek_offset(
+	     file_io_handle,
+	     file_offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset: %" PRIu64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		goto on_error;
+	}
+	partition_entries_data = (uint8_t *) memory_allocate(
+	                                      sizeof( uint8_t ) * partition_entries_data_size );
+
+	if( partition_entries_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create partition entries data.",
+		 function );
+
+		goto on_error;
+	}
+	read_count = libbfio_handle_read_buffer(
+	              file_io_handle,
+	              partition_entries_data,
+	              partition_entries_data_size,
+	              error );
+
+	if( read_count != (ssize_t) partition_entries_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read partition entries data.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: partition entries data:\n",
+		 function );
+		libcnotify_print_data(
+		 partition_entries_data,
+		 partition_entries_data_size,
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+	}
+#endif
+	if( libvsgpt_partition_entry_initialize(
+	     &partition_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create partition entry.",
+		 function );
+
+		goto on_error;
+	}
+	for( partition_entry_index = 0;
+	     partition_entry_index < internal_volume->partition_table_header->number_of_partition_entries;
+	     partition_entry_index++ )
+	{
+		if( libvsgpt_partition_entry_read_data(
+		     partition_entry,
+		     &( partition_entries_data[ data_offset ] ),
+		     internal_volume->partition_table_header->partition_entry_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read partition entry data.",
+			 function );
+
+			goto on_error;
+		}
+		data_offset += internal_volume->partition_table_header->partition_entry_data_size;
+
+		/* Ignore empty partition entries
+		 */
+		if( memory_compare(
+		     partition_entry->type_identifier,
+		     empty_partition_type,
+		     16 ) == 0 )
+		{
+			continue;
+		}
+		if( libvsgpt_partition_values_initialize(
+		     &partition_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create partition values.",
+			 function );
+
+			goto on_error;
+		}
+/* TODO refactor to libvsgtp_partition_values_copy_from_partition_entry */
+		if( memory_copy(
+		     partition_values->type_identifier,
+		     partition_entry->type_identifier,
+		     16 ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to copy type identifier.",
+			 function );
+
+			goto on_error;
+		}
+		if( memory_copy(
+		     partition_values->identifier,
+		     partition_entry->identifier,
+		     16 ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to copy identifier.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( partition_entry->start_block_number <= 33 )
+		 || ( partition_entry->start_block_number > (uint64_t) ( internal_volume->size / internal_volume->io_handle->bytes_per_sector ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid partition entry - start block number value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( partition_entry->end_block_number < partition_entry->start_block_number )
+		 || ( partition_entry->end_block_number > (uint64_t) ( internal_volume->size / internal_volume->io_handle->bytes_per_sector ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid partition entry - end block number value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
+		partition_values->offset = (off64_t) ( partition_entry->start_block_number * internal_volume->io_handle->bytes_per_sector );
+		partition_values->size   = (size64_t) ( ( partition_entry->end_block_number - partition_entry->start_block_number ) * internal_volume->io_handle->bytes_per_sector );
+
+		if( libcdata_array_append_entry(
+		     internal_volume->partitions,
+		     &entry_index,
+		     (intptr_t *) partition_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append partition to array.",
+			 function );
+
+			goto on_error;
+		}
+		partition_values = NULL;
+	}
+	if( libvsgpt_partition_entry_free(
+	     &partition_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free partition entry.",
+		 function );
+
+		goto on_error;
+	}
+	memory_free(
+	 partition_entries_data );
+
+	return( 1 );
+
+on_error:
+	if( partition_values != NULL )
+	{
+		libvsgpt_partition_values_free(
+		 &partition_values,
+		 NULL );
+	}
+	if( partition_entry != NULL )
+	{
+		libvsgpt_partition_entry_free(
+		 &partition_entry,
+		 NULL );
+	}
+	if( partition_entries_data != NULL )
+	{
+		memory_free(
+		 partition_entries_data );
+	}
+	return( -1 );
+}
+
 /* Reads partition entries in a master boot record or extended partition record
  * Returns 1 if successful or -1 on error
  */
-int libvsgpt_volume_read_partition_entries(
+int libvsgpt_internal_volume_read_mbr_partition_entries(
      libvsgpt_internal_volume_t *internal_volume,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
@@ -979,9 +1805,9 @@ int libvsgpt_volume_read_partition_entries(
      libcerror_error_t **error )
 {
 	libvsgpt_boot_record_t *extended_partition_record = NULL;
-	libvsgpt_partition_entry_t *partition_entry       = NULL;
+	libvsgpt_mbr_partition_entry_t *partition_entry   = NULL;
 	libvsgpt_partition_values_t *partition_values     = NULL;
-	static char *function                             = "libvsgpt_volume_read_partition_entries";
+	static char *function                             = "libvsgpt_internal_volume_read_mbr_partition_entries";
 	off64_t extended_partition_record_offset          = 0;
 	int entry_index                                   = 0;
 	int partition_entry_index                         = 0;
@@ -1125,6 +1951,7 @@ int libvsgpt_volume_read_partition_entries(
 		{
 /* TODO do bytes per sector check for known volume types and GPT */
 
+#ifdef TODO
 			if( libvsgpt_partition_values_initialize(
 			     &partition_values,
 			     error ) != 1 )
@@ -1161,11 +1988,12 @@ int libvsgpt_volume_read_partition_entries(
 				goto on_error;
 			}
 			partition_values = NULL;
+#endif /* TODO */
 		}
 	}
 	if( extended_partition_record != NULL )
 	{
-		if( libvsgpt_volume_read_partition_entries(
+		if( libvsgpt_internal_volume_read_mbr_partition_entries(
 		     internal_volume,
 		     file_io_handle,
 		     extended_partition_record_offset,
@@ -1260,21 +2088,54 @@ int libvsgpt_volume_get_bytes_per_sector(
 
 		return( -1 );
 	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	*bytes_per_sector = internal_volume->io_handle->bytes_per_sector;
 
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( 1 );
 }
 
-/* Retrieves the number of partitions
+/* Retrieves the disk identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
  * Returns 1 if successful or -1 on error
  */
-int libvsgpt_volume_get_number_of_partitions(
+int libvsgpt_volume_get_disk_identifier(
      libvsgpt_volume_t *volume,
-     int *number_of_partitions,
+     uint8_t *guid_data,
+     size_t guid_data_size,
      libcerror_error_t **error )
 {
 	libvsgpt_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libvsgpt_volume_get_number_of_partitions";
+	static char *function                       = "libvsgpt_volume_get_disk_identifier";
+	int result                                  = 1;
 
 	if( volume == NULL )
 	{
@@ -1289,6 +2150,105 @@ int libvsgpt_volume_get_number_of_partitions(
 	}
 	internal_volume = (libvsgpt_internal_volume_t *) volume;
 
+	if( internal_volume->partition_table_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid volume - missing partition table header.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libvsgpt_partition_table_header_get_disk_identifier(
+	     internal_volume->partition_table_header,
+	     guid_data,
+	     guid_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve disk identifier.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the number of partitions
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_volume_get_number_of_partitions(
+     libvsgpt_volume_t *volume,
+     int *number_of_partitions,
+     libcerror_error_t **error )
+{
+	libvsgpt_internal_volume_t *internal_volume = NULL;
+	static char *function                       = "libvsgpt_volume_get_number_of_partitions";
+	int result                                  = 1;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libvsgpt_internal_volume_t *) volume;
+
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libcdata_array_get_number_of_entries(
 	     internal_volume->partitions,
 	     number_of_partitions,
@@ -1301,9 +2261,24 @@ int libvsgpt_volume_get_number_of_partitions(
 		 "%s: unable to retrieve number of partitions from array.",
 		 function );
 
+		result = -1;
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 
 /* Retrieves a specific partition
@@ -1354,6 +2329,21 @@ int libvsgpt_volume_get_partition_by_index(
 
 		return( -1 );
 	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libcdata_array_get_entry_by_index(
 	     internal_volume->partitions,
 	     partition_index,
@@ -1368,7 +2358,7 @@ int libvsgpt_volume_get_partition_by_index(
 		 function,
 		 partition_index );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libvsgpt_partition_initialize(
 	     partition,
@@ -1384,8 +2374,31 @@ int libvsgpt_volume_get_partition_by_index(
 		 function,
 		 partition_index );
 
+		goto on_error;
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
+#endif
 	return( 1 );
+
+on_error:
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	libcthreads_read_write_lock_release_for_read(
+	 internal_volume->read_write_lock,
+	 NULL );
+#endif
+	return( -1 );
 }
 

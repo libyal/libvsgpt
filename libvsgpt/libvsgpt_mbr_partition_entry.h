@@ -1,5 +1,5 @@
 /*
- * The partition values functions
+ * The Master Boot Record (MBR) partition entry functions
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBVSGPT_PARTITION_VALUES_H )
-#define _LIBVSGPT_PARTITION_VALUES_H
+#if !defined( _LIBVSGPT_MBR_PARTITION_ENTRY_H )
+#define _LIBVSGPT_MBR_PARTITION_ENTRY_H
 
 #include <common.h>
 #include <types.h>
@@ -31,57 +31,48 @@
 extern "C" {
 #endif
 
-typedef struct libvsgpt_partition_values libvsgpt_partition_values_t;
+typedef struct libvsgpt_mbr_partition_entry libvsgpt_mbr_partition_entry_t;
 
-struct libvsgpt_partition_values
+struct libvsgpt_mbr_partition_entry
 {
-	/* The type identifier
+	/* The index
 	 */
-	uint8_t type_identifier[ 16 ];
+	uint8_t index;
 
-	/* The identifier
+	/* The flags
 	 */
-	uint8_t identifier[ 16 ];
+	uint8_t flags;
 
 	/* The type
 	 */
 	uint8_t type;
 
-	/* The offset
+	/* The start address in LBA
 	 */
-	off64_t offset;
+	uint32_t start_address_lba;
 
-	/* The size
+	/* The number of sectors
 	 */
-	size64_t size;
+	uint32_t number_of_sectors;
 };
 
-int libvsgpt_partition_values_initialize(
-     libvsgpt_partition_values_t **partition_values,
+int libvsgpt_mbr_partition_entry_initialize(
+     libvsgpt_mbr_partition_entry_t **partition_entry,
      libcerror_error_t **error );
 
-int libvsgpt_partition_values_free(
-     libvsgpt_partition_values_t **partition_values,
+int libvsgpt_mbr_partition_entry_free(
+     libvsgpt_mbr_partition_entry_t **partition_entry,
      libcerror_error_t **error );
 
-int libvsgpt_partition_values_get_type(
-     libvsgpt_partition_values_t *partition_values,
-     uint8_t *type,
-     libcerror_error_t **error );
-
-int libvsgpt_partition_values_get_offset(
-     libvsgpt_partition_values_t *partition_values,
-     off64_t *offset,
-     libcerror_error_t **error );
-
-int libvsgpt_partition_values_get_size(
-     libvsgpt_partition_values_t *partition_values,
-     size64_t *size,
+int libvsgpt_mbr_partition_entry_read_data(
+     libvsgpt_mbr_partition_entry_t *partition_entry,
+     const uint8_t *data,
+     size_t data_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBVSGPT_PARTITION_VALUES_H ) */
+#endif /* !defined( _LIBVSGPT_MBR_PARTITION_ENTRY_H ) */
 

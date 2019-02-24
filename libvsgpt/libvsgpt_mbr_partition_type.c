@@ -1,5 +1,5 @@
 /*
- * Volume type functions
+ * The Master Boot Record (MBR) partition type functions
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -22,11 +22,11 @@
 #include <common.h>
 #include <types.h>
 
-#include "libvsgpt_partition_type.h"
+#include "libvsgpt_mbr_partition_type.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
-libvsgpt_partition_type_t libvsgpt_partition_types[ ] = {
+libvsgpt_mbr_partition_type_t libvsgpt_mbr_partition_types[ ] = {
 	{ 0x00,		"Empty" },
 	{ 0x01,		"FAT12 (CHS)" },
 	{ 0x02,		"XENIX root" },
@@ -131,23 +131,23 @@ libvsgpt_partition_type_t libvsgpt_partition_types[ ] = {
 
 	{ (uint16_t) -1, "Unknown" } };
 
-/* Retrieves a string containing the partition type description
+/* Retrieves a string containing the MBR partition type description
  */
-const char *libvsgpt_partition_type_get_description(
+const char *libvsgpt_mbr_partition_type_get_description(
              uint8_t partition_type )
 {
 	int iterator = 0;
 
-	while( ( libvsgpt_partition_types[ iterator ] ).type != (uint16_t) -1 )
+	while( ( libvsgpt_mbr_partition_types[ iterator ] ).type != (uint16_t) -1 )
 	{
-		if( ( libvsgpt_partition_types[ iterator ] ).type == (uint16_t) partition_type )
+		if( ( libvsgpt_mbr_partition_types[ iterator ] ).type == (uint16_t) partition_type )
 		{
 			break;
 		}
 		iterator++;
 	}
 	return(
-	 ( libvsgpt_partition_types[ iterator ] ).description );
+	 ( libvsgpt_mbr_partition_types[ iterator ] ).description );
 }
 
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */

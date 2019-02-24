@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libvsgpt_checksum.h"
 #include "libvsgpt_debug.h"
 #include "libvsgpt_libbfio.h"
 #include "libvsgpt_libcerror.h"
@@ -145,14 +146,14 @@ int libvsgpt_partition_table_header_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function         = "libvsgpt_partition_table_header_read_data";
-	uint16_t major_format_version = 0;
-	uint16_t minor_format_version = 0;
+	uint8_t empty_checksum_data[ 4 ] = { 0, 0, 0, 0 };
 
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint64_t value_64bit          = 0;
-	uint32_t value_32bit          = 0;
-#endif
+	static char *function            = "libvsgpt_partition_table_header_read_data";
+	uint32_t calculated_checksum     = 0;
+	uint32_t header_data_size        = 0;
+	uint32_t stored_checksum         = 0;
+	uint16_t major_format_version    = 0;
+	uint16_t minor_format_version    = 0;
 
 	if( partition_table_header == NULL )
 	{
@@ -215,11 +216,65 @@ int libvsgpt_partition_table_header_read_data(
 	 ( (vsgpt_partition_table_header_t *) data )->minor_format_version,
 	 minor_format_version );
 
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->header_data_size,
+	 header_data_size );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->header_data_checksum,
+	 stored_checksum );
+
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->header_block_number,
+	 partition_table_header->partition_header_block_number );
+
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->backup_header_block_number,
+	 partition_table_header->backup_partition_header_block_number );
+
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->area_start_block_number,
+	 partition_table_header->partition_area_start_block_number );
+
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->area_end_block_number,
+	 partition_table_header->partition_area_end_block_number );
+
+	if( memory_copy(
+	     partition_table_header->disk_identifier,
+	     ( (vsgpt_partition_table_header_t *) data )->disk_identifier,
+	     16 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to copy disk identifier.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->entries_start_block_number,
+	 partition_table_header->partition_entries_start_block_number );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->number_of_entries,
+	 partition_table_header->number_of_partition_entries );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->entry_data_size,
+	 partition_table_header->partition_entry_data_size );
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (vsgpt_partition_table_header_t *) data )->entries_data_checksum,
+	 partition_table_header->partition_entries_data_checksum );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t\t: %c%c%c%c%c%c%c%c\n",
+		 "%s: signature\t\t\t: %c%c%c%c%c%c%c%c\n",
 		 function,
 		 ( (vsgpt_partition_table_header_t *) data )->signature[ 0 ],
 		 ( (vsgpt_partition_table_header_t *) data )->signature[ 1 ],
@@ -231,62 +286,44 @@ int libvsgpt_partition_table_header_read_data(
 		 ( (vsgpt_partition_table_header_t *) data )->signature[ 7 ] );
 
 		libcnotify_printf(
-		 "%s: format version\t\t\t\t: %" PRIu16 ".%" PRIu16 "\n",
+		 "%s: format version\t\t: %" PRIu16 ".%" PRIu16 "\n",
 		 function,
 		 major_format_version,
 		 minor_format_version );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->header_data_size,
-		 value_32bit );
 		libcnotify_printf(
-		 "%s: header data size\t\t\t: %" PRIu32 "\n",
+		 "%s: header data size\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 header_data_size );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->header_data_checksum,
-		 value_32bit );
 		libcnotify_printf(
-		 "%s: header data checksum\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: header data checksum\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 value_32bit );
+		 stored_checksum );
 
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->header_block_number,
-		 value_64bit );
 		libcnotify_printf(
 		 "%s: header block number\t\t: %" PRIu64 "\n",
 		 function,
-		 value_64bit );
+		 partition_table_header->partition_header_block_number );
 
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->backup_header_block_number,
-		 value_64bit );
 		libcnotify_printf(
 		 "%s: backup header block number\t: %" PRIu64 "\n",
 		 function,
-		 value_64bit );
+		 partition_table_header->backup_partition_header_block_number );
 
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->area_start_block_number,
-		 value_64bit );
 		libcnotify_printf(
 		 "%s: area start block number\t: %" PRIu64 "\n",
 		 function,
-		 value_64bit );
+		 partition_table_header->partition_area_start_block_number );
 
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->area_end_block_number,
-		 value_64bit );
 		libcnotify_printf(
 		 "%s: area end block number\t: %" PRIu64 "\n",
 		 function,
-		 value_64bit );
+		 partition_table_header->partition_area_end_block_number );
 
 		if( libvsgpt_debug_print_guid_value(
 		     function,
-		     "disk identifier\t\t\t\t",
+		     "disk identifier\t\t",
 		     ( (vsgpt_partition_table_header_t *) data )->disk_identifier,
 		     16,
 		     LIBFGUID_ENDIAN_LITTLE,
@@ -302,43 +339,121 @@ int libvsgpt_partition_table_header_read_data(
 
 			return( -1 );
 		}
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->entries_start_block_number,
-		 value_64bit );
 		libcnotify_printf(
 		 "%s: entries start block number\t: %" PRIu64 "\n",
 		 function,
-		 value_64bit );
+		 partition_table_header->partition_entries_start_block_number );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->number_of_entries,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: number of entries\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 partition_table_header->number_of_partition_entries );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->entry_data_size,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: entry data size\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 partition_table_header->partition_entry_data_size );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (vsgpt_partition_table_header_t *) data )->entries_data_checksum,
-		 value_32bit );
 		libcnotify_printf(
-		 "%s: entries data checksum\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: entries data checksum\t: 0x%08" PRIx32 "\n",
 		 function,
-		 value_32bit );
+		 partition_table_header->partition_entries_data_checksum );
 
 		libcnotify_printf(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( ( header_data_size < sizeof( vsgpt_partition_table_header_t ) )
+	 || ( header_data_size > data_size ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: header data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvsgpt_checksum_calculate_crc32(
+	     &calculated_checksum,
+	     data,
+	     16,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to calculate CRC-32.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvsgpt_checksum_calculate_crc32(
+	     &calculated_checksum,
+	     empty_checksum_data,
+	     4,
+	     calculated_checksum,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to calculate CRC-32.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvsgpt_checksum_calculate_crc32(
+	     &calculated_checksum,
+	     &( data[ 20 ] ),
+	     header_data_size - 20,
+	     calculated_checksum,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to calculate CRC-32.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( stored_checksum != 0 )
+	 && ( stored_checksum != calculated_checksum ) )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+			 function,
+			 stored_checksum,
+			 calculated_checksum );
+		}
+#endif
+		partition_table_header->is_corrupt = 1;
+	}
+	if( ( major_format_version != 1 )
+	 || ( minor_format_version != 0 ) )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: unsupported format version: %" PRIu16 ".%" PRIu16 "\n",
+			 function,
+			 major_format_version,
+			 minor_format_version );
+		}
+#endif
+		partition_table_header->is_corrupt = 1;
+	}
 	return( 1 );
 }
 
@@ -430,5 +545,68 @@ int libvsgpt_partition_table_header_read_file_io_handle(
 		return( -1 );
 	}
 	return( result );
+}
+
+/* Retrieves the disk identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_partition_table_header_get_disk_identifier(
+     libvsgpt_partition_table_header_t *partition_table_header,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libvsgpt_partition_table_header_get_disk_identifier";
+
+	if( partition_table_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid partition table header.",
+		 function );
+
+		return( -1 );
+	}
+	if( guid_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid GUID data.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( guid_data_size < 16 )
+	 || ( guid_data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid GUID data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     guid_data,
+	     partition_table_header->disk_identifier,
+	     16 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy disk identifier.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
 }
 

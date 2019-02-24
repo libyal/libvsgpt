@@ -710,7 +710,7 @@ int info_handle_partition_fprint(
 {
 	static char *function = "info_handle_partition_fprint";
 	size64_t size         = 0;
-	off64_t offset        = 0;
+	off64_t volume_offset = 0;
 	uint8_t type          = 0;
 
 	if( info_handle == NULL )
@@ -752,9 +752,9 @@ int info_handle_partition_fprint(
 
 		return( -1 );
 	}
-	if( libvsgpt_partition_get_offset(
+	if( libvsgpt_partition_get_volume_offset(
 	     partition,
-	     &offset,
+	     &volume_offset,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -769,8 +769,8 @@ int info_handle_partition_fprint(
 	fprintf(
 	 info_handle->notify_stream,
 	 "\tOffset\t\t\t: %" PRIi64 " (0x%08" PRIx64 ")\n",
-	 offset,
-	 offset );
+	 volume_offset,
+	 volume_offset );
 
 	if( libvsgpt_partition_get_size(
 	     partition,

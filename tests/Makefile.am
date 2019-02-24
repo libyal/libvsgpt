@@ -23,6 +23,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_manpage.sh \
 	test_vsgptinfo.sh \
 	$(TESTS_PYVSGPT)
 
@@ -31,6 +32,7 @@ check_SCRIPTS = \
 	pyvsgpt_test_support.py \
 	pyvsgpt_test_volume.py \
 	test_library.sh \
+	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh \
 	test_vsgptinfo.sh
@@ -43,10 +45,12 @@ check_PROGRAMS = \
 	vsgpt_test_chs_address \
 	vsgpt_test_error \
 	vsgpt_test_io_handle \
+	vsgpt_test_mbr_partition_entry \
+	vsgpt_test_mbr_partition_type \
 	vsgpt_test_notify \
 	vsgpt_test_partition \
 	vsgpt_test_partition_entry \
-	vsgpt_test_partition_type \
+	vsgpt_test_partition_table_header \
 	vsgpt_test_partition_values \
 	vsgpt_test_section_values \
 	vsgpt_test_sector_data \
@@ -108,6 +112,30 @@ vsgpt_test_io_handle_LDADD = \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@
 
+vsgpt_test_mbr_partition_entry_SOURCES = \
+	vsgpt_test_libcerror.h \
+	vsgpt_test_libvsgpt.h \
+	vsgpt_test_macros.h \
+	vsgpt_test_mbr_partition_entry.c \
+	vsgpt_test_memory.c vsgpt_test_memory.h \
+	vsgpt_test_unused.h
+
+vsgpt_test_mbr_partition_entry_LDADD = \
+	../libvsgpt/libvsgpt.la \
+	@LIBCERROR_LIBADD@
+
+vsgpt_test_mbr_partition_type_SOURCES = \
+	vsgpt_test_libcerror.h \
+	vsgpt_test_libvsgpt.h \
+	vsgpt_test_macros.h \
+	vsgpt_test_mbr_partition_type.c \
+	vsgpt_test_memory.c vsgpt_test_memory.h \
+	vsgpt_test_unused.h
+
+vsgpt_test_mbr_partition_type_LDADD = \
+	../libvsgpt/libvsgpt.la \
+	@LIBCERROR_LIBADD@
+
 vsgpt_test_notify_SOURCES = \
 	vsgpt_test_libcerror.h \
 	vsgpt_test_libvsgpt.h \
@@ -156,15 +184,16 @@ vsgpt_test_partition_entry_LDADD = \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@
 
-vsgpt_test_partition_type_SOURCES = \
+vsgpt_test_partition_table_header_SOURCES = \
+	vsgpt_test_functions.c vsgpt_test_functions.h \
 	vsgpt_test_libcerror.h \
 	vsgpt_test_libvsgpt.h \
 	vsgpt_test_macros.h \
 	vsgpt_test_memory.c vsgpt_test_memory.h \
-	vsgpt_test_partition_type.c \
+	vsgpt_test_partition_table_header.c \
 	vsgpt_test_unused.h
 
-vsgpt_test_partition_type_LDADD = \
+vsgpt_test_partition_table_header_LDADD = \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@
 

@@ -178,6 +178,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_checksum.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_chs_address.c"
 				>
 			</File>
@@ -194,6 +198,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_mbr_partition_entry.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_mbr_partition_type.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_notify.c"
 				>
 			</File>
@@ -207,10 +219,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_partition_table_header.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libvsgpt\libvsgpt_partition_type.c"
 				>
 			</File>
 			<File
@@ -241,6 +249,10 @@
 			>
 			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_boot_record.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_checksum.h"
 				>
 			</File>
 			<File
@@ -304,6 +316,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_libuna.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_mbr_partition_entry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_mbr_partition_type.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_notify.h"
 				>
 			</File>
@@ -317,10 +341,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_partition_table_header.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libvsgpt\libvsgpt_partition_type.h"
 				>
 			</File>
 			<File
@@ -353,6 +373,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libvsgpt\vsgpt_boot_record.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvsgpt\vsgpt_mbr_partition_entry.h"
 				>
 			</File>
 			<File

@@ -24,13 +24,13 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libvsgpt_chs_address.h"
 #include "libvsgpt_debug.h"
 #include "libvsgpt_definitions.h"
 #include "libvsgpt_libcerror.h"
 #include "libvsgpt_libcnotify.h"
+#include "libvsgpt_libfguid.h"
+#include "libvsgpt_libuna.h"
 #include "libvsgpt_partition_entry.h"
-#include "libvsgpt_partition_type.h"
 
 #include "vsgpt_partition_entry.h"
 
@@ -146,12 +146,7 @@ int libvsgpt_partition_entry_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function               = "libvsgpt_partition_entry_read_data";
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	libvsgpt_chs_address_t *chs_address = NULL;
-	uint32_t value_32bit                = 0;
-#endif
+	static char *function = "libvsgpt_partition_entry_read_data";
 
 	if( partition_entry == NULL )
 	{
@@ -175,7 +170,8 @@ int libvsgpt_partition_entry_read_data(
 
 		return( -1 );
 	}
-	if( data_size != sizeof( vsgpt_partition_entry_t) )
+	if( ( data_size < sizeof( vsgpt_partition_entry_t) )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -194,156 +190,140 @@ int libvsgpt_partition_entry_read_data(
 		 function );
 		libcnotify_print_data(
 		 data,
-		 sizeof( vsgpt_partition_entry_t ),
+		 data_size,
 		 0 );
 	}
 #endif
-	partition_entry->flags = ( (vsgpt_partition_entry_t *) data )->flags;
+	if( memory_copy(
+	     partition_entry->type_identifier,
+	     ( (vsgpt_partition_entry_t *) data )->type_identifier,
+	     16 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to copy type identifier.",
+		 function );
 
-	partition_entry->type = ( (vsgpt_partition_entry_t *) data )->type;
+		return( -1 );
+	}
+	if( memory_copy(
+	     partition_entry->identifier,
+	     ( (vsgpt_partition_entry_t *) data )->identifier,
+	     16 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to copy identifier.",
+		 function );
 
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (vsgpt_partition_entry_t *) data )->start_address_lba,
-	 partition_entry->start_address_lba );
+		return( -1 );
+	}
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_entry_t *) data )->start_block_number,
+	 partition_entry->start_block_number );
 
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (vsgpt_partition_entry_t *) data )->number_of_sectors,
-	 partition_entry->number_of_sectors );
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_entry_t *) data )->end_block_number,
+	 partition_entry->end_block_number );
 
+	byte_stream_copy_to_uint64_little_endian(
+	 ( (vsgpt_partition_entry_t *) data )->attribute_flags,
+	 partition_entry->attribute_flags );
+
+	if( memory_copy(
+	     partition_entry->name,
+	     ( (vsgpt_partition_entry_t *) data )->name,
+	     72 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to copy name.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( libvsgpt_chs_address_initialize(
-		     &chs_address,
+		if( libvsgpt_debug_print_guid_value(
+		     function,
+		     "type identifier\t\t\t",
+		     ( (vsgpt_partition_entry_t *) data )->type_identifier,
+		     16,
+		     LIBFGUID_ENDIAN_LITTLE,
+		     LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create CHS address.",
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print GUID value.",
 			 function );
 
-			goto on_error;
+			return( -1 );
+		}
+		if( libvsgpt_debug_print_guid_value(
+		     function,
+		     "identifier\t\t\t\t",
+		     ( (vsgpt_partition_entry_t *) data )->identifier,
+		     16,
+		     LIBFGUID_ENDIAN_LITTLE,
+		     LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print GUID value.",
+			 function );
+
+			return( -1 );
 		}
 		libcnotify_printf(
-		 "%s: entry: %" PRIu8 " flags\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: start block number\t\t\t: %" PRIu64 "\n",
 		 function,
-		 partition_entry->index,
-		 partition_entry->flags );
-		libvsgpt_debug_print_partition_entry_flags(
-		 partition_entry->flags );
+		 partition_entry->start_block_number );
+
+		libcnotify_printf(
+		 "%s: end block number\t\t\t: %" PRIu64 "\n",
+		 function,
+		 partition_entry->end_block_number );
+
+		libcnotify_printf(
+		 "%s: attribute flags\t\t\t: %" PRIu64 "\n",
+		 function,
+		 partition_entry->attribute_flags );
+
+		if( libvsgpt_debug_print_utf16_string_value(
+		     function,
+		     "name\t\t\t\t",
+		     ( (vsgpt_partition_entry_t *) data )->name,
+		     72,
+		     LIBUNA_ENDIAN_LITTLE,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print UTF-16 string value.",
+			 function );
+
+			return( -1 );
+		}
 		libcnotify_printf(
 		 "\n" );
-
-		byte_stream_copy_to_uint24_little_endian(
-		 ( (vsgpt_partition_entry_t *) data )->start_address_chs,
-		 value_32bit );
-
-		if( libvsgpt_chs_address_copy_from_byte_stream(
-		     chs_address,
-		     ( (vsgpt_partition_entry_t *) data )->start_address_chs,
-		     3,
-		     LIBVSGPT_ENDIAN_LITTLE,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy CHS address from byte stream.",
-			 function );
-
-			goto on_error;
-		}
-		libcnotify_printf(
-		 "%s: entry: %" PRIu8 " CHS start address\t\t: 0x%06" PRIx32 " (C: %" PRIu16 ", H: %" PRIu8 ", S: %" PRIu8 ")\n",
-		 function,
-		 partition_entry->index,
-		 value_32bit,
-		 chs_address->cylinder,
-		 chs_address->head,
-		 chs_address->sector );
-
-		libcnotify_printf(
-		 "%s: entry: %" PRIu8 " type\t\t\t: 0x%02" PRIx8 " (%s)\n",
-		 function,
-		 partition_entry->index,
-		 partition_entry->type,
-		 libvsgpt_partition_type_get_description(
-		  partition_entry->type ) );
-
-		if( libvsgpt_chs_address_copy_from_byte_stream(
-		     chs_address,
-		     ( (vsgpt_partition_entry_t *) data )->end_address_chs,
-		     3,
-		     LIBVSGPT_ENDIAN_LITTLE,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy CHS address from byte stream.",
-			 function );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint24_little_endian(
-		 ( (vsgpt_partition_entry_t *) data )->end_address_chs,
-		 value_32bit );
-
-		libcnotify_printf(
-		 "%s: entry: %" PRIu8 " CHS end address\t\t: 0x%06" PRIx32 " (C: %" PRIu16 ", H: %" PRIu8 ", S: %" PRIu8 ")\n",
-		 function,
-		 partition_entry->index,
-		 value_32bit,
-		 chs_address->cylinder,
-		 chs_address->head,
-		 chs_address->sector );
-
-		libcnotify_printf(
-		 "%s: entry: %" PRIu8 " LBA start address\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
-		 function,
-		 partition_entry->index,
-		 partition_entry->start_address_lba,
-		 partition_entry->start_address_lba );
-
-		libcnotify_printf(
-		 "%s: entry: %" PRIu8 " number of sectors\t\t: %" PRIu32 "\n",
-		 function,
-		 partition_entry->index,
-		 partition_entry->number_of_sectors );
-
-		libcnotify_printf(
-		 "\n" );
-
-		if( libvsgpt_chs_address_free(
-		     &chs_address,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free CHS address.",
-			 function );
-
-			goto on_error;
-		}
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
-
-on_error:
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( chs_address != NULL )
-	{
-		libvsgpt_chs_address_free(
-		 &chs_address,
-		 NULL );
-	}
-#endif
-	return( -1 );
 }
 

@@ -1,5 +1,5 @@
 /*
- * Library partition_entry type test program
+ * Library mbr_partition_entry type test program
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,28 +33,21 @@
 #include "vsgpt_test_memory.h"
 #include "vsgpt_test_unused.h"
 
-#include "../libvsgpt/libvsgpt_partition_entry.h"
+#include "../libvsgpt/libvsgpt_mbr_partition_entry.h"
 
-uint8_t vsgpt_test_partition_entry_data1[ 128 ] = {
-	0xaf, 0x3d, 0xc6, 0x0f, 0x83, 0x84, 0x72, 0x47, 0x8e, 0x79, 0x3d, 0x69, 0xd8, 0x47, 0x7d, 0xe4,
-	0x20, 0xfd, 0x4a, 0xe2, 0xd9, 0x14, 0x55, 0x40, 0x84, 0x91, 0x42, 0x13, 0x11, 0x68, 0xcb, 0x67,
-	0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x75, 0x00,
-	0x78, 0x00, 0x20, 0x00, 0x66, 0x00, 0x69, 0x00, 0x6c, 0x00, 0x65, 0x00, 0x73, 0x00, 0x79, 0x00,
-	0x73, 0x00, 0x74, 0x00, 0x65, 0x00, 0x6d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t vsgpt_test_mbr_partition_entry_data1[ 16 ] = {
+	0x80, 0x20, 0x21, 0x00, 0x07, 0xdf, 0x13, 0x0c, 0x00, 0x08, 0x00, 0x00, 0x00, 0x20, 0x03, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
 
-/* Tests the libvsgpt_partition_entry_initialize function
+/* Tests the libvsgpt_mbr_partition_entry_initialize function
  * Returns 1 if successful or 0 if not
  */
-int vsgpt_test_partition_entry_initialize(
+int vsgpt_test_mbr_partition_entry_initialize(
      void )
 {
 	libcerror_error_t *error                    = NULL;
-	libvsgpt_partition_entry_t *partition_entry = NULL;
+	libvsgpt_mbr_partition_entry_t *mbr_partition_entry = NULL;
 	int result                                  = 0;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
@@ -65,8 +58,8 @@ int vsgpt_test_partition_entry_initialize(
 
 	/* Test regular cases
 	 */
-	result = libvsgpt_partition_entry_initialize(
-	          &partition_entry,
+	result = libvsgpt_mbr_partition_entry_initialize(
+	          &mbr_partition_entry,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -75,15 +68,15 @@ int vsgpt_test_partition_entry_initialize(
 	 1 );
 
 	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition_entry",
-	 partition_entry );
+	 "mbr_partition_entry",
+	 mbr_partition_entry );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libvsgpt_partition_entry_free(
-	          &partition_entry,
+	result = libvsgpt_mbr_partition_entry_free(
+	          &mbr_partition_entry,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -92,8 +85,8 @@ int vsgpt_test_partition_entry_initialize(
 	 1 );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
-	 "partition_entry",
-	 partition_entry );
+	 "mbr_partition_entry",
+	 mbr_partition_entry );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -101,7 +94,7 @@ int vsgpt_test_partition_entry_initialize(
 
 	/* Test error cases
 	 */
-	result = libvsgpt_partition_entry_initialize(
+	result = libvsgpt_mbr_partition_entry_initialize(
 	          NULL,
 	          &error );
 
@@ -117,10 +110,10 @@ int vsgpt_test_partition_entry_initialize(
 	libcerror_error_free(
 	 &error );
 
-	partition_entry = (libvsgpt_partition_entry_t *) 0x12345678UL;
+	mbr_partition_entry = (libvsgpt_mbr_partition_entry_t *) 0x12345678UL;
 
-	result = libvsgpt_partition_entry_initialize(
-	          &partition_entry,
+	result = libvsgpt_mbr_partition_entry_initialize(
+	          &mbr_partition_entry,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -135,7 +128,7 @@ int vsgpt_test_partition_entry_initialize(
 	libcerror_error_free(
 	 &error );
 
-	partition_entry = NULL;
+	mbr_partition_entry = NULL;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
 
@@ -143,22 +136,22 @@ int vsgpt_test_partition_entry_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libvsgpt_partition_entry_initialize with malloc failing
+		/* Test libvsgpt_mbr_partition_entry_initialize with malloc failing
 		 */
 		vsgpt_test_malloc_attempts_before_fail = test_number;
 
-		result = libvsgpt_partition_entry_initialize(
-		          &partition_entry,
+		result = libvsgpt_mbr_partition_entry_initialize(
+		          &mbr_partition_entry,
 		          &error );
 
 		if( vsgpt_test_malloc_attempts_before_fail != -1 )
 		{
 			vsgpt_test_malloc_attempts_before_fail = -1;
 
-			if( partition_entry != NULL )
+			if( mbr_partition_entry != NULL )
 			{
-				libvsgpt_partition_entry_free(
-				 &partition_entry,
+				libvsgpt_mbr_partition_entry_free(
+				 &mbr_partition_entry,
 				 NULL );
 			}
 		}
@@ -170,8 +163,8 @@ int vsgpt_test_partition_entry_initialize(
 			 -1 );
 
 			VSGPT_TEST_ASSERT_IS_NULL(
-			 "partition_entry",
-			 partition_entry );
+			 "mbr_partition_entry",
+			 mbr_partition_entry );
 
 			VSGPT_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -185,22 +178,22 @@ int vsgpt_test_partition_entry_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libvsgpt_partition_entry_initialize with memset failing
+		/* Test libvsgpt_mbr_partition_entry_initialize with memset failing
 		 */
 		vsgpt_test_memset_attempts_before_fail = test_number;
 
-		result = libvsgpt_partition_entry_initialize(
-		          &partition_entry,
+		result = libvsgpt_mbr_partition_entry_initialize(
+		          &mbr_partition_entry,
 		          &error );
 
 		if( vsgpt_test_memset_attempts_before_fail != -1 )
 		{
 			vsgpt_test_memset_attempts_before_fail = -1;
 
-			if( partition_entry != NULL )
+			if( mbr_partition_entry != NULL )
 			{
-				libvsgpt_partition_entry_free(
-				 &partition_entry,
+				libvsgpt_mbr_partition_entry_free(
+				 &mbr_partition_entry,
 				 NULL );
 			}
 		}
@@ -212,8 +205,8 @@ int vsgpt_test_partition_entry_initialize(
 			 -1 );
 
 			VSGPT_TEST_ASSERT_IS_NULL(
-			 "partition_entry",
-			 partition_entry );
+			 "mbr_partition_entry",
+			 mbr_partition_entry );
 
 			VSGPT_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -233,19 +226,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( partition_entry != NULL )
+	if( mbr_partition_entry != NULL )
 	{
-		libvsgpt_partition_entry_free(
-		 &partition_entry,
+		libvsgpt_mbr_partition_entry_free(
+		 &mbr_partition_entry,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libvsgpt_partition_entry_free function
+/* Tests the libvsgpt_mbr_partition_entry_free function
  * Returns 1 if successful or 0 if not
  */
-int vsgpt_test_partition_entry_free(
+int vsgpt_test_mbr_partition_entry_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -253,7 +246,7 @@ int vsgpt_test_partition_entry_free(
 
 	/* Test error cases
 	 */
-	result = libvsgpt_partition_entry_free(
+	result = libvsgpt_mbr_partition_entry_free(
 	          NULL,
 	          &error );
 
@@ -280,20 +273,20 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libvsgpt_partition_entry_read_data function
+/* Tests the libvsgpt_mbr_partition_entry_read_data function
  * Returns 1 if successful or 0 if not
  */
-int vsgpt_test_partition_entry_read_data(
+int vsgpt_test_mbr_partition_entry_read_data(
      void )
 {
 	libcerror_error_t *error                    = NULL;
-	libvsgpt_partition_entry_t *partition_entry = NULL;
+	libvsgpt_mbr_partition_entry_t *mbr_partition_entry = NULL;
 	int result                                  = 0;
 
 	/* Initialize test
 	 */
-	result = libvsgpt_partition_entry_initialize(
-	          &partition_entry,
+	result = libvsgpt_mbr_partition_entry_initialize(
+	          &mbr_partition_entry,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -302,8 +295,8 @@ int vsgpt_test_partition_entry_read_data(
 	 1 );
 
 	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition_entry",
-	 partition_entry );
+	 "mbr_partition_entry",
+	 mbr_partition_entry );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -311,10 +304,10 @@ int vsgpt_test_partition_entry_read_data(
 
 	/* Test regular cases
 	 */
-	result = libvsgpt_partition_entry_read_data(
-	          partition_entry,
-	          vsgpt_test_partition_entry_data1,
-	          128,
+	result = libvsgpt_mbr_partition_entry_read_data(
+	          mbr_partition_entry,
+	          vsgpt_test_mbr_partition_entry_data1,
+	          16,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -328,10 +321,10 @@ int vsgpt_test_partition_entry_read_data(
 
 	/* Test error cases
 	 */
-	result = libvsgpt_partition_entry_read_data(
+	result = libvsgpt_mbr_partition_entry_read_data(
 	          NULL,
-	          vsgpt_test_partition_entry_data1,
-	          128,
+	          vsgpt_test_mbr_partition_entry_data1,
+	          16,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -346,10 +339,10 @@ int vsgpt_test_partition_entry_read_data(
 	libcerror_error_free(
 	 &error );
 
-	result = libvsgpt_partition_entry_read_data(
-	          partition_entry,
+	result = libvsgpt_mbr_partition_entry_read_data(
+	          mbr_partition_entry,
 	          NULL,
-	          128,
+	          16,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -364,9 +357,9 @@ int vsgpt_test_partition_entry_read_data(
 	libcerror_error_free(
 	 &error );
 
-	result = libvsgpt_partition_entry_read_data(
-	          partition_entry,
-	          vsgpt_test_partition_entry_data1,
+	result = libvsgpt_mbr_partition_entry_read_data(
+	          mbr_partition_entry,
+	          vsgpt_test_mbr_partition_entry_data1,
 	          (size_t) SSIZE_MAX + 1,
 	          &error );
 
@@ -382,9 +375,9 @@ int vsgpt_test_partition_entry_read_data(
 	libcerror_error_free(
 	 &error );
 
-	result = libvsgpt_partition_entry_read_data(
-	          partition_entry,
-	          vsgpt_test_partition_entry_data1,
+	result = libvsgpt_mbr_partition_entry_read_data(
+	          mbr_partition_entry,
+	          vsgpt_test_mbr_partition_entry_data1,
 	          0,
 	          &error );
 
@@ -402,8 +395,8 @@ int vsgpt_test_partition_entry_read_data(
 
 	/* Clean up
 	 */
-	result = libvsgpt_partition_entry_free(
-	          &partition_entry,
+	result = libvsgpt_mbr_partition_entry_free(
+	          &mbr_partition_entry,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -412,8 +405,8 @@ int vsgpt_test_partition_entry_read_data(
 	 1 );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
-	 "partition_entry",
-	 partition_entry );
+	 "mbr_partition_entry",
+	 mbr_partition_entry );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -427,10 +420,10 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( partition_entry != NULL )
+	if( mbr_partition_entry != NULL )
 	{
-		libvsgpt_partition_entry_free(
-		 &partition_entry,
+		libvsgpt_mbr_partition_entry_free(
+		 &mbr_partition_entry,
 		 NULL );
 	}
 	return( 0 );
@@ -456,16 +449,16 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
 
 	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_entry_initialize",
-	 vsgpt_test_partition_entry_initialize );
+	 "libvsgpt_mbr_partition_entry_initialize",
+	 vsgpt_test_mbr_partition_entry_initialize );
 
 	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_entry_free",
-	 vsgpt_test_partition_entry_free );
+	 "libvsgpt_mbr_partition_entry_free",
+	 vsgpt_test_mbr_partition_entry_free );
 
 	VSGPT_TEST_RUN(
-	 "libvsgpt_partition_entry_read_data",
-	 vsgpt_test_partition_entry_read_data );
+	 "libvsgpt_mbr_partition_entry_read_data",
+	 vsgpt_test_mbr_partition_entry_read_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 

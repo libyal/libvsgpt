@@ -1,5 +1,5 @@
 /*
- * GUID Partition Table (GPT) partition entry definition
+ * Master Boot Record (MBR) partition entry definitions
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _VSGPT_PARTITION_ENTRY_H )
-#define _VSGPT_PARTITION_ENTRY_H
+#if !defined( _VSGPT_MBR_PARTITION_ENTRY_H )
+#define _VSGPT_MBR_PARTITION_ENTRY_H
 
 #include <common.h>
 #include <types.h>
@@ -29,47 +29,44 @@
 extern "C" {
 #endif
 
-typedef struct vsgpt_partition_entry vsgpt_partition_entry_t;
+typedef struct vsgpt_mbr_partition_entry vsgpt_mbr_partition_entry_t;
 
-struct vsgpt_partition_entry
+struct vsgpt_mbr_partition_entry
 {
-	/* Partition type identifier
-	 * Consists of 16 bytes
-	 * Contains a GUID
+	/* Flags
+	 * Consists of 1 byte
 	 */
-	uint8_t type_identifier[ 16 ];
+	uint8_t flags;
 
-	/* Partition identifier
-	 * Consists of 16 bytes
-	 * Contains a GUID
+	/* Partition start address in CHS
+	 * Consists of 3 bytes
 	 */
-	uint8_t identifier[ 16 ];
+	uint8_t start_address_chs[ 3 ];
 
-	/* Partition start block number
-	 * Consists of 8 bytes
+	/* Partition type
+	 * Consists of 1 byte
 	 */
-	uint8_t start_block_number[ 8 ];
+	uint8_t type;
 
-	/* Partition end block number
-	 * Consists of 8 bytes
+	/* Partition end address in CHS
+	 * Consists of 3 bytes
 	 */
-	uint8_t end_block_number[ 8 ];
+	uint8_t end_address_chs[ 3 ];
 
-	/* Partition attribute flags
-	 * Consists of 8 bytes
+	/* Partition start address in LBA
+	 * Consists of 4 bytes
 	 */
-	uint8_t attribute_flags[ 8 ];
+	uint8_t start_address_lba[ 4 ];
 
-	/* Partition name
-	 * Consists of 72 bytes
-	 * Contains an UTF-16 little-endian string
+	/* Partition number of sectors
+	 * Consists of 4 bytes
 	 */
-	uint8_t name[ 72 ];
+	uint8_t number_of_sectors[ 4 ];
 };
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _VSGPT_PARTITION_ENTRY_H ) */
+#endif /* !defined( _VSGPT_MBR_PARTITION_ENTRY_H ) */
 

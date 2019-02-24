@@ -1,11 +1,9 @@
-.Dd February 23, 2019
+.Dd February 24, 2019
 .Dt libvsgpt 3
 .Os libvsgpt
 .Sh NAME
 .Nm libvsgpt.h
 .Nd Library to access the GUID Partition Table (GPT) volume system format
-.Sh LIBRARY
-.Lb libvsgpt
 .Sh SYNOPSIS
 .In libvsgpt.h
 .Pp
@@ -68,6 +66,12 @@ Volume functions
 .Fn libvsgpt_volume_close "libvsgpt_volume_t *volume" "libvsgpt_error_t **error"
 .Ft int
 .Fn libvsgpt_volume_get_bytes_per_sector "libvsgpt_volume_t *volume" "uint32_t *bytes_per_sector" "libvsgpt_error_t **error"
+.Ft int
+.Fn libvsgpt_volume_get_disk_identifier "libvsgpt_volume_t *volume" "uint8_t *guid_data" "size_t guid_data_size" "libvsgpt_error_t **error"
+.Ft int
+.Fn libvsgpt_volume_get_number_of_partitions "libvsgpt_volume_t *volume" "int *number_of_partitions" "libvsgpt_error_t **error"
+.Ft int
+.Fn libvsgpt_volume_get_partition_by_index "libvsgpt_volume_t *volume" "int partition_index" "libvsgpt_partition_t **partition" "libvsgpt_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
@@ -83,9 +87,7 @@ Partition functions
 .Ft int
 .Fn libvsgpt_partition_get_type "libvsgpt_partition_t *partition" "uint8_t *type" "libvsgpt_error_t **error"
 .Ft int
-.Fn libvsgpt_partition_get_offset "libvsgpt_partition_t *partition" "off64_t *offset" "libvsgpt_error_t **error"
-.Ft int
-.Fn libvsgpt_partition_get_size "libvsgpt_partition_t *partition" "size64_t *size" "libvsgpt_error_t **error"
+.Fn libvsgpt_partition_get_volume_offset "libvsgpt_partition_t *partition" "off64_t *volume_offset" "libvsgpt_error_t **error"
 .Ft ssize_t
 .Fn libvsgpt_partition_read_buffer "libvsgpt_partition_t *partition" "void *buffer" "size_t buffer_size" "libvsgpt_error_t **error"
 .Ft ssize_t
@@ -108,7 +110,7 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libvsgpt allows to be compiled with wide character support (wchar_t).
+libvsgpt can be compiled with wide character support (wchar_t).
 .sp
 To compile libvsgpt with wide character support use:
 .Ar ./configure --enable-wide-character-type=yes

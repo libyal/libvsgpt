@@ -1,5 +1,5 @@
 /*
- * Partition type functions
+ * The Master Boot Record (MBR) partition type functions
  *
  * Copyright (C) 2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBVSGPT_PARTITION_TYPE_H )
-#define _LIBVSGPT_PARTITION_TYPE_H
+#if !defined( _LIBVSGPT_MBR_PARTITION_TYPE_H )
+#define _LIBVSGPT_MBR_PARTITION_TYPE_H
 
 #include <common.h>
 #include <types.h>
@@ -31,9 +31,9 @@ extern "C" {
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
-typedef struct libvsgpt_partition_type libvsgpt_partition_type_t;
+typedef struct libvsgpt_mbr_partition_type libvsgpt_mbr_partition_type_t;
 
-struct libvsgpt_partition_type
+struct libvsgpt_mbr_partition_type
 {
 	/* The type
 	 */
@@ -44,7 +44,7 @@ struct libvsgpt_partition_type
 	const char *description;
 };
 
-const char *libvsgpt_partition_type_get_description(
+const char *libvsgpt_mbr_partition_type_get_description(
              uint8_t partition_type );
 
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
@@ -53,5 +53,5 @@ const char *libvsgpt_partition_type_get_description(
 }
 #endif
 
-#endif /* !defined( _LIBVSGPT_PARTITION_TYPE_H ) */
+#endif /* !defined( _LIBVSGPT_MBR_PARTITION_TYPE_H ) */
 

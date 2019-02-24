@@ -355,6 +355,78 @@ int libvsgpt_partition_get_type(
 	return( result );
 }
 
+/* Retrieves the partition offset relative to the start of the volume
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_partition_get_volume_offset(
+     libvsgpt_partition_t *partition,
+     off64_t *volume_offset,
+     libcerror_error_t **error )
+{
+	libvsgpt_internal_partition_t *internal_partition = NULL;
+	static char *function                             = "libvsgpt_partition_get_volume_offset";
+	int result                                        = 1;
+
+	if( partition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid partition.",
+		 function );
+
+		return( -1 );
+	}
+	internal_partition = (libvsgpt_internal_partition_t *) partition;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libvsgpt_partition_values_get_offset(
+	     internal_partition->partition_values,
+	     volume_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve volume offset.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
 /* Reads (partition) data at the current offset into a buffer using a Basic File IO (bfio) handle
  * This function is not multi-thread safe acquire write lock before call
  * Returns the number of bytes read or -1 on error
@@ -807,7 +879,7 @@ off64_t libvsgpt_partition_seek_offset(
 	return( offset );
 }
 
-/* Retrieves the partition offset
+/* Retrieves the current offset
  * Returns 1 if successful or -1 on error
  */
 int libvsgpt_partition_get_offset(

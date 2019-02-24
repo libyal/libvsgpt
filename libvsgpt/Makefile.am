@@ -22,6 +22,7 @@ lib_LTLIBRARIES = libvsgpt.la
 libvsgpt_la_SOURCES = \
 	libvsgpt.c \
 	libvsgpt_boot_record.c libvsgpt_boot_record.h \
+	libvsgpt_checksum.c libvsgpt_checksum.h \
 	libvsgpt_chs_address.c libvsgpt_chs_address.h \
 	libvsgpt_debug.c libvsgpt_debug.h \
 	libvsgpt_definitions.h \
@@ -37,11 +38,13 @@ libvsgpt_la_SOURCES = \
 	libvsgpt_libfcache.h \
 	libvsgpt_libfdata.h \
 	libvsgpt_libfguid.h \
+	libvsgpt_libuna.h \
+	libvsgpt_mbr_partition_entry.c libvsgpt_mbr_partition_entry.h \
+	libvsgpt_mbr_partition_type.c libvsgpt_mbr_partition_type.h \
 	libvsgpt_notify.c libvsgpt_notify.h \
 	libvsgpt_partition.c libvsgpt_partition.h \
 	libvsgpt_partition_entry.c libvsgpt_partition_entry.h \
 	libvsgpt_partition_table_header.c libvsgpt_partition_table_header.h \
-	libvsgpt_partition_type.c libvsgpt_partition_type.h \
 	libvsgpt_partition_values.c libvsgpt_partition_values.h \
 	libvsgpt_section_values.c libvsgpt_section_values.h \
 	libvsgpt_sector_data.c libvsgpt_sector_data.h \
@@ -50,6 +53,7 @@ libvsgpt_la_SOURCES = \
 	libvsgpt_unused.h \
 	libvsgpt_volume.c libvsgpt_volume.h \
 	vsgpt_boot_record.h \
+	vsgpt_mbr_partition_entry.h \
 	vsgpt_partition_entry.h \
 	vsgpt_partition_table.h
 

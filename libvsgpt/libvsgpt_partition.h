@@ -90,6 +90,12 @@ int libvsgpt_partition_get_type(
      uint8_t *type,
      libcerror_error_t **error );
 
+LIBVSGPT_EXTERN \
+int libvsgpt_partition_get_volume_offset(
+     libvsgpt_partition_t *partition,
+     off64_t *volume_offset,
+     libcerror_error_t **error );
+
 ssize_t libvsgpt_internal_partition_read_buffer_from_file_io_handle(
          libvsgpt_internal_partition_t *internal_partition,
          libbfio_handle_t *file_io_handle,

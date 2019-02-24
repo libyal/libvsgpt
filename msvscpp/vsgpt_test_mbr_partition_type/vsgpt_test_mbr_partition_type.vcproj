@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="vsgpt_test_partition_type"
-	ProjectGUID="{948B13A7-8088-459B-B777-37407258D458}"
-	RootNamespace="vsgpt_test_partition_type"
+	Name="vsgpt_test_mbr_partition_type"
+	ProjectGUID="{8397AE0B-797C-4500-820E-6E69D312FD89}"
+	RootNamespace="vsgpt_test_mbr_partition_type"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\vsgpt_test_memory.c"
+				RelativePath="..\..\tests\vsgpt_test_mbr_partition_type.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\vsgpt_test_partition_type.c"
+				RelativePath="..\..\tests\vsgpt_test_memory.c"
 				>
 			</File>
 		</Filter>

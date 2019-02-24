@@ -111,41 +111,6 @@ struct vsgpt_partition_table_header
 	uint8_t entries_data_checksum[ 4 ];
 };
 
-typedef struct vsgpt_partition_table_entry vsgpt_partition_table_entry_t;
-
-struct vsgpt_partition_table_entry
-{
-	/* Flags
-	 * Consists of 1 byte
-	 */
-	uint8_t flags;
-
-	/* Partition start address in CHS
-	 * Consists of 3 bytes
-	 */
-	uint8_t start_address_chs[ 3 ];
-
-	/* Partition type
-	 * Consists of 1 byte
-	 */
-	uint8_t type;
-
-	/* Partition end address in CHS
-	 * Consists of 3 bytes
-	 */
-	uint8_t end_address_chs[ 3 ];
-
-	/* Partition start address in LBA
-	 * Consists of 4 bytes
-	 */
-	uint8_t start_address_lba[ 4 ];
-
-	/* Partition number of sectors
-	 * Consists of 4 bytes
-	 */
-	uint8_t number_of_sectors[ 4 ];
-};
-
 #if defined( __cplusplus )
 }
 #endif
