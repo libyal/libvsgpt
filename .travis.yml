@@ -9,7 +9,7 @@ matrix:
     - TARGET="linux-clang"
     compiler: clang
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc"
@@ -20,7 +20,7 @@ matrix:
     - TARGET="linux-gcc"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc on s390x (Docker)"
@@ -33,7 +33,7 @@ matrix:
     - TARGET="docker"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
     services:
@@ -46,7 +46,7 @@ matrix:
     - TARGET="linux-gcc-wide-character-type"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc without optimization"
@@ -58,7 +58,7 @@ matrix:
     - TARGET="linux-gcc-no-optimization"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc and Python module"
@@ -69,7 +69,7 @@ matrix:
     - TARGET="linux-gcc-python"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc and Python 2 module"
@@ -81,7 +81,7 @@ matrix:
     - TARGET="linux-gcc-python2"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc and Python 3 module"
@@ -93,7 +93,7 @@ matrix:
     - TARGET="linux-gcc-python3"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc and Python 2 module (setup.py)"
@@ -101,7 +101,7 @@ matrix:
     - TARGET="linux-gcc-python-setup-py"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
     python: 2.7
@@ -110,7 +110,7 @@ matrix:
     - TARGET="linux-gcc-python-setup-py"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
     python: 3.4
@@ -122,7 +122,7 @@ matrix:
     - TARGET="linux-gcc-shared"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc, shared libraries and wide character type (wchar_t) support"
@@ -133,7 +133,7 @@ matrix:
     - TARGET="linux-gcc-shared-wide-character-type"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Linux with gcc and static executables support"
@@ -144,7 +144,7 @@ matrix:
     - TARGET="linux-gcc-static-executables"
     compiler: gcc
     os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     group: edge
   - name: "Mac OS with clang"
@@ -205,4 +205,7 @@ script:
 after_success:
 - if test ${TARGET} = "linux-gcc-no-optimization"; then
     curl -o codecov.sh -s https://codecov.io/bash && sed 's/ -execdir / -exec /' -i ./codecov.sh && /bin/bash ./codecov.sh -n ${TARGET} -y .codecov.yml;
+  fi
+- if test ${TARGET} = "macos-gcc-python-setup-py37" && test -n "${TRAVIS_TAG}"; then
+    python3 -m twine upload dist/*.whl --username __token__ --password ${PYPI_TOKEN} --skip-existing;
   fi
