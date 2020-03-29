@@ -33,11 +33,11 @@
  * for local use of libvsgpt
  */
 #else
-#define LIBVSGPT_VERSION			20190514
+#define LIBVSGPT_VERSION			20200125
 
 /* The libvsgpt version string
  */
-#define LIBVSGPT_VERSION_STRING			"20190514"
+#define LIBVSGPT_VERSION_STRING			"20200125"
 
 /* The endian definitions
  */
