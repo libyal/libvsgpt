@@ -28,6 +28,9 @@ MSVSCPP_FILES = \
 	vsgpt_test_section_values/vsgpt_test_section_values.vcproj \
 	vsgpt_test_sector_data/vsgpt_test_sector_data.vcproj \
 	vsgpt_test_support/vsgpt_test_support.vcproj \
+	vsgpt_test_tools_info_handle/vsgpt_test_tools_info_handle.vcproj \
+	vsgpt_test_tools_output/vsgpt_test_tools_output.vcproj \
+	vsgpt_test_tools_signal/vsgpt_test_tools_signal.vcproj \
 	vsgpt_test_volume/vsgpt_test_volume.vcproj \
 	vsgptinfo/vsgptinfo.vcproj \
 	libvsgpt.sln

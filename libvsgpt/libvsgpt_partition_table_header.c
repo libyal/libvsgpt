@@ -208,11 +208,11 @@ int libvsgpt_partition_table_header_read_data(
 	{
 		return( 0 );
 	}
-	byte_stream_copy_to_uint32_little_endian(
+	byte_stream_copy_to_uint16_little_endian(
 	 ( (vsgpt_partition_table_header_t *) data )->major_format_version,
 	 major_format_version );
 
-	byte_stream_copy_to_uint32_little_endian(
+	byte_stream_copy_to_uint16_little_endian(
 	 ( (vsgpt_partition_table_header_t *) data )->minor_format_version,
 	 minor_format_version );
 

@@ -1,7 +1,7 @@
 /*
- * Library error functions test program
+ * Tools signal functions test program
  *
- * Copyright (C) 2019-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2020, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,84 +27,81 @@
 #include <stdlib.h>
 #endif
 
-#include "vsgpt_test_libvsgpt.h"
+#include "vsgpt_test_libcerror.h"
 #include "vsgpt_test_macros.h"
 #include "vsgpt_test_unused.h"
 
-/* Tests the libvsgpt_error_free function
- * Returns 1 if successful or 0 if not
- */
-int vsgpt_test_error_free(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libvsgpt_error_free(
-	 NULL );
+#include "../vsgpttools/vsgpttools_signal.h"
 
-	return( 1 );
+void vsgpt_test_tools_signal_handler(
+      vsgpttools_signal_t signal VSGPT_TEST_ATTRIBUTE_UNUSED )
+{
+	VSGPT_TEST_UNREFERENCED_PARAMETER( signal )
 }
 
-/* Tests the libvsgpt_error_fprint function
+/* Tests the vsgpttools_signal_attach and function
  * Returns 1 if successful or 0 if not
  */
-int vsgpt_test_error_fprint(
+int vsgpt_test_tools_signal_attach(
      void )
 {
-	/* Test invocation of function only
-	 */
-	libvsgpt_error_fprint(
-	 NULL,
-	 NULL );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	result = vsgpttools_signal_attach(
+	          vsgpt_test_tools_signal_handler,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
 }
 
-/* Tests the libvsgpt_error_sprint function
+/* Tests the vsgpttools_signal_detach and function
  * Returns 1 if successful or 0 if not
  */
-int vsgpt_test_error_sprint(
+int vsgpt_test_tools_signal_detach(
      void )
 {
-	/* Test invocation of function only
-	 */
-	libvsgpt_error_sprint(
-	 NULL,
-	 NULL,
-	 0 );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	result = vsgpttools_signal_detach(
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
-}
 
-/* Tests the libvsgpt_error_backtrace_fprint function
- * Returns 1 if successful or 0 if not
- */
-int vsgpt_test_error_backtrace_fprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libvsgpt_error_backtrace_fprint(
-	 NULL,
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libvsgpt_error_backtrace_sprint function
- * Returns 1 if successful or 0 if not
- */
-int vsgpt_test_error_backtrace_sprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libvsgpt_error_backtrace_sprint(
-	 NULL,
-	 NULL,
-	 0 );
-
-	return( 1 );
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
 }
 
 /* The main program
@@ -122,25 +119,23 @@ int main(
 	VSGPT_TEST_UNREFERENCED_PARAMETER( argc )
 	VSGPT_TEST_UNREFERENCED_PARAMETER( argv )
 
-	VSGPT_TEST_RUN(
-	 "libvsgpt_error_free",
-	 vsgpt_test_error_free );
+#if defined( WINAPI )
+
+	/* TODO add tests for vsgpttools_signal_handler */
+#endif
+
+#if defined( WINAPI ) && defined( _MSC_VER )
+
+	/* TODO add tests for vsgpttools_signal_initialize_memory_debug */
+#endif
 
 	VSGPT_TEST_RUN(
-	 "libvsgpt_error_fprint",
-	 vsgpt_test_error_fprint );
+	 "vsgpttools_signal_attach",
+	 vsgpt_test_tools_signal_attach )
 
 	VSGPT_TEST_RUN(
-	 "libvsgpt_error_sprint",
-	 vsgpt_test_error_sprint );
-
-	VSGPT_TEST_RUN(
-	 "libvsgpt_error_backtrace_fprint",
-	 vsgpt_test_error_backtrace_fprint );
-
-	VSGPT_TEST_RUN(
-	 "libvsgpt_error_backtrace_sprint",
-	 vsgpt_test_error_backtrace_sprint );
+	 "vsgpttools_signal_detach",
+	 vsgpt_test_tools_signal_detach )
 
 	return( EXIT_SUCCESS );
 

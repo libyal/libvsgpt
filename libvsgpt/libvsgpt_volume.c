@@ -1809,7 +1809,6 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 	libvsgpt_partition_values_t *partition_values     = NULL;
 	static char *function                             = "libvsgpt_internal_volume_read_mbr_partition_entries";
 	off64_t extended_partition_record_offset          = 0;
-	int entry_index                                   = 0;
 	int partition_entry_index                         = 0;
 	int result                                        = 0;
 

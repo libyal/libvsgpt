@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
@@ -23,6 +25,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_tools.sh \
 	test_vsgptinfo.sh \
 	$(TESTS_PYVSGPT)
 
@@ -34,6 +37,7 @@ check_SCRIPTS = \
 	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh \
+	test_tools.sh \
 	test_vsgptinfo.sh
 
 EXTRA_DIST = \
@@ -54,6 +58,9 @@ check_PROGRAMS = \
 	vsgpt_test_section_values \
 	vsgpt_test_sector_data \
 	vsgpt_test_support \
+	vsgpt_test_tools_info_handle \
+	vsgpt_test_tools_output \
+	vsgpt_test_tools_signal \
 	vsgpt_test_volume
 
 vsgpt_test_boot_record_SOURCES = \
@@ -273,6 +280,41 @@ vsgpt_test_support_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
+	../libvsgpt/libvsgpt.la \
+	@LIBCERROR_LIBADD@
+
+vsgpt_test_tools_info_handle_SOURCES = \
+	../vsgpttools/info_handle.c ../vsgpttools/info_handle.h \
+	vsgpt_test_libcerror.h \
+	vsgpt_test_macros.h \
+	vsgpt_test_memory.c vsgpt_test_memory.h \
+	vsgpt_test_tools_info_handle.c \
+	vsgpt_test_unused.h
+
+vsgpt_test_tools_info_handle_LDADD = \
+	@LIBCLOCALE_LIBADD@ \
+	../libvsgpt/libvsgpt.la \
+	@LIBCERROR_LIBADD@
+
+vsgpt_test_tools_output_SOURCES = \
+	../vsgpttools/vsgpttools_output.c ../vsgpttools/vsgpttools_output.h \
+	vsgpt_test_libcerror.h \
+	vsgpt_test_macros.h \
+	vsgpt_test_tools_output.c \
+	vsgpt_test_unused.h
+
+vsgpt_test_tools_output_LDADD = \
+	../libvsgpt/libvsgpt.la \
+	@LIBCERROR_LIBADD@
+
+vsgpt_test_tools_signal_SOURCES = \
+	../vsgpttools/vsgpttools_signal.c ../vsgpttools/vsgpttools_signal.h \
+	vsgpt_test_libcerror.h \
+	vsgpt_test_macros.h \
+	vsgpt_test_tools_signal.c \
+	vsgpt_test_unused.h
+
+vsgpt_test_tools_signal_LDADD = \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@
 

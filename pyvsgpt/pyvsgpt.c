@@ -30,6 +30,7 @@
 #include "pyvsgpt.h"
 #include "pyvsgpt_error.h"
 #include "pyvsgpt_file_object_io_handle.h"
+#include "pyvsgpt_libbfio.h"
 #include "pyvsgpt_libcerror.h"
 #include "pyvsgpt_libvsgpt.h"
 #include "pyvsgpt_partition.h"
@@ -153,7 +154,7 @@ PyObject *pyvsgpt_check_volume_signature(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|O",
+	     "O|",
 	     keyword_list,
 	     &string_object ) == 0 )
 	{
@@ -426,19 +427,47 @@ PyObject *pyvsgpt_open_new_volume(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *pyvsgpt_volume = NULL;
+	pyvsgpt_volume_t *pyvsgpt_volume = NULL;
+	static char *function            = "pyvsgpt_open_new_volume";
 
 	PYVSGPT_UNREFERENCED_PARAMETER( self )
 
-	pyvsgpt_volume_init(
-	 (pyvsgpt_volume_t *) pyvsgpt_volume );
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyvsgpt_volume = PyObject_New(
+	                  struct pyvsgpt_volume,
+	                  &pyvsgpt_volume_type_object );
 
-	pyvsgpt_volume_open(
-	 (pyvsgpt_volume_t *) pyvsgpt_volume,
-	 arguments,
-	 keywords );
+	if( pyvsgpt_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create volume.",
+		 function );
 
-	return( pyvsgpt_volume );
+		goto on_error;
+	}
+	if( pyvsgpt_volume_init(
+	     pyvsgpt_volume ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyvsgpt_volume_open(
+	     pyvsgpt_volume,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyvsgpt_volume );
+
+on_error:
+	if( pyvsgpt_volume != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyvsgpt_volume );
+	}
+	return( NULL );
 }
 
 /* Creates a new volume object and opens it using a file-like object
@@ -449,19 +478,47 @@ PyObject *pyvsgpt_open_new_volume_with_file_object(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *pyvsgpt_volume = NULL;
+	pyvsgpt_volume_t *pyvsgpt_volume = NULL;
+	static char *function            = "pyvsgpt_open_new_volume_with_file_object";
 
 	PYVSGPT_UNREFERENCED_PARAMETER( self )
 
-	pyvsgpt_volume_init(
-	 (pyvsgpt_volume_t *) pyvsgpt_volume );
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyvsgpt_volume = PyObject_New(
+	                  struct pyvsgpt_volume,
+	                  &pyvsgpt_volume_type_object );
 
-	pyvsgpt_volume_open_file_object(
-	 (pyvsgpt_volume_t *) pyvsgpt_volume,
-	 arguments,
-	 keywords );
+	if( pyvsgpt_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create volume.",
+		 function );
 
-	return( pyvsgpt_volume );
+		goto on_error;
+	}
+	if( pyvsgpt_volume_init(
+	     pyvsgpt_volume ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyvsgpt_volume_open_file_object(
+	     pyvsgpt_volume,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyvsgpt_volume );
+
+on_error:
+	if( pyvsgpt_volume != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyvsgpt_volume );
+	}
+	return( NULL );
 }
 
 #if PY_MAJOR_VERSION >= 3
@@ -537,23 +594,6 @@ PyMODINIT_FUNC initpyvsgpt(
 
 	gil_state = PyGILState_Ensure();
 
-	/* Setup the volume type object
-	 */
-	pyvsgpt_volume_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyvsgpt_volume_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyvsgpt_volume_type_object );
-
-	PyModule_AddObject(
-	 module,
-	 "volume",
-	 (PyObject *) &pyvsgpt_volume_type_object );
-
 	/* Setup the partition type object
 	 */
 	pyvsgpt_partition_type_object.tp_new = PyType_GenericNew;
@@ -587,6 +627,23 @@ PyMODINIT_FUNC initpyvsgpt(
 	 module,
 	 "partitions",
 	 (PyObject *) &pyvsgpt_partitions_type_object );
+
+	/* Setup the volume type object
+	 */
+	pyvsgpt_volume_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvsgpt_volume_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvsgpt_volume_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "volume",
+	 (PyObject *) &pyvsgpt_volume_type_object );
 
 	PyGILState_Release(
 	 gil_state );
