@@ -25,14 +25,21 @@
 #include <common.h>
 #include <types.h>
 
+#include "libvsgpt_extern.h"
 #include "libvsgpt_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
+LIBVSGPT_EXTERN_VARIABLE \
+uint32_t libvsgpt_checksum_crc32_table[ 256 ];
+
+LIBVSGPT_EXTERN_VARIABLE \
+int libvsgpt_checksum_crc32_table_computed;
+
 void libvsgpt_checksum_initialize_crc32_table(
-      void );
+      int );
 
 int libvsgpt_checksum_calculate_crc32(
      uint32_t *checksum,

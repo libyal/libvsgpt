@@ -15,6 +15,7 @@ MSVSCPP_FILES = \
 	libvsgpt/libvsgpt.vcproj \
 	pyvsgpt/pyvsgpt.vcproj \
 	vsgpt_test_boot_record/vsgpt_test_boot_record.vcproj \
+	vsgpt_test_checksum/vsgpt_test_checksum.vcproj \
 	vsgpt_test_chs_address/vsgpt_test_chs_address.vcproj \
 	vsgpt_test_error/vsgpt_test_error.vcproj \
 	vsgpt_test_io_handle/vsgpt_test_io_handle.vcproj \

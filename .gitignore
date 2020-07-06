@@ -129,6 +129,7 @@ stamp-h[1-9]
 /tests/input
 /tests/tmp*
 /tests/vsgpt_test_boot_record
+/tests/vsgpt_test_checksum
 /tests/vsgpt_test_chs_address
 /tests/vsgpt_test_error
 /tests/vsgpt_test_io_handle

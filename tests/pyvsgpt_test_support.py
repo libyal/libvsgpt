@@ -35,6 +35,59 @@ class SupportFunctionsTests(unittest.TestCase):
     version = pyvsgpt.get_version()
     self.assertIsNotNone(version)
 
+  def test_check_volume_signature(self):
+    """Tests the check_volume_signature function."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    result = pyvsgpt.check_volume_signature(unittest.source)
+    self.assertTrue(result)
+
+  def test_check_volume_signature_file_object(self):
+    """Tests the check_volume_signature_file_object function."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    with open(unittest.source, "rb") as file_object:
+      result = pyvsgpt.check_volume_signature_file_object(file_object)
+      self.assertTrue(result)
+
+  def test_open(self):
+    """Tests the open function."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    vsgpt_volume = pyvsgpt.open(unittest.source)
+    self.assertIsNotNone(vsgpt_volume)
+
+    vsgpt_volume.close()
+
+    with self.assertRaises(TypeError):
+      pyvsgpt.open(None)
+
+    with self.assertRaises(ValueError):
+      pyvsgpt.open(unittest.source, mode="w")
+
+  def test_open_file_object(self):
+    """Tests the open_file_object function."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    if not os.path.isfile(unittest.source):
+      raise unittest.SkipTest("source not a regular file")
+
+    with open(unittest.source, "rb") as file_object:
+      vsgpt_volume = pyvsgpt.open_file_object(file_object)
+      self.assertIsNotNone(vsgpt_volume)
+
+      vsgpt_volume.close()
+
+      with self.assertRaises(TypeError):
+        pyvsgpt.open_file_object(None)
+
+      with self.assertRaises(ValueError):
+        pyvsgpt.open_file_object(file_object, mode="w")
+
 
 if __name__ == "__main__":
   argument_parser = argparse.ArgumentParser()
