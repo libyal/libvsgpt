@@ -10,6 +10,7 @@ AM_CPPFLAGS = \
 	@LIBCFILE_CPPFLAGS@ \
 	@LIBCPATH_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
+	@LIBFGUID_CPPFLAGS@ \
 	@LIBVSGPT_DLL_IMPORT@
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
@@ -26,6 +27,7 @@ vsgptinfo_SOURCES = \
 	vsgpttools_libcerror.h \
 	vsgpttools_libclocale.h \
 	vsgpttools_libcnotify.h \
+	vsgpttools_libfguid.h \
 	vsgpttools_libuna.h \
 	vsgpttools_libvsgpt.h \
 	vsgpttools_output.c vsgpttools_output.h \
@@ -33,6 +35,7 @@ vsgptinfo_SOURCES = \
 	vsgpttools_unused.h
 
 vsgptinfo_LDADD = \
+	@LIBFGUID_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	../libvsgpt/libvsgpt.la \
 	@LIBCNOTIFY_LIBADD@ \

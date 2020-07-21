@@ -31,6 +31,8 @@
 #include "libvsgpt_libfguid.h"
 #include "libvsgpt_libuna.h"
 #include "libvsgpt_partition_entry.h"
+#include "libvsgpt_partition_type_identifier.h"
+#include "libvsgpt_types.h"
 
 #include "vsgpt_partition_entry.h"
 
@@ -137,6 +139,99 @@ int libvsgpt_partition_entry_free(
 	return( 1 );
 }
 
+/* Checks if a buffer containing the partition entry is filled with same value bytes (empty-block)
+ * Returns 1 if a pattern was found, 0 if not or -1 on error
+ */
+int libvsgpt_partition_entry_check_for_empty_block(
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error )
+{
+	libvsgpt_aligned_t *aligned_data_index = NULL;
+	libvsgpt_aligned_t *aligned_data_start = NULL;
+	uint8_t *data_index                    = NULL;
+	uint8_t *data_start                    = NULL;
+	static char *function                  = "libvsgpt_partition_entry_check_for_empty_block";
+
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	data_start = (uint8_t *) data;
+	data_index = (uint8_t *) data + 1;
+	data_size -= 1;
+
+	/* Only optimize for data larger than the alignment
+	 */
+	if( data_size > ( 2 * sizeof( libvsgpt_aligned_t ) ) )
+	{
+		/* Align the data start
+		 */
+		while( ( (intptr_t) data_start % sizeof( libvsgpt_aligned_t ) ) != 0 )
+		{
+			if( *data_start != *data_index )
+			{
+				return( 0 );
+			}
+			data_start += 1;
+			data_index += 1;
+			data_size  -= 1;
+		}
+		/* Align the data index
+		 */
+		while( ( (intptr_t) data_index % sizeof( libvsgpt_aligned_t ) ) != 0 )
+		{
+			if( *data_start != *data_index )
+			{
+				return( 0 );
+			}
+			data_index += 1;
+			data_size  -= 1;
+		}
+		aligned_data_start = (libvsgpt_aligned_t *) data_start;
+		aligned_data_index = (libvsgpt_aligned_t *) data_index;
+
+		while( data_size > sizeof( libvsgpt_aligned_t ) )
+		{
+			if( *aligned_data_start != *aligned_data_index )
+			{
+				return( 0 );
+			}
+			aligned_data_index += 1;
+			data_size          -= sizeof( libvsgpt_aligned_t );
+		}
+		data_index = (uint8_t *) aligned_data_index;
+	}
+	while( data_size != 0 )
+	{
+		if( *data_start != *data_index )
+		{
+			return( 0 );
+		}
+		data_index += 1;
+		data_size  -= 1;
+	}
+	return( 1 );
+}
+
 /* Reads a partition entry
  * Returns 1 if successful or -1 on error
  */
@@ -191,7 +286,7 @@ int libvsgpt_partition_entry_read_data(
 		libcnotify_print_data(
 		 data,
 		 data_size,
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
 	if( memory_copy(
@@ -269,6 +364,12 @@ int libvsgpt_partition_entry_read_data(
 
 			return( -1 );
 		}
+		libcnotify_printf(
+		 "%s: type identifier description\t\t: %s\n",
+		 function,
+		 libvsgpt_partition_type_identifier_get_description(
+		  ( (vsgpt_partition_entry_t *) data )->type_identifier ) );
+
 		if( libvsgpt_debug_print_guid_value(
 		     function,
 		     "identifier\t\t\t\t",

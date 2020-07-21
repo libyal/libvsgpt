@@ -45,5 +45,10 @@ typedef intptr_t libvsgpt_volume_t;
 
 #endif /* defined( HAVE_LOCAL_LIBVSGPT ) */
 
+/* The largest primary (or scalar) available
+ * supported by a single load and store instruction
+ */
+typedef unsigned long int libvsgpt_aligned_t;
+
 #endif /* !defined( _LIBVSGPT_INTERNAL_TYPES_H ) */
 

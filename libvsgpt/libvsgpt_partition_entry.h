@@ -68,6 +68,11 @@ int libvsgpt_partition_entry_free(
      libvsgpt_partition_entry_t **partition_entry,
      libcerror_error_t **error );
 
+int libvsgpt_partition_entry_check_for_empty_block(
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
 int libvsgpt_partition_entry_read_data(
      libvsgpt_partition_entry_t *partition_entry,
      const uint8_t *data,

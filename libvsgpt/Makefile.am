@@ -45,6 +45,7 @@ libvsgpt_la_SOURCES = \
 	libvsgpt_partition.c libvsgpt_partition.h \
 	libvsgpt_partition_entry.c libvsgpt_partition_entry.h \
 	libvsgpt_partition_table_header.c libvsgpt_partition_table_header.h \
+	libvsgpt_partition_type_identifier.c libvsgpt_partition_type_identifier.h \
 	libvsgpt_partition_values.c libvsgpt_partition_values.h \
 	libvsgpt_section_values.c libvsgpt_section_values.h \
 	libvsgpt_sector_data.c libvsgpt_sector_data.h \

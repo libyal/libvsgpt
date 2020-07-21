@@ -24,11 +24,11 @@
 
 #include <libvsgpt/types.h>
 
-#define LIBVSGPT_VERSION		20200707
+#define LIBVSGPT_VERSION		20200721
 
 /* The version string
  */
-#define LIBVSGPT_VERSION_STRING		"20200707"
+#define LIBVSGPT_VERSION_STRING		"20200721"
 
 /* The byte order definitions
  */

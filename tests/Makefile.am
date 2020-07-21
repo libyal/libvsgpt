@@ -15,6 +15,7 @@ AM_CPPFLAGS = \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFCACHE_CPPFLAGS@ \
 	@LIBFDATA_CPPFLAGS@ \
+	@LIBFGUID_CPPFLAGS@ \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBVSGPT_DLL_IMPORT@
 
@@ -304,6 +305,7 @@ vsgpt_test_tools_info_handle_SOURCES = \
 	vsgpt_test_unused.h
 
 vsgpt_test_tools_info_handle_LDADD = \
+	@LIBFGUID_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@

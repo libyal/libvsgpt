@@ -222,6 +222,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_partition_type_identifier.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_partition_values.c"
 				>
 			</File>
@@ -341,6 +345,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libvsgpt\libvsgpt_partition_table_header.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvsgpt\libvsgpt_partition_type_identifier.h"
 				>
 			</File>
 			<File

@@ -323,6 +323,28 @@ int libvsgpt_partition_free(
      libvsgpt_partition_t **partition,
      libvsgpt_error_t **error );
 
+/* Retrieves the partition identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSGPT_EXTERN \
+int libvsgpt_partition_get_identifier(
+     libvsgpt_partition_t *partition,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libvsgpt_error_t **error );
+
+/* Retrieves the partition type identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSGPT_EXTERN \
+int libvsgpt_partition_get_type_identifier(
+     libvsgpt_partition_t *partition,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libvsgpt_error_t **error );
+
 /* Retrieves the partition type
  * Returns 1 if successful or -1 on error
  */

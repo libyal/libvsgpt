@@ -283,6 +283,156 @@ int libvsgpt_partition_free(
 	return( result );
 }
 
+/* Retrieves the partition identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_partition_get_identifier(
+     libvsgpt_partition_t *partition,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libcerror_error_t **error )
+{
+	libvsgpt_internal_partition_t *internal_partition = NULL;
+	static char *function                             = "libvsgpt_partition_get_identifier";
+	int result                                        = 1;
+
+	if( partition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid partition.",
+		 function );
+
+		return( -1 );
+	}
+	internal_partition = (libvsgpt_internal_partition_t *) partition;
+
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libvsgpt_partition_values_get_identifier(
+	     internal_partition->partition_values,
+	     guid_data,
+	     guid_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+/* Retrieves the partition type identifier
+ * The identifier is a GUID stored in little-endian and is 16 bytes of size
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_partition_get_type_identifier(
+     libvsgpt_partition_t *partition,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libcerror_error_t **error )
+{
+	libvsgpt_internal_partition_t *internal_partition = NULL;
+	static char *function                             = "libvsgpt_partition_get_type_identifier";
+	int result                                        = 1;
+
+	if( partition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid partition.",
+		 function );
+
+		return( -1 );
+	}
+	internal_partition = (libvsgpt_internal_partition_t *) partition;
+
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libvsgpt_partition_values_get_type_identifier(
+	     internal_partition->partition_values,
+	     guid_data,
+	     guid_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve type identifier.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
 /* Retrieves the partition type
  * Returns 1 if successful or -1 on error
  */

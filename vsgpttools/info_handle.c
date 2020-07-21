@@ -29,6 +29,7 @@
 
 #include "vsgpttools_libcerror.h"
 #include "vsgpttools_libclocale.h"
+#include "vsgpttools_libfguid.h"
 #include "vsgpttools_libvsgpt.h"
 #include "info_handle.h"
 
@@ -291,6 +292,118 @@ int info_handle_close_input(
 		return( -1 );
 	}
 	return( 0 );
+}
+
+/* Prints a GUID value
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_guid_value_fprint(
+     info_handle_t *info_handle,
+     const char *value_name,
+     const uint8_t *guid_data,
+     libcerror_error_t **error )
+{
+	system_character_t guid_string[ 48 ];
+
+	libfguid_identifier_t *guid = NULL;
+	static char *function       = "info_handle_guid_value_fprint";
+	int result                  = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfguid_identifier_initialize(
+	     &guid,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create GUID.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfguid_identifier_copy_from_byte_stream(
+	     guid,
+	     guid_data,
+	     16,
+	     LIBFGUID_ENDIAN_LITTLE,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy byte stream to GUID.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libfguid_identifier_copy_to_utf16_string(
+		  guid,
+		  (uint16_t *) guid_string,
+		  48,
+		  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
+		  error );
+#else
+	result = libfguid_identifier_copy_to_utf8_string(
+		  guid,
+		  (uint8_t *) guid_string,
+		  48,
+		  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
+		  error );
+#endif
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy GUID to string.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "%s: %" PRIs_SYSTEM "\n",
+	 value_name,
+	 guid_string );
+
+	if( libfguid_identifier_free(
+	     &guid,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free GUID.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( guid != NULL )
+	{
+		libfguid_identifier_free(
+		 &guid,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Prints the partition type
@@ -708,6 +821,8 @@ int info_handle_partition_fprint(
      libvsgpt_partition_t *partition,
      libcerror_error_t **error )
 {
+	uint8_t guid_data[ 16 ];
+
 	static char *function = "info_handle_partition_fprint";
 	size64_t size         = 0;
 	off64_t volume_offset = 0;
@@ -720,6 +835,66 @@ int info_handle_partition_fprint(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvsgpt_partition_get_identifier(
+	     partition,
+	     guid_data,
+	     16,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		return( -1 );
+	}
+	if( info_handle_guid_value_fprint(
+	     info_handle,
+	     "\tIdentifier\t\t",
+	     guid_data,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print GUID value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvsgpt_partition_get_type_identifier(
+	     partition,
+	     guid_data,
+	     16,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve type identifier.",
+		 function );
+
+		return( -1 );
+	}
+	if( info_handle_guid_value_fprint(
+	     info_handle,
+	     "\tType identifier\t\t",
+	     guid_data,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print GUID value.",
 		 function );
 
 		return( -1 );
@@ -801,6 +976,8 @@ int info_handle_partitions_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
+	uint8_t guid_data[ 16 ];
+
 	libvsgpt_partition_t *partition = NULL;
 	static char *function           = "info_handle_partitions_fprint";
 	uint32_t bytes_per_sector       = 0;
@@ -822,6 +999,36 @@ int info_handle_partitions_fprint(
 	 info_handle->notify_stream,
 	 "GUID Partition Table (GPT) information:\n" );
 
+	if( libvsgpt_volume_get_disk_identifier(
+	     info_handle->input_volume,
+	     guid_data,
+	     16,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve disk identifier.",
+		 function );
+
+		goto on_error;
+	}
+	if( info_handle_guid_value_fprint(
+	     info_handle,
+	     "\tDisk identifier\t\t",
+	     guid_data,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+		 "%s: unable to print GUID value.",
+		 function );
+
+		goto on_error;
+	}
 	if( libvsgpt_volume_get_bytes_per_sector(
 	     info_handle->input_volume,
 	     &bytes_per_sector,
@@ -864,7 +1071,13 @@ int info_handle_partitions_fprint(
 	 info_handle->notify_stream,
 	 "\n" );
 
-	if( number_of_partitions > 0 )
+	if( number_of_partitions == 0 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\n" );
+	}
+	else
 	{
 		for( partition_index = 0;
 		     partition_index < number_of_partitions;
@@ -925,10 +1138,6 @@ int info_handle_partitions_fprint(
 			 "\n" );
 		}
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\n" );
-
 	return( 1 );
 
 on_error:

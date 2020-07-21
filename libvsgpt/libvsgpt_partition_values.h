@@ -64,6 +64,18 @@ int libvsgpt_partition_values_free(
      libvsgpt_partition_values_t **partition_values,
      libcerror_error_t **error );
 
+int libvsgpt_partition_values_get_identifier(
+     libvsgpt_partition_values_t *partition_values,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libcerror_error_t **error );
+
+int libvsgpt_partition_values_get_type_identifier(
+     libvsgpt_partition_values_t *partition_values,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libcerror_error_t **error );
+
 int libvsgpt_partition_values_get_type(
      libvsgpt_partition_values_t *partition_values,
      uint8_t *type,
