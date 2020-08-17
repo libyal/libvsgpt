@@ -1827,7 +1827,7 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 		return( -1 );
 	}
 	if( ( recursion_depth < 0 )
-	 || ( recursion_depth > LIBVSGPT_MAXIMUM_BTREE_NODE_RECURSION_DEPTH ) )
+	 || ( recursion_depth > LIBVSGPT_MAXIMUM_RECURSION_DEPTH ) )
 	{
 		libcerror_error_set(
 		 error,
