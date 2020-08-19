@@ -85,14 +85,14 @@ int libvsgpt_partition_free(
      libcerror_error_t **error );
 
 LIBVSGPT_EXTERN \
-int libvsgpt_parition_get_identifier(
+int libvsgpt_partition_get_identifier(
      libvsgpt_partition_t *partition,
      uint8_t *guid_data,
      size_t guid_data_size,
      libcerror_error_t **error );
 
 LIBVSGPT_EXTERN \
-int libvsgpt_parition_get_type_identifier(
+int libvsgpt_partition_get_type_identifier(
      libvsgpt_partition_t *partition,
      uint8_t *guid_data,
      size_t guid_data_size,

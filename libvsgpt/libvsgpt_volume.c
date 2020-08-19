@@ -1235,7 +1235,7 @@ int libvsgpt_internal_volume_read_partition_table_headers(
 		 function,
 		 partition_table_header->partition_header_block_number );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
