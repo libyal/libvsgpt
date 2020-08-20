@@ -1135,6 +1135,12 @@ on_error:
 		 &master_boot_record,
 		 NULL );
 	}
+	if( internal_volume->partition_table_header != NULL )
+	{
+		libvsgpt_partition_table_header_free(
+		 &( internal_volume->partition_table_header ),
+		 NULL );
+	}
 	return( -1 );
 }
 
