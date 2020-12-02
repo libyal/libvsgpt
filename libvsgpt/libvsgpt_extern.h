@@ -30,7 +30,11 @@
 
 #include <libvsgpt/extern.h>
 
+#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
+#define LIBVSGPT_EXTERN_VARIABLE	extern
+#else
 #define LIBVSGPT_EXTERN_VARIABLE	LIBVSGPT_EXTERN
+#endif
 
 #else
 #define LIBVSGPT_EXTERN		/* extern */
