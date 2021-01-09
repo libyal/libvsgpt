@@ -34,8 +34,11 @@ DPKG_FILES = \
 	dpkg/control \
 	dpkg/copyright \
 	dpkg/rules \
-	dpkg/libvsgpt-dev.install \
 	dpkg/libvsgpt.install \
+	dpkg/libvsgpt-dev.install \
+	dpkg/libvsgpt-python.install \
+	dpkg/libvsgpt-python3.install \
+	dpkg/libvsgpt-tools.install \
 	dpkg/source/format
 
 GETTEXT_FILES = \

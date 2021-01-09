@@ -1,7 +1,7 @@
 /*
  * Library to access the GUID Partition Table (GPT) volume system format
  *
- * Copyright (C) 2019-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2019-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
