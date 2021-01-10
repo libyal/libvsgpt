@@ -10,9 +10,11 @@ Analysis of the GPT partition table format
 
 The GUID Partition Table (GPT) is a partitioning schema that is the successor
 to the Master Boot Record (MBR) Partition Table for Intel x86 based computers.
+This specification is based on publicly available work on the format and was
+enhanced by analyzing test data.
 
-This document is intended as a working document for the GUID Partition Table
-(GPT) format specification.
+This document is intended as a working document of the data format specification
+for the libvsgpt project.
 
 [preface]
 == Document information

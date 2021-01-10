@@ -23,8 +23,8 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libvsgpt_partition_type_identifier.h"
 #include "libvsgpt_libcerror.h"
+#include "libvsgpt_partition_type_identifier.h"
 
 uint8_t libvsgpt_partition_type_identifier_linux_filesystem_data[ 16 ] = {
 	0xaf, 0x3d, 0xc6, 0x0f, 0x83, 0x84, 0x72, 0x47, 0x8e, 0x79, 0x3d, 0x69, 0xd8, 0x47, 0x7d, 0xe4 };

@@ -1231,6 +1231,18 @@ int libvsgpt_internal_volume_read_partition_table_headers(
 
 		goto on_error;
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: bytes per sector\t: %" PRIzd ".\n",
+		 function,
+		 internal_volume->io_handle->bytes_per_sector );
+
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
 	if( partition_table_header->partition_header_block_number != 1 )
 	{
 		libcerror_error_set(
@@ -1718,8 +1730,8 @@ int libvsgpt_internal_volume_read_partition_entries(
 
 			goto on_error;
 		}
-		if( ( partition_entry->start_block_number <= 33 )
-		 || ( partition_entry->start_block_number > (uint64_t) ( internal_volume->size / internal_volume->io_handle->bytes_per_sector ) ) )
+		if( ( partition_entry->start_block_number < internal_volume->partition_table_header->partition_area_start_block_number )
+		 || ( partition_entry->start_block_number >= (uint64_t) ( internal_volume->size / internal_volume->io_handle->bytes_per_sector ) ) )
 		{
 			libcerror_error_set(
 			 error,

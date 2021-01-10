@@ -89,6 +89,14 @@ PyObject *pyvsgpt_partition_get_size(
            pyvsgpt_partition_t *pyvsgpt_partition,
            PyObject *arguments );
 
+PyObject *pyvsgpt_partition_get_identifier(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments );
+
+PyObject *pyvsgpt_partition_get_type_identifier(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments );
+
 #if defined( __cplusplus )
 }
 #endif

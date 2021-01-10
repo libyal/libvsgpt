@@ -28,6 +28,7 @@
 
 #include "pyvsgpt_error.h"
 #include "pyvsgpt_integer.h"
+#include "pyvsgpt_guid.h"
 #include "pyvsgpt_libcerror.h"
 #include "pyvsgpt_libvsgpt.h"
 #include "pyvsgpt_partition.h"
@@ -99,6 +100,20 @@ PyMethodDef pyvsgpt_partition_object_methods[] = {
 	  "\n"
 	  "Retrieves the size." },
 
+	{ "get_identifier",
+	  (PyCFunction) pyvsgpt_partition_get_identifier,
+	  METH_NOARGS,
+	  "get_identifier() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the identifier." },
+
+	{ "get_type_identifier",
+	  (PyCFunction) pyvsgpt_partition_get_identifier,
+	  METH_NOARGS,
+	  "get_type_identifier() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the type identifier." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -115,6 +130,18 @@ PyGetSetDef pyvsgpt_partition_object_get_set_definitions[] = {
 	  (getter) pyvsgpt_partition_get_size,
 	  (setter) 0,
 	  "The size.",
+	  NULL },
+
+	{ "identifier",
+	  (getter) pyvsgpt_partition_get_identifier,
+	  (setter) 0,
+	  "The identifier.",
+	  NULL },
+
+	{ "type_identifier",
+	  (getter) pyvsgpt_partition_get_type_identifier,
+	  (setter) 0,
+	  "The type identifier.",
 	  NULL },
 
 	/* Sentinel */
@@ -1025,5 +1052,133 @@ PyObject *pyvsgpt_partition_get_size(
 	                  (uint64_t) size );
 
 	return( integer_object );
+}
+
+/* Retrieves the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_partition_get_identifier(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments PYVSGPT_ATTRIBUTE_UNUSED )
+{
+	uint8_t guid_data[ 16 ];
+
+	PyObject *string_object  = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyvsgpt_partition_get_identifier";
+	int result               = 0;
+
+	PYVSGPT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvsgpt_partition == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid partition.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_partition_get_identifier(
+	          pyvsgpt_partition->partition,
+	          guid_data,
+	          16,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	string_object = pyvsgpt_string_new_from_guid(
+	                 guid_data,
+	                 16 );
+
+	if( string_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to convert GUID into Unicode object.",
+		 function );
+
+		return( NULL );
+	}
+	return( string_object );
+}
+
+/* Retrieves the type identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_partition_get_type_identifier(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments PYVSGPT_ATTRIBUTE_UNUSED )
+{
+	uint8_t guid_data[ 16 ];
+
+	PyObject *string_object  = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyvsgpt_partition_get_type_identifier";
+	int result               = 0;
+
+	PYVSGPT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvsgpt_partition == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid partition.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_partition_get_type_identifier(
+	          pyvsgpt_partition->partition,
+	          guid_data,
+	          16,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve type identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	string_object = pyvsgpt_string_new_from_guid(
+	                 guid_data,
+	                 16 );
+
+	if( string_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to convert GUID into Unicode object.",
+		 function );
+
+		return( NULL );
+	}
+	return( string_object );
 }
 
