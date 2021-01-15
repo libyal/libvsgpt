@@ -129,6 +129,43 @@ int libvsgpt_partition_values_free(
 	return( 1 );
 }
 
+/* Retrieves the partition entry index
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_partition_values_get_entry_index(
+     libvsgpt_partition_values_t *partition_values,
+     uint32_t *entry_index,
+     libcerror_error_t **error )
+{
+	static char *function = "libvsgpt_partition_values_get_entry_index";
+
+	if( partition_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid partition values.",
+		 function );
+
+		return( -1 );
+	}
+	if( entry_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid entry index.",
+		 function );
+
+		return( -1 );
+	}
+	*entry_index = partition_values->entry_index;
+
+	return( 1 );
+}
+
 /* Retrieves the identifier
  * The identifier is a GUID stored in little-endian and is 16 bytes of size
  * Returns 1 if successful or -1 on error

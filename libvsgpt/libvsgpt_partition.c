@@ -283,6 +283,78 @@ int libvsgpt_partition_free(
 	return( result );
 }
 
+/* Retrieves the partition entry index
+ * Returns 1 if successful or -1 on error
+ */
+int libvsgpt_partition_get_entry_index(
+     libvsgpt_partition_t *partition,
+     uint32_t *entry_index,
+     libcerror_error_t **error )
+{
+	libvsgpt_internal_partition_t *internal_partition = NULL;
+	static char *function                             = "libvsgpt_partition_get_entry_index";
+	int result                                        = 1;
+
+	if( partition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid partition.",
+		 function );
+
+		return( -1 );
+	}
+	internal_partition = (libvsgpt_internal_partition_t *) partition;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libvsgpt_partition_values_get_entry_index(
+	     internal_partition->partition_values,
+	     entry_index,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve entry index.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_partition->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
 /* Retrieves the partition identifier
  * The identifier is a GUID stored in little-endian and is 16 bytes of size
  * Returns 1 if successful or -1 on error

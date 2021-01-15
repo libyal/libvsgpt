@@ -62,10 +62,6 @@ int pyvsgpt_partition_init(
 void pyvsgpt_partition_free(
       pyvsgpt_partition_t *pyvsgpt_partition );
 
-PyObject *pyvsgpt_partition_get_type(
-           pyvsgpt_partition_t *pyvsgpt_partition,
-           PyObject *arguments );
-
 PyObject *pyvsgpt_partition_read_buffer(
            pyvsgpt_partition_t *pyvsgpt_partition,
            PyObject *arguments,
@@ -89,11 +85,19 @@ PyObject *pyvsgpt_partition_get_size(
            pyvsgpt_partition_t *pyvsgpt_partition,
            PyObject *arguments );
 
+PyObject *pyvsgpt_partition_get_entry_index(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments );
+
 PyObject *pyvsgpt_partition_get_identifier(
            pyvsgpt_partition_t *pyvsgpt_partition,
            PyObject *arguments );
 
 PyObject *pyvsgpt_partition_get_type_identifier(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments );
+
+PyObject *pyvsgpt_partition_get_type(
            pyvsgpt_partition_t *pyvsgpt_partition,
            PyObject *arguments );
 

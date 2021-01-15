@@ -35,6 +35,10 @@ typedef struct libvsgpt_partition_values libvsgpt_partition_values_t;
 
 struct libvsgpt_partition_values
 {
+	/* The entry index
+	 */
+	uint32_t entry_index;
+
 	/* The type identifier
 	 */
 	uint8_t type_identifier[ 16 ];
@@ -62,6 +66,11 @@ int libvsgpt_partition_values_initialize(
 
 int libvsgpt_partition_values_free(
      libvsgpt_partition_values_t **partition_values,
+     libcerror_error_t **error );
+
+int libvsgpt_partition_values_get_entry_index(
+     libvsgpt_partition_values_t *partition_values,
+     uint32_t *entry_index,
      libcerror_error_t **error );
 
 int libvsgpt_partition_values_get_identifier(

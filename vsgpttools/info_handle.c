@@ -981,6 +981,7 @@ int info_handle_partitions_fprint(
 	libvsgpt_partition_t *partition = NULL;
 	static char *function           = "info_handle_partitions_fprint";
 	uint32_t bytes_per_sector       = 0;
+	uint32_t entry_index            = 0;
 	int number_of_partitions        = 0;
 	int partition_index             = 0;
 
@@ -1083,11 +1084,6 @@ int info_handle_partitions_fprint(
 		     partition_index < number_of_partitions;
 		     partition_index++ )
 		{
-			fprintf(
-			 info_handle->notify_stream,
-			 "Partition: %d\n",
-			 partition_index + 1 );
-
 			if( libvsgpt_volume_get_partition_by_index(
 			     info_handle->input_volume,
 			     partition_index,
@@ -1104,6 +1100,26 @@ int info_handle_partitions_fprint(
 
 				goto on_error;
 			}
+			if( libvsgpt_partition_get_entry_index(
+			     partition,
+			     &entry_index,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve partition: %d entry index.",
+				 function,
+				 partition_index );
+
+				goto on_error;
+			}
+			fprintf(
+			 info_handle->notify_stream,
+			 "Partition: %" PRIu32 "\n",
+			 entry_index + 1 );
+
 			if( info_handle_partition_fprint(
 			     info_handle,
 			     partition,

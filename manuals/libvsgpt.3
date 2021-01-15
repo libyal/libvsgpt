@@ -1,4 +1,4 @@
-.Dd July  9, 2020
+.Dd January 14, 2021
 .Dt libvsgpt 3
 .Os libvsgpt
 .Sh NAME
@@ -84,6 +84,8 @@ Available when compiled with libbfio support:
 Partition functions
 .Ft int
 .Fn libvsgpt_partition_free "libvsgpt_partition_t **partition" "libvsgpt_error_t **error"
+.Ft int
+.Fn libvsgpt_partition_get_entry_index "libvsgpt_partition_t *partition" "uint32_t *entry_index" "libvsgpt_error_t **error"
 .Ft int
 .Fn libvsgpt_partition_get_identifier "libvsgpt_partition_t *partition" "uint8_t *guid_data" "size_t guid_data_size" "libvsgpt_error_t **error"
 .Ft int

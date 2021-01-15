@@ -37,13 +37,6 @@
 
 PyMethodDef pyvsgpt_partition_object_methods[] = {
 
-	{ "get_type",
-	  (PyCFunction) pyvsgpt_partition_get_type,
-	  METH_NOARGS,
-	  "get_type() -> Integer\n"
-	  "\n"
-	  "Retrieves the type." },
-
 	{ "read_buffer",
 	  (PyCFunction) pyvsgpt_partition_read_buffer,
 	  METH_VARARGS | METH_KEYWORDS,
@@ -100,6 +93,13 @@ PyMethodDef pyvsgpt_partition_object_methods[] = {
 	  "\n"
 	  "Retrieves the size." },
 
+	{ "get_entry_index",
+	  (PyCFunction) pyvsgpt_partition_get_entry_index,
+	  METH_NOARGS,
+	  "get_entry_index() -> Integer\n"
+	  "\n"
+	  "Retrieves the partition entry index." },
+
 	{ "get_identifier",
 	  (PyCFunction) pyvsgpt_partition_get_identifier,
 	  METH_NOARGS,
@@ -114,22 +114,29 @@ PyMethodDef pyvsgpt_partition_object_methods[] = {
 	  "\n"
 	  "Retrieves the type identifier." },
 
+	{ "get_type",
+	  (PyCFunction) pyvsgpt_partition_get_type,
+	  METH_NOARGS,
+	  "get_type() -> Integer\n"
+	  "\n"
+	  "Retrieves the type." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
 
 PyGetSetDef pyvsgpt_partition_object_get_set_definitions[] = {
 
-	{ "type",
-	  (getter) pyvsgpt_partition_get_type,
-	  (setter) 0,
-	  "The type.",
-	  NULL },
-
 	{ "size",
 	  (getter) pyvsgpt_partition_get_size,
 	  (setter) 0,
 	  "The size.",
+	  NULL },
+
+	{ "entry_index",
+	  (getter) pyvsgpt_partition_get_entry_index,
+	  (setter) 0,
+	  "The entry index.",
 	  NULL },
 
 	{ "identifier",
@@ -142,6 +149,12 @@ PyGetSetDef pyvsgpt_partition_object_get_set_definitions[] = {
 	  (getter) pyvsgpt_partition_get_type_identifier,
 	  (setter) 0,
 	  "The type identifier.",
+	  NULL },
+
+	{ "type",
+	  (getter) pyvsgpt_partition_get_type,
+	  (setter) 0,
+	  "The type.",
 	  NULL },
 
 	/* Sentinel */
@@ -394,62 +407,6 @@ void pyvsgpt_partition_free(
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyvsgpt_partition );
-}
-
-/* Retrieves the type
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyvsgpt_partition_get_type(
-           pyvsgpt_partition_t *pyvsgpt_partition,
-           PyObject *arguments PYVSGPT_ATTRIBUTE_UNUSED )
-{
-	PyObject *integer_object = NULL;
-	libcerror_error_t *error = NULL;
-	static char *function    = "pyvsgpt_partition_get_type";
-	uint8_t type             = 0;
-	int result               = 0;
-
-	PYVSGPT_UNREFERENCED_PARAMETER( arguments )
-
-	if( pyvsgpt_partition == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid partition.",
-		 function );
-
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libvsgpt_partition_get_type(
-	          pyvsgpt_partition->partition,
-	          &type,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pyvsgpt_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve type.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		return( NULL );
-	}
-#if PY_MAJOR_VERSION >= 3
-	integer_object = PyLong_FromLong(
-	                  (long) type );
-#else
-	integer_object = PyInt_FromLong(
-	                  (long) type );
-#endif
-	return( integer_object );
 }
 
 /* Reads data at the current offset into a buffer
@@ -1054,6 +1011,62 @@ PyObject *pyvsgpt_partition_get_size(
 	return( integer_object );
 }
 
+/* Retrieves the entry index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_partition_get_entry_index(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments PYVSGPT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyvsgpt_partition_get_entry_index";
+	uint32_t entry_index     = 0;
+	int result               = 0;
+
+	PYVSGPT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvsgpt_partition == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid partition.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_partition_get_entry_index(
+	          pyvsgpt_partition->partition,
+	          &entry_index,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve entry index.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) entry_index );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) entry_index );
+#endif
+	return( integer_object );
+}
+
 /* Retrieves the identifier
  * Returns a Python object if successful or NULL on error
  */
@@ -1180,5 +1193,61 @@ PyObject *pyvsgpt_partition_get_type_identifier(
 		return( NULL );
 	}
 	return( string_object );
+}
+
+/* Retrieves the type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_partition_get_type(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments PYVSGPT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyvsgpt_partition_get_type";
+	uint8_t type             = 0;
+	int result               = 0;
+
+	PYVSGPT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvsgpt_partition == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid partition.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_partition_get_type(
+	          pyvsgpt_partition->partition,
+	          &type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) type );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) type );
+#endif
+	return( integer_object );
 }
 
