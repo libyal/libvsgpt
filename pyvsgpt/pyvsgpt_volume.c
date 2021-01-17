@@ -99,6 +99,13 @@ PyMethodDef pyvsgpt_volume_object_methods[] = {
 	  "\n"
 	  "Retrieves the partition specified by the index." },
 
+	{ "get_partition_by_identifier",
+	  (PyCFunction) pyvsgpt_volume_get_partition_by_identifier,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_partition_by_identifier(identifier) -> Object or None\n"
+	  "\n"
+	  "Retrieves the partition specified by the identifier." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -1065,5 +1072,95 @@ PyObject *pyvsgpt_volume_get_partitions(
 		return( NULL );
 	}
 	return( sequence_object );
+}
+
+/* Retrieves a specific of partition by identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_volume_get_partition_by_identifier(
+           pyvsgpt_volume_t *pyvsgpt_volume,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *partition_object      = NULL;
+	libcerror_error_t *error        = NULL;
+	libvsgpt_partition_t *partition = NULL;
+	static char *function           = "pyvsgpt_volume_get_partition_by_identifier";
+	static char *keyword_list[]     = { "entry_index", NULL };
+	unsigned long entry_index       = 0;
+	int result                      = 0;
+
+	if( pyvsgpt_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "k",
+	     keyword_list,
+	     &entry_index ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_volume_get_partition_by_identifier(
+	          ( (pyvsgpt_volume_t *) pyvsgpt_volume )->volume,
+	          (uint32_t) entry_index,
+	          &partition,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve of partition: %d.",
+		 function,
+		 entry_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	partition_object = pyvsgpt_partition_new(
+	                    partition,
+	                    (PyObject *) pyvsgpt_volume );
+
+	if( partition_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create partition object.",
+		 function );
+
+		goto on_error;
+	}
+	return( partition_object );
+
+on_error:
+	if( partition != NULL )
+	{
+		libvsgpt_partition_free(
+		 &partition,
+		 NULL );
+	}
+	return( NULL );
 }
 

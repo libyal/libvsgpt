@@ -394,26 +394,11 @@ int libvsgpt_check_volume_signature_file_io_handle(
 	}
 	while( file_offset <= 4096 )
 	{
-		if( libbfio_handle_seek_offset(
-		     file_io_handle,
-		     file_offset,
-		     SEEK_SET,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek file header offset: %" PRIi64 ".",
-			 function,
-			 file_offset );
-
-			goto on_error;
-		}
-		read_count = libbfio_handle_read_buffer(
+		read_count = libbfio_handle_read_buffer_at_offset(
 			      file_io_handle,
 			      signature,
 			      8,
+			      file_offset,
 			      error );
 
 		if( read_count == -1 )
@@ -422,8 +407,10 @@ int libvsgpt_check_volume_signature_file_io_handle(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read signature.",
-			 function );
+			 "%s: unable to read signature at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 function,
+			 file_offset,
+			 file_offset );
 
 			goto on_error;
 		}

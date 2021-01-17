@@ -33,6 +33,7 @@
 #include "libvsgpt_libcerror.h"
 #include "libvsgpt_libcthreads.h"
 #include "libvsgpt_partition_table_header.h"
+#include "libvsgpt_partition_values.h"
 #include "libvsgpt_types.h"
 
 #if defined( __cplusplus )
@@ -175,6 +176,19 @@ LIBVSGPT_EXTERN \
 int libvsgpt_volume_get_partition_by_index(
      libvsgpt_volume_t *volume,
      int partition_index,
+     libvsgpt_partition_t **partition,
+     libcerror_error_t **error );
+
+int libvsgpt_internal_volume_get_partition_values_by_identifier(
+     libvsgpt_internal_volume_t *internal_volume,
+     uint32_t entry_index,
+     libvsgpt_partition_values_t **partition_values,
+     libcerror_error_t **error );
+
+LIBVSGPT_EXTERN \
+int libvsgpt_volume_get_partition_by_identifier(
+     libvsgpt_volume_t *volume,
+     uint32_t entry_index,
      libvsgpt_partition_t **partition,
      libcerror_error_t **error );
 

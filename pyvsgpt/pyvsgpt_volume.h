@@ -98,6 +98,11 @@ PyObject *pyvsgpt_volume_get_partitions(
            pyvsgpt_volume_t *pyvsgpt_volume,
            PyObject *arguments );
 
+PyObject *pyvsgpt_volume_get_partition_by_identifier(
+           pyvsgpt_volume_t *pyvsgpt_volume,
+           PyObject *arguments,
+           PyObject *keywords );
+
 #if defined( __cplusplus )
 }
 #endif
