@@ -99,6 +99,13 @@ PyMethodDef pyvsgpt_volume_object_methods[] = {
 	  "\n"
 	  "Retrieves the partition specified by the index." },
 
+	{ "has_partition_with_identifier",
+	  (PyCFunction) pyvsgpt_volume_has_partition_with_identifier,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "has_partition_with_identifier(identifier) -> Boolean\n"
+	  "\n"
+	  "Determines if the volume contains a partition with the identifier." },
+
 	{ "get_partition_by_identifier",
 	  (PyCFunction) pyvsgpt_volume_get_partition_by_identifier,
 	  METH_VARARGS | METH_KEYWORDS,
@@ -1072,6 +1079,75 @@ PyObject *pyvsgpt_volume_get_partitions(
 		return( NULL );
 	}
 	return( sequence_object );
+}
+
+/* Determines if the volume contains a partition with the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_volume_has_partition_with_identifier(
+           pyvsgpt_volume_t *pyvsgpt_volume,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *partition_object  = NULL;
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pyvsgpt_volume_has_partition_with_identifier";
+	static char *keyword_list[] = { "entry_index", NULL };
+	unsigned long entry_index   = 0;
+	int result                  = 0;
+
+	if( pyvsgpt_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid volume.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "k",
+	     keyword_list,
+	     &entry_index ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_volume_has_partition_with_identifier(
+	          ( (pyvsgpt_volume_t *) pyvsgpt_volume )->volume,
+	          (uint32_t) entry_index,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to determine if volume has partition: %d.",
+		 function,
+		 entry_index );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		Py_IncRef(
+		 Py_True );
+
+		return( Py_True );
+	}
+	Py_IncRef(
+	 Py_False );
+
+	return( Py_False );
 }
 
 /* Retrieves a specific of partition by identifier

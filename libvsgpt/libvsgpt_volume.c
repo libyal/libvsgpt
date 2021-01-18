@@ -2527,6 +2527,82 @@ int libvsgpt_internal_volume_get_partition_values_by_identifier(
 	return( 0 );
 }
 
+/* Determines if the volume contains a partition with the corresponding (partition) entry index
+ * Returns 1 if the volume contains such a partition, 0 if not or -1 on error
+ */
+int libvsgpt_volume_has_partition_with_identifier(
+     libvsgpt_volume_t *volume,
+     uint32_t entry_index,
+     libcerror_error_t **error )
+{
+	libvsgpt_internal_volume_t *internal_volume   = NULL;
+	libvsgpt_partition_values_t *partition_values = NULL;
+	static char *function                         = "libvsgpt_volume_has_partition_with_identifier";
+	int result                                    = 0;
+
+	if( volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume = (libvsgpt_internal_volume_t *) volume;
+
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	result = libvsgpt_internal_volume_get_partition_values_by_identifier(
+	          internal_volume,
+	          entry_index,
+	          &partition_values,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve partition values.",
+		 function );
+
+		result = -1;
+	}
+#if defined( HAVE_LIBVSGPT_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
 /* Retrieves the partition with the corresponding (partition) entry index
  * Returns 1 if successful, 0 if not found or -1 on error
  */

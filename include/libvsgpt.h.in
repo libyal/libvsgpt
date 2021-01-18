@@ -311,6 +311,15 @@ int libvsgpt_volume_get_partition_by_index(
      libvsgpt_partition_t **partition,
      libvsgpt_error_t **error );
 
+/* Determines if the volume contains a partition with the corresponding (partition) entry index
+ * Returns 1 if the volume contains such a partition, 0 if not or -1 on error
+ */
+LIBVSGPT_EXTERN \
+int libvsgpt_volume_has_partition_with_identifier(
+     libvsgpt_volume_t *volume,
+     uint32_t entry_index,
+     libvsgpt_error_t **error );
+
 /* Retrieves the partition with the corresponding (partition) entry index
  * Returns 1 if successful, 0 if not found or -1 on error
  */

@@ -186,6 +186,12 @@ int libvsgpt_internal_volume_get_partition_values_by_identifier(
      libcerror_error_t **error );
 
 LIBVSGPT_EXTERN \
+int libvsgpt_volume_has_partition_with_identifier(
+     libvsgpt_volume_t *volume,
+     uint32_t entry_index,
+     libcerror_error_t **error );
+
+LIBVSGPT_EXTERN \
 int libvsgpt_volume_get_partition_by_identifier(
      libvsgpt_volume_t *volume,
      uint32_t entry_index,
