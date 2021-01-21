@@ -175,7 +175,7 @@ int libvsgpt_mbr_partition_entry_read_data(
 
 		return( -1 );
 	}
-	if( data_size != sizeof( vsgpt_mbr_partition_entry_t) )
+	if( data_size != sizeof( vsgpt_mbr_partition_entry_t ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -332,18 +332,19 @@ int libvsgpt_mbr_partition_entry_read_data(
 			goto on_error;
 		}
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 
-on_error:
 #if defined( HAVE_DEBUG_OUTPUT )
+on_error:
 	if( chs_address != NULL )
 	{
 		libvsgpt_chs_address_free(
 		 &chs_address,
 		 NULL );
 	}
-#endif
 	return( -1 );
+#endif
 }
 

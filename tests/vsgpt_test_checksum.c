@@ -50,6 +50,114 @@ int vsgpt_test_checksum_initialize_crc32_table(
 	return( 1 );
 }
 
+/* Tests the libvsgpt_checksum_calculate_crc32 function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_checksum_calculate_crc32(
+     void )
+{
+	uint8_t data[ 16 ] = {
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+
+	libcerror_error_t *error = NULL;
+	uint32_t checksum        = 0;
+	int result               = 0;
+
+	libvsgpt_checksum_crc32_table_computed = 0;
+
+	/* Test regular cases
+	 */
+	result = libvsgpt_checksum_calculate_crc32(
+	          &checksum,
+	          data,
+	          16,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_EQUAL_UINT32(
+	 "checksum",
+	 checksum,
+	 (uint32_t) 0xcecee288UL );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvsgpt_checksum_calculate_crc32(
+	          NULL,
+	          data,
+	          16,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_checksum_calculate_crc32(
+	          &checksum,
+	          NULL,
+	          16,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_checksum_calculate_crc32(
+	          &checksum,
+	          data,
+	          (size_t) SSIZE_MAX + 1,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* Tests the libvsgpt_checksum_calculate_weak_crc32 function
  * Returns 1 if successful or 0 if not
  */
@@ -182,6 +290,10 @@ int main(
 	 vsgpt_test_checksum_initialize_crc32_table );
 
 	VSGPT_TEST_RUN(
+	 "libvsgpt_checksum_calculate_crc32",
+	 vsgpt_test_checksum_calculate_crc32 );
+
+	VSGPT_TEST_RUN(
 	 "libvsgpt_checksum_calculate_weak_crc32",
 	 vsgpt_test_checksum_calculate_weak_crc32 );
 
@@ -189,7 +301,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 }
 

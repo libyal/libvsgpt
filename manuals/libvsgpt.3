@@ -1,4 +1,4 @@
-.Dd January 17, 2021
+.Dd January 21, 2021
 .Dt libvsgpt 3
 .Os libvsgpt
 .Sh NAME
@@ -72,6 +72,8 @@ Volume functions
 .Fn libvsgpt_volume_get_number_of_partitions "libvsgpt_volume_t *volume" "int *number_of_partitions" "libvsgpt_error_t **error"
 .Ft int
 .Fn libvsgpt_volume_get_partition_by_index "libvsgpt_volume_t *volume" "int partition_index" "libvsgpt_partition_t **partition" "libvsgpt_error_t **error"
+.Ft int
+.Fn libvsgpt_volume_has_partition_with_identifier "libvsgpt_volume_t *volume" "uint32_t entry_index" "libvsgpt_error_t **error"
 .Ft int
 .Fn libvsgpt_volume_get_partition_by_identifier "libvsgpt_volume_t *volume" "uint32_t entry_index" "libvsgpt_partition_t **partition" "libvsgpt_error_t **error"
 .Pp
