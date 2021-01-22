@@ -53,7 +53,7 @@ int vsgpt_test_partition_initialize(
 	int result                                    = 0;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
-	int number_of_malloc_fail_tests               = 2;
+	int number_of_malloc_fail_tests               = 5;
 	int number_of_memset_fail_tests               = 1;
 	int test_number                               = 0;
 #endif
@@ -478,55 +478,319 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvsgpt_partition_get_entry_index function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_partition_get_entry_index(
+     libvsgpt_partition_t *partition )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t entry_index     = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libvsgpt_partition_get_entry_index(
+	          partition,
+	          &entry_index,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvsgpt_partition_get_entry_index(
+	          NULL,
+	          &entry_index,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_get_entry_index(
+	          partition,
+	          NULL,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_VSGPT_TEST_RWLOCK )
+
+	/* Test libvsgpt_partition_get_entry_index with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
+	 */
+	vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_get_entry_index(
+	          partition,
+	          &entry_index,
+	          &error );
+
+	if( vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail != -1 )
+	{
+		vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	/* Test libvsgpt_partition_get_entry_index with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_read
+	 */
+	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_get_entry_index(
+	          partition,
+	          &entry_index,
+	          &error );
+
+	if( vsgpt_test_pthread_rwlock_unlock_attempts_before_fail != -1 )
+	{
+		vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libvsgpt_partition_get_identifier function
+ * Returns 1 if successful or 0 if not
+ */
+int vhdi_test_partition_get_identifier(
+     libvsgpt_partition_t *partition )
+{
+	uint8_t guid_data[ 16 ];
+
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libvsgpt_partition_get_identifier(
+	          partition,
+	          guid_data,
+	          16,
+	          &error );
+
+	VSGPT_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvsgpt_partition_get_identifier(
+	          NULL,
+	          guid_data,
+	          16,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_get_identifier(
+	          partition,
+	          NULL,
+	          16,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_get_identifier(
+	          partition,
+	          guid_data,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_get_identifier(
+	          partition,
+	          guid_data,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_VSGPT_TEST_RWLOCK )
+
+	/* Test libvsgpt_partition_get_identifier with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
+	 */
+	vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_get_identifier(
+	          partition,
+	          guid_data,
+	          16,
+	          &error );
+
+	if( vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail != -1 )
+	{
+		vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	/* Test libvsgpt_partition_get_identifier with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_read
+	 */
+	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_get_identifier(
+	          partition,
+	          guid_data,
+	          16,
+	          &error );
+
+	if( vsgpt_test_pthread_rwlock_unlock_attempts_before_fail != -1 )
+	{
+		vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* Tests the libvsgpt_partition_get_type function
  * Returns 1 if successful or 0 if not
  */
 int vsgpt_test_partition_get_type(
-     void )
+     libvsgpt_partition_t *partition )
 {
-	libcerror_error_t *error                      = NULL;
-	libvsgpt_partition_t *partition               = NULL;
-	libvsgpt_partition_values_t *partition_values = NULL;
-	int result                                    = 0;
-	uint8_t partition_type                        = 0;
-
-	/* Initialize test
-	 */
-	result = libvsgpt_partition_values_initialize(
-	          &partition_values,
-	          &error );
-
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition_values",
-	 partition_values );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	result = libvsgpt_partition_initialize(
-	          &partition,
-	          NULL,
-	          partition_values,
-	          &error );
-
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition",
-	 partition );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+	uint8_t partition_type   = 0;
 
 	/* Test regular cases
 	 */
@@ -610,7 +874,6 @@ int vsgpt_test_partition_get_type(
 		 &error );
 	}
 	/* Test libvsgpt_partition_get_type with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_read
-	 * WARNING: after this test the lock is still active
 	 */
 	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
 
@@ -639,42 +902,6 @@ int vsgpt_test_partition_get_type(
 	}
 #endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
 
-	/* Clean up
-	 */
-	result = libvsgpt_partition_free(
-	          &partition,
-	          &error );
-
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "partition",
-	 partition );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	result = libvsgpt_partition_values_free(
-	          &partition_values,
-	          &error );
-
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "partition_values",
-	 partition_values );
-
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -683,17 +910,138 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( partition != NULL )
+	return( 0 );
+}
+
+/* Tests the libvsgpt_partition_get_volume_offset function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_partition_get_volume_offset(
+     libvsgpt_partition_t *partition )
+{
+	libcerror_error_t *error = NULL;
+	off64_t volume_offset    = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libvsgpt_partition_get_volume_offset(
+	          partition,
+	          &volume_offset,
+	          &error );
+
+VSGPT_TEST_FPRINT_ERROR( error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvsgpt_partition_get_volume_offset(
+	          NULL,
+	          &volume_offset,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_get_volume_offset(
+	          partition,
+	          NULL,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_VSGPT_TEST_RWLOCK )
+
+	/* Test libvsgpt_partition_get_volume_offset with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
+	 */
+	vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_get_volume_offset(
+	          partition,
+	          &volume_offset,
+	          &error );
+
+	if( vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail != -1 )
 	{
-		libvsgpt_partition_free(
-		 &partition,
-		 NULL );
+		vsgpt_test_pthread_rwlock_rdlock_attempts_before_fail = -1;
 	}
-	if( partition_values != NULL )
+	else
 	{
-		libvsgpt_partition_values_free(
-		 &partition_values,
-		 NULL );
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	/* Test libvsgpt_partition_get_volume_offset with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_read
+	 */
+	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_get_volume_offset(
+	          partition,
+	          &volume_offset,
+	          &error );
+
+	if( vsgpt_test_pthread_rwlock_unlock_attempts_before_fail != -1 )
+	{
+		vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
 	}
 	return( 0 );
 }
@@ -712,6 +1060,7 @@ int vsgpt_test_internal_partition_read_buffer_from_file_io_handle(
 	libvsgpt_partition_t *partition               = NULL;
 	libvsgpt_partition_values_t *partition_values = NULL;
 	ssize_t read_count                            = 0;
+	off64_t current_offset                        = 0;
 	int result                                    = 0;
 
 	/* Initialize test
@@ -817,6 +1166,31 @@ int vsgpt_test_internal_partition_read_buffer_from_file_io_handle(
 	              buffer,
 	              512,
 	              &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	current_offset = ( (libvsgpt_internal_partition_t *) partition_values )->current_offset;
+
+	( (libvsgpt_internal_partition_t *) partition_values )->current_offset = -1;
+
+	read_count = libvsgpt_internal_partition_read_buffer_from_file_io_handle(
+	              NULL,
+	              file_io_handle,
+	              buffer,
+	              512,
+	              &error );
+
+	( (libvsgpt_internal_partition_t *) partition_values )->current_offset = current_offset;
 
 	VSGPT_TEST_ASSERT_EQUAL_SSIZE(
 	 "read_count",
@@ -1127,7 +1501,6 @@ int vsgpt_test_partition_read_buffer(
 		 &error );
 	}
 	/* Test libvsgpt_partition_read_buffer with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_write
-	 * WARNING: after this test the lock is still active
 	 */
 	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
 
@@ -1440,7 +1813,6 @@ int vsgpt_test_partition_read_buffer_at_offset(
 		 &error );
 	}
 	/* Test libvsgpt_partition_read_buffer_at_offset with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_write
-	 * WARNING: after this test the lock is still active
 	 */
 	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
 
@@ -1916,7 +2288,6 @@ int vsgpt_test_partition_seek_offset(
 		 &error );
 	}
 	/* Test libvsgpt_partition_seek_offset with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_write
-	 * WARNING: after this test the lock is still active
 	 */
 	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
 
@@ -2137,7 +2508,6 @@ int vsgpt_test_partition_get_offset(
 		 &error );
 	}
 	/* Test libvsgpt_partition_get_offset with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_read
-	 * WARNING: after this test the lock is still active
 	 */
 	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
 
@@ -2357,7 +2727,6 @@ int vsgpt_test_partition_get_size(
 		 &error );
 	}
 	/* Test libvsgpt_partition_get_size with pthread_rwlock_unlock failing in libcthreads_read_write_lock_release_for_read
-	 * WARNING: after this test the lock is still active
 	 */
 	vsgpt_test_pthread_rwlock_unlock_attempts_before_fail = 0;
 
@@ -2459,6 +2828,13 @@ int main(
      char * const argv[] VSGPT_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+	libcerror_error_t *error                      = NULL;
+	libvsgpt_partition_t *partition               = NULL;
+	libvsgpt_partition_values_t *partition_values = NULL;
+	int result                                    = 0;
+#endif
+
 	VSGPT_TEST_UNREFERENCED_PARAMETER( argc )
 	VSGPT_TEST_UNREFERENCED_PARAMETER( argv )
 
@@ -2472,9 +2848,60 @@ int main(
 	 "libvsgpt_partition_free",
 	 vsgpt_test_partition_free );
 
-	VSGPT_TEST_RUN(
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize test
+	 */
+	result = libvsgpt_partition_values_initialize(
+	          &partition_values,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "partition_values",
+	 partition_values );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libvsgpt_partition_initialize(
+	          &partition,
+	          NULL,
+	          partition_values,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "partition",
+	 partition );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	VSGPT_TEST_RUN_WITH_ARGS(
+	 "libvsgpt_partition_get_entry_index",
+	 vsgpt_test_partition_get_entry_index,
+	 partition );
+
+	VSGPT_TEST_RUN_WITH_ARGS(
 	 "libvsgpt_partition_get_type",
-	 vsgpt_test_partition_get_type );
+	 vsgpt_test_partition_get_type,
+	 partition );
+
+	VSGPT_TEST_RUN_WITH_ARGS(
+	 "libvsgpt_partition_get_volume_offset",
+	 vsgpt_test_partition_get_volume_offset,
+	 partition );
 
 	VSGPT_TEST_RUN(
 	 "libvsgpt_internal_partition_read_buffer_from_file_io_handle",
@@ -2504,11 +2931,70 @@ int main(
 	 "libvsgpt_partition_get_size",
 	 vsgpt_test_partition_get_size );
 
+	/* Clean up
+	 */
+	result = libvsgpt_partition_free(
+	          &partition,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "partition",
+	 partition );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libvsgpt_partition_values_free(
+	          &partition_values,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "partition_values",
+	 partition_values );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
 on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( partition != NULL )
+	{
+		libvsgpt_partition_free(
+		 &partition,
+		 NULL );
+	}
+	if( partition_values != NULL )
+	{
+		libvsgpt_partition_values_free(
+		 &partition_values,
+		 NULL );
+	}
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 }
 

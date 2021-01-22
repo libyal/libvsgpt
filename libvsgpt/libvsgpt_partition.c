@@ -711,17 +711,17 @@ ssize_t libvsgpt_internal_partition_read_buffer_from_file_io_handle(
 
 		return( -1 );
 	}
-	if( buffer_size == 0 )
-	{
-		return( 0 );
-	}
 	if( (size64_t) internal_partition->current_offset >= internal_partition->size )
 	{
 		return( 0 );
 	}
-	if( (size64_t) ( internal_partition->current_offset + buffer_size ) > internal_partition->size )
+	if( (size64_t) buffer_size > ( internal_partition->size - internal_partition->current_offset ) )
 	{
 		buffer_size = (size_t) ( internal_partition->size - internal_partition->current_offset );
+	}
+	if( buffer_size == 0 )
+	{
+		return( 0 );
 	}
 	current_offset = internal_partition->current_offset;
 
