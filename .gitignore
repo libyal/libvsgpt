@@ -140,6 +140,7 @@ stamp-h[1-9]
 /tests/vsgpt_test_partition
 /tests/vsgpt_test_partition_entry
 /tests/vsgpt_test_partition_table_header
+/tests/vsgpt_test_partition_type_identifier
 /tests/vsgpt_test_partition_values
 /tests/vsgpt_test_section_values
 /tests/vsgpt_test_sector_data

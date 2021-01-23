@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "boot_record checksum chs_address error io_handle mbr_partition_entry mbr_partition_type notify partition partition_entry partition_table_header partition_values section_values sector_data"
+$LibraryTests = "boot_record checksum chs_address error io_handle mbr_partition_entry mbr_partition_type notify partition partition_entry partition_table_header partition_type_identifier partition_values section_values sector_data"
 $LibraryTestsWithInput = "support volume"
 $OptionSets = ""
 

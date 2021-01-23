@@ -127,6 +127,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsgpt_test_partition_table_
 		{D91EC1D2-A9BD-4F4B-A3CB-85FBB05FEB21} = {D91EC1D2-A9BD-4F4B-A3CB-85FBB05FEB21}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsgpt_test_partition_type_identifier", "vsgpt_test_partition_type_identifier\vsgpt_test_partition_type_identifier.vcproj", "{F6AB7DAF-6CB9-45E3-9DD6-310A9FCB5622}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE194A75-3F75-4F24-8E22-0E13A6126142} = {EE194A75-3F75-4F24-8E22-0E13A6126142}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsgpt_test_partition_values", "vsgpt_test_partition_values\vsgpt_test_partition_values.vcproj", "{6166CE7A-AFD7-4FD0-9FD5-455C92E938E1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EE194A75-3F75-4F24-8E22-0E13A6126142} = {EE194A75-3F75-4F24-8E22-0E13A6126142}
@@ -356,6 +361,10 @@ Global
 		{6F5AE47A-4719-4A77-B57A-2F7B773670B0}.Release|Win32.Build.0 = Release|Win32
 		{6F5AE47A-4719-4A77-B57A-2F7B773670B0}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{6F5AE47A-4719-4A77-B57A-2F7B773670B0}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{F6AB7DAF-6CB9-45E3-9DD6-310A9FCB5622}.Release|Win32.ActiveCfg = Release|Win32
+		{F6AB7DAF-6CB9-45E3-9DD6-310A9FCB5622}.Release|Win32.Build.0 = Release|Win32
+		{F6AB7DAF-6CB9-45E3-9DD6-310A9FCB5622}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{F6AB7DAF-6CB9-45E3-9DD6-310A9FCB5622}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{6166CE7A-AFD7-4FD0-9FD5-455C92E938E1}.Release|Win32.ActiveCfg = Release|Win32
 		{6166CE7A-AFD7-4FD0-9FD5-455C92E938E1}.Release|Win32.Build.0 = Release|Win32
 		{6166CE7A-AFD7-4FD0-9FD5-455C92E938E1}.VSDebug|Win32.ActiveCfg = VSDebug|Win32

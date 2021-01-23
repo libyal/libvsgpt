@@ -56,6 +56,7 @@ check_PROGRAMS = \
 	vsgpt_test_partition \
 	vsgpt_test_partition_entry \
 	vsgpt_test_partition_table_header \
+	vsgpt_test_partition_type_identifier \
 	vsgpt_test_partition_values \
 	vsgpt_test_section_values \
 	vsgpt_test_sector_data \
@@ -223,6 +224,15 @@ vsgpt_test_partition_table_header_LDADD = \
 	@LIBCDATA_LIBADD@ \
 	../libvsgpt/libvsgpt.la \
 	@LIBCERROR_LIBADD@
+
+vsgpt_test_partition_type_identifier_SOURCES = \
+	vsgpt_test_libvsgpt.h \
+	vsgpt_test_macros.h \
+	vsgpt_test_partition_type_identifier.c \
+	vsgpt_test_unused.h
+
+vsgpt_test_partition_type_identifier_LDADD = \
+	../libvsgpt/libvsgpt.la
 
 vsgpt_test_partition_values_SOURCES = \
 	vsgpt_test_libcerror.h \

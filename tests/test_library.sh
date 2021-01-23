@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="boot_record checksum chs_address error io_handle mbr_partition_entry mbr_partition_type notify partition partition_entry partition_table_header partition_values section_values sector_data";
+LIBRARY_TESTS="boot_record checksum chs_address error io_handle mbr_partition_entry mbr_partition_type notify partition partition_entry partition_table_header partition_type_identifier partition_values section_values sector_data";
 LIBRARY_TESTS_WITH_INPUT="support volume";
 OPTION_SETS="";
 
