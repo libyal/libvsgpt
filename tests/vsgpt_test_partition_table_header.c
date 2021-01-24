@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <file_stream.h>
 #include <types.h>
 
@@ -385,6 +386,31 @@ int vsgpt_test_partition_table_header_read_data(
 	 "error",
 	 error );
 
+	/* Test regular case where checksum is invalid
+	 */
+	byte_stream_copy_from_uint32_little_endian(
+	 &( vsgpt_test_partition_table_header_data1[ 16 ] ),
+	 0xffffffffUL );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	byte_stream_copy_from_uint32_little_endian(
+	 &( vsgpt_test_partition_table_header_data1[ 16 ] ),
+	 0x1cd7e79cUL );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test error cases
 	 */
 	result = libvsgpt_partition_table_header_read_data(
@@ -458,6 +484,96 @@ int vsgpt_test_partition_table_header_read_data(
 
 	libcerror_error_free(
 	 &error );
+
+#if defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED )
+
+	/* Test libvsgpt_partition_table_header_initialize with memcpy failing
+	 */
+	vsgpt_test_memcpy_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	if( vsgpt_test_memcpy_attempts_before_fail != -1 )
+	{
+		vsgpt_test_memcpy_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED ) */
+
+	/* Test error case where header size is invalid
+	 */
+	byte_stream_copy_from_uint32_little_endian(
+	 &( vsgpt_test_partition_table_header_data1[ 12 ] ),
+	 0xffffffffUL );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	byte_stream_copy_from_uint32_little_endian(
+	 &( vsgpt_test_partition_table_header_data1[ 12 ] ),
+	 0x0000005cUL );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test error case where major and minor versions are invalid
+	 */
+/* TODO
+	byte_stream_copy_from_uint32_little_endian(
+	 &( vsgpt_test_partition_table_header_data1[ 8 ] ),
+	 0xffffffffUL );
+
+	result = libvsgpt_partition_table_header_read_data(
+	          partition_table_header,
+	          vsgpt_test_partition_table_header_data1,
+	          512,
+	          &error );
+
+	byte_stream_copy_from_uint32_little_endian(
+	 &( vsgpt_test_partition_table_header_data1[ 8 ] ),
+	 0x00010000UL );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+*/
 
 	/* Clean up
 	 */

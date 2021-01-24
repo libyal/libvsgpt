@@ -41,12 +41,21 @@
 int vsgpt_test_partition_type_identifier_get_description(
      void )
 {
+	uint8_t guid_data[ 16 ];
+
 	char *description = NULL;
 
 	/* Test regular cases
 	 */
 	description = libvsgpt_partition_type_identifier_get_description(
 	               NULL );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "description",
+	 description );
+
+	description = libvsgpt_partition_type_identifier_get_description(
+	               guid_data );
 
 	VSGPT_TEST_ASSERT_IS_NOT_NULL(
 	 "description",
