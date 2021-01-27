@@ -50,7 +50,7 @@ int vsgpt_test_sector_data_initialize(
 	int result                          = 0;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
-	int number_of_malloc_fail_tests     = 1;
+	int number_of_malloc_fail_tests     = 2;
 	int number_of_memset_fail_tests     = 1;
 	int test_number                     = 0;
 #endif
@@ -322,6 +322,8 @@ int vsgpt_test_sector_data_read_file_io_handle(
 	libbfio_handle_t *file_io_handle    = NULL;
 	libcerror_error_t *error            = NULL;
 	libvsgpt_sector_data_t *sector_data = NULL;
+	uint8_t *data                       = NULL;
+	size_t data_size                    = 0;
 	int result                          = 0;
 
 	/* Initialize test
@@ -372,6 +374,52 @@ int vsgpt_test_sector_data_read_file_io_handle(
 	          file_io_handle,
 	          0,
 	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	data              = sector_data->data;
+	sector_data->data = NULL;
+
+	result = libvsgpt_sector_data_read_file_io_handle(
+	          sector_data,
+	          file_io_handle,
+	          0,
+	          &error );
+
+	sector_data->data = data;
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	data_size              = sector_data->data_size;
+	sector_data->data_size = (size_t) SSIZE_MAX + 1;
+
+	result = libvsgpt_sector_data_read_file_io_handle(
+	          sector_data,
+	          file_io_handle,
+	          0,
+	          &error );
+
+	sector_data->data_size = data_size;
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -515,7 +563,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 }
 
