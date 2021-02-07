@@ -121,6 +121,13 @@ PyMethodDef pyvsgpt_partition_object_methods[] = {
 	  "\n"
 	  "Retrieves the type." },
 
+	{ "get_volume_offset",
+	  (PyCFunction) pyvsgpt_partition_get_volume_offset,
+	  METH_NOARGS,
+	  "get_offset() -> Integer\n"
+	  "\n"
+	  "Retrieves the partition offset relative to the start of the volume." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -155,6 +162,12 @@ PyGetSetDef pyvsgpt_partition_object_get_set_definitions[] = {
 	  (getter) pyvsgpt_partition_get_type,
 	  (setter) 0,
 	  "The type.",
+	  NULL },
+
+	{ "volume_offset",
+	  (getter) pyvsgpt_partition_get_volume_offset,
+	  (setter) 0,
+	  "The volume offset.",
 	  NULL },
 
 	/* Sentinel */
@@ -1248,6 +1261,65 @@ PyObject *pyvsgpt_partition_get_type(
 	integer_object = PyInt_FromLong(
 	                  (long) type );
 #endif
+	return( integer_object );
+}
+
+/* Retrieves the volume offset
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvsgpt_partition_get_volume_offset(
+           pyvsgpt_partition_t *pyvsgpt_partition,
+           PyObject *arguments PYVSGPT_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyvsgpt_partition_get_volume_offset";
+	off64_t volume_offset    = 0;
+	int result               = 0;
+
+	PYVSGPT_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvsgpt_partition == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid partition.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvsgpt_partition_get_volume_offset(
+	          pyvsgpt_partition->partition,
+	          &volume_offset,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvsgpt_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve volume offset.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = pyvsgpt_integer_signed_new_from_64bit(
+	                  (int64_t) volume_offset );
+
 	return( integer_object );
 }
 
