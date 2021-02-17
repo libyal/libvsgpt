@@ -47,7 +47,7 @@ in the section entitled "GNU Free Documentation License".
 | Version | Author | Date | Comments
 | 0.0.1 | J.B. Metz | February 2019 | Initial version.
 | 0.0.2 | J.B. Metz | July 2020 | Formatting changes.
-| 0.0.3 | J.B. Metz | January | Textual and formatting changes.
+| 0.0.3 | J.B. Metz | January 2021 | Textual and formatting changes.
 |===
 
 :numbered:
@@ -88,6 +88,8 @@ as possible.
 
 == GPT partition table header
 
+The GPT partition table header is 92 bytes of size and consists of:
+
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
@@ -125,6 +127,10 @@ partition entries not the number of used partition entries. Empty partition
 entries have a unused entry partition type identifier.
 
 == GPT partition entries
+
+=== GPT Partition entry
+
+The GPT partition entry is 128 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===

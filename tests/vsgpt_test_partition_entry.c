@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <file_stream.h>
+#include <memory.h>
 #include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
@@ -280,6 +281,122 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvsgpt_partition_entry_check_for_empty_block function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_partition_entry_check_for_empty_block(
+     void )
+{
+	uint8_t partition_entry_data[ 128 ];
+
+	libcerror_error_t *error = NULL;
+	void *memset_result      = NULL;
+	int result               = 0;
+
+	/* Initialize test
+	 */
+	memset_result = memory_set(
+	                 partition_entry_data,
+	                 0,
+	                 sizeof( uint8_t ) * 128 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "memset_result",
+	 memset_result );
+
+	/* Test regular cases
+	 */
+	result = libvsgpt_partition_entry_check_for_empty_block(
+	          partition_entry_data,
+	          128,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	partition_entry_data[ 127 ] = 0xff;
+
+	result = libvsgpt_partition_entry_check_for_empty_block(
+	          &( partition_entry_data[ 1 ] ),
+	          128 - 1,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libvsgpt_partition_entry_check_for_empty_block(
+	          vsgpt_test_partition_entry_data1,
+	          128,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvsgpt_partition_entry_check_for_empty_block(
+	          NULL,
+	          128,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_partition_entry_check_for_empty_block(
+	          partition_entry_data,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* Tests the libvsgpt_partition_entry_read_data function
  * Returns 1 if successful or 0 if not
  */
@@ -289,6 +406,11 @@ int vsgpt_test_partition_entry_read_data(
 	libcerror_error_t *error                    = NULL;
 	libvsgpt_partition_entry_t *partition_entry = NULL;
 	int result                                  = 0;
+
+#if defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED )
+	int number_of_memcpy_fail_tests             = 2;
+	int test_number                             = 0;
+#endif
 
 	/* Initialize test
 	 */
@@ -400,6 +522,43 @@ int vsgpt_test_partition_entry_read_data(
 	libcerror_error_free(
 	 &error );
 
+#if defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED )
+
+	for( test_number = 0;
+	     test_number < number_of_memcpy_fail_tests;
+	     test_number++ )
+	{
+		/* Test libvsgpt_partition_entry_read_data with memcpy failing
+		 */
+		vsgpt_test_memcpy_attempts_before_fail = test_number;
+
+		result = libvsgpt_partition_entry_read_data(
+		          partition_entry,
+		          vsgpt_test_partition_entry_data1,
+		          128,
+		          &error );
+
+		if( vsgpt_test_memcpy_attempts_before_fail != -1 )
+		{
+			vsgpt_test_memcpy_attempts_before_fail = -1;
+		}
+		else
+		{
+			VSGPT_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			VSGPT_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED ) */
+
 	/* Clean up
 	 */
 	result = libvsgpt_partition_entry_free(
@@ -464,6 +623,10 @@ int main(
 	 vsgpt_test_partition_entry_free );
 
 	VSGPT_TEST_RUN(
+	 "libvsgpt_partition_entry_check_for_empty_block",
+	 vsgpt_test_partition_entry_check_for_empty_block );
+
+	VSGPT_TEST_RUN(
 	 "libvsgpt_partition_entry_read_data",
 	 vsgpt_test_partition_entry_read_data );
 
@@ -471,7 +634,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 }
 

@@ -43,7 +43,7 @@ int vsgpt_test_partition_type_identifier_get_description(
 {
 	uint8_t guid_data[ 16 ];
 
-	char *description = NULL;
+	const char *description = NULL;
 
 	/* Test regular cases
 	 */

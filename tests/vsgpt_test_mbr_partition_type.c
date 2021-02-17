@@ -35,6 +35,44 @@
 
 #include "../libvsgpt/libvsgpt_mbr_partition_type.h"
 
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
+#if defined( HAVE_DEBUG_OUTPUT )
+
+/* Tests the libvsgpt_mbr_partition_type_get_description function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_mbr_partition_type_get_description(
+     void )
+{
+	const char *description = NULL;
+
+	/* Test regular cases
+	 */
+	description = libvsgpt_mbr_partition_type_get_description(
+	               0xaa );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "description",
+	 description );
+
+	description = libvsgpt_mbr_partition_type_get_description(
+	               0x0f );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "description",
+	 description );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -52,13 +90,23 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
 
-	/* TODO: add tests for libvsgpt_mbr_partition_type_get_description */
+#if defined( HAVE_DEBUG_OUTPUT )
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_mbr_partition_type_get_description",
+	 vsgpt_test_mbr_partition_type_get_description );
+
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 }
 

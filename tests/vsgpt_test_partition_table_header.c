@@ -980,6 +980,38 @@ int vsgpt_test_partition_table_header_get_disk_identifier(
 	libcerror_error_free(
 	 &error );
 
+#if defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED )
+
+	/* Test libvsgpt_partition_table_header_get_disk_identifier with memcpy failing
+	 */
+	vsgpt_test_memcpy_attempts_before_fail = 0;
+
+	result = libvsgpt_partition_table_header_get_disk_identifier(
+	          partition_table_header,
+	          guid_data,
+	          16,
+	          &error );
+
+	if( vsgpt_test_memcpy_attempts_before_fail != -1 )
+	{
+		vsgpt_test_memcpy_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_VSGPT_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED ) */
+
 	return( 1 );
 
 on_error:
