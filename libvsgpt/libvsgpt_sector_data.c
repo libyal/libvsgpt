@@ -281,7 +281,7 @@ int libvsgpt_sector_data_read_file_io_handle(
  * Callback function for the sector data vector
  * Returns 1 if successful or -1 on error
  */
-int libvsgpt_partition_read_element_data(
+int libvsgpt_sector_data_read_element_data(
      intptr_t *data_handle LIBVSGPT_ATTRIBUTE_UNUSED,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
@@ -295,7 +295,7 @@ int libvsgpt_partition_read_element_data(
      libcerror_error_t **error )
 {
 	libvsgpt_sector_data_t *sector_data = NULL;
-	static char *function               = "libvsgpt_partition_read_element_data";
+	static char *function               = "libvsgpt_sector_data_read_element_data";
 
 	LIBVSGPT_UNREFERENCED_PARAMETER( data_handle );
 	LIBVSGPT_UNREFERENCED_PARAMETER( element_data_file_index );

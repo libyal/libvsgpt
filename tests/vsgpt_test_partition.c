@@ -53,7 +53,7 @@ int vsgpt_test_partition_initialize(
 	int result                                    = 0;
 
 #if defined( HAVE_VSGPT_TEST_MEMORY )
-	int number_of_malloc_fail_tests               = 7;
+	int number_of_malloc_fail_tests               = 8;
 	int number_of_memset_fail_tests               = 1;
 	int test_number                               = 0;
 #endif
@@ -1103,8 +1103,6 @@ int vsgpt_test_partition_get_volume_offset(
 	          &volume_offset,
 	          &error );
 
-VSGPT_TEST_FPRINT_ERROR( error );
-
 	VSGPT_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -1319,13 +1317,13 @@ int vsgpt_test_internal_partition_read_buffer_from_file_io_handle(
 	              (libvsgpt_internal_partition_t *) partition,
 	              file_io_handle,
 	              buffer,
-	              2048,
+	              0,
 	              &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_SSIZE(
 	 "read_count",
 	 read_count,
-	 (ssize_t) 1536 );
+	 (ssize_t) 0 );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -1335,13 +1333,13 @@ int vsgpt_test_internal_partition_read_buffer_from_file_io_handle(
 	              (libvsgpt_internal_partition_t *) partition,
 	              file_io_handle,
 	              buffer,
-	              0,
+	              2048,
 	              &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_SSIZE(
 	 "read_count",
 	 read_count,
-	 (ssize_t) 0 );
+	 (ssize_t) 1536 );
 
 	VSGPT_TEST_ASSERT_IS_NULL(
 	 "error",

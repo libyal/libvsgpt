@@ -528,6 +528,78 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvsgpt_sector_data_read_element_data function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_sector_data_read_element_data(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libvsgpt_sector_data_read_element_data(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvsgpt_sector_data_read_element_data(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          (size64_t) SSIZE_MAX + 1,
+	          0,
+	          0,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSGPT_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 
 /* The main program
@@ -558,6 +630,10 @@ int main(
 	VSGPT_TEST_RUN(
 	 "libvsgpt_sector_data_read_file_io_handle",
 	 vsgpt_test_sector_data_read_file_io_handle );
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_sector_data_read_element_data",
+	 vsgpt_test_sector_data_read_element_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 

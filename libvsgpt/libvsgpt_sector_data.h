@@ -61,7 +61,7 @@ int libvsgpt_sector_data_read_file_io_handle(
      off64_t sector_offset,
      libcerror_error_t **error );
 
-int libvsgpt_partition_read_element_data(
+int libvsgpt_sector_data_read_element_data(
      intptr_t *data_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
