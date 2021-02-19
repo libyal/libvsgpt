@@ -96,6 +96,48 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvsgpt_get_access_flags_read_write function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_get_access_flags_read_write(
+     void )
+{
+	int access_flags = 0;
+
+	access_flags = libvsgpt_get_access_flags_read_write();
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "access_flags",
+	 access_flags,
+	 ( LIBVSGPT_ACCESS_FLAG_READ | LIBVSGPT_ACCESS_FLAG_WRITE ) );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+/* Tests the libvsgpt_get_access_flags_write function
+ * Returns 1 if successful or 0 if not
+ */
+int vsgpt_test_get_access_flags_write(
+     void )
+{
+	int access_flags = 0;
+
+	access_flags = libvsgpt_get_access_flags_write();
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "access_flags",
+	 access_flags,
+	 LIBVSGPT_ACCESS_FLAG_WRITE );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
 /* Tests the libvsgpt_get_codepage function
  * Returns 1 if successful or 0 if not
  */
@@ -756,6 +798,14 @@ int main(
 	VSGPT_TEST_RUN(
 	 "libvsgpt_get_access_flags_read",
 	 vsgpt_test_get_access_flags_read );
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_get_access_flags_read_write",
+	 vsgpt_test_get_access_flags_read_write );
+
+	VSGPT_TEST_RUN(
+	 "libvsgpt_get_access_flags_write",
+	 vsgpt_test_get_access_flags_write );
 
 	VSGPT_TEST_RUN(
 	 "libvsgpt_get_codepage",

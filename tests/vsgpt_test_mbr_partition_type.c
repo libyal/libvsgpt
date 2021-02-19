@@ -89,7 +89,6 @@ int main(
 	VSGPT_TEST_UNREFERENCED_PARAMETER( argv )
 
 #if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
-
 #if defined( HAVE_DEBUG_OUTPUT )
 
 	VSGPT_TEST_RUN(
@@ -97,16 +96,17 @@ int main(
 	 vsgpt_test_mbr_partition_type_get_description );
 
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
 #if defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 on_error:
 	return( EXIT_FAILURE );
 
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 }
 

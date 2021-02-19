@@ -1089,7 +1089,6 @@ PyObject *pyvsgpt_volume_has_partition_with_identifier(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *partition_object  = NULL;
 	libcerror_error_t *error    = NULL;
 	static char *function       = "pyvsgpt_volume_has_partition_with_identifier";
 	static char *keyword_list[] = { "entry_index", NULL };
