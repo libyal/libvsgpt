@@ -39,7 +39,7 @@
 
 #include "../vsgpttools/vsgpttools_output.h"
 
-/* Tests the vsgpttools_output_initialize and function
+/* Tests the vsgpttools_output_initialize function
  * Returns 1 if successful or 0 if not
  */
 int vsgpt_test_tools_output_initialize(
