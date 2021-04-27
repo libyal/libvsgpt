@@ -38,15 +38,16 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_volume.open(unittest.source)
+    vsgpt_volume.open(test_source)
 
     with self.assertRaises(IOError):
-      vsgpt_volume.open(unittest.source)
+      vsgpt_volume.open(test_source)
 
     vsgpt_volume.close()
 
@@ -54,19 +55,20 @@ class VolumeTypeTests(unittest.TestCase):
       vsgpt_volume.open(None)
 
     with self.assertRaises(ValueError):
-      vsgpt_volume.open(unittest.source, mode="w")
+      vsgpt_volume.open(test_source, mode="w")
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
-    if not os.path.isfile(unittest.source):
+    if not os.path.isfile(test_source):
       raise unittest.SkipTest("source not a regular file")
 
     vsgpt_volume = pyvsgpt.volume()
 
-    with open(unittest.source, "rb") as file_object:
+    with open(test_source, "rb") as file_object:
 
       vsgpt_volume.open_file_object(file_object)
 
@@ -83,7 +85,8 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_close(self):
     """Tests the close function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_volume = pyvsgpt.volume()
@@ -93,21 +96,22 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_open_close(self):
     """Tests the open and close functions."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       return
 
     vsgpt_volume = pyvsgpt.volume()
 
     # Test open and close.
-    vsgpt_volume.open(unittest.source)
+    vsgpt_volume.open(test_source)
     vsgpt_volume.close()
 
     # Test open and close a second time to validate clean up on close.
-    vsgpt_volume.open(unittest.source)
+    vsgpt_volume.open(test_source)
     vsgpt_volume.close()
 
-    if os.path.isfile(unittest.source):
-      with open(unittest.source, "rb") as file_object:
+    if os.path.isfile(test_source):
+      with open(test_source, "rb") as file_object:
 
         # Test open_file_object and close.
         vsgpt_volume.open_file_object(file_object)
@@ -124,12 +128,13 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_bytes_per_sector(self):
     """Tests the get_bytes_per_sector function and bytes_per_sector property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_volume.open(unittest.source)
+    vsgpt_volume.open(test_source)
 
     bytes_per_sector = vsgpt_volume.get_bytes_per_sector()
     self.assertIsNotNone(bytes_per_sector)
@@ -140,12 +145,13 @@ class VolumeTypeTests(unittest.TestCase):
 
   def test_get_number_of_partitions(self):
     """Tests the get_number_of_partitions function and number_of_partitions property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_volume.open(unittest.source)
+    vsgpt_volume.open(test_source)
 
     number_of_partitions = vsgpt_volume.get_number_of_partitions()
     self.assertIsNotNone(number_of_partitions)

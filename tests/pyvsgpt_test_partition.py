@@ -33,12 +33,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_read_buffer(self):
     """Tests the read_buffer function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     size = vsgpt_partition.get_size()
 
@@ -111,15 +112,16 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_read_buffer_file_object(self):
     """Tests the read_buffer function on a file-like object."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
-    if not os.path.isfile(unittest.source):
+    if not os.path.isfile(test_source):
       raise unittest.SkipTest("source not a regular file")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    with open(unittest.source, "rb") as file_object:
+    with open(test_source, "rb") as file_object:
       vsgpt_partition.open_file_object(file_object)
 
       size = vsgpt_partition.get_size()
@@ -134,12 +136,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_read_buffer_at_offset(self):
     """Tests the read_buffer_at_offset function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     size = vsgpt_partition.get_size()
 
@@ -201,12 +204,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_seek_offset(self):
     """Tests the seek_offset function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     size = vsgpt_partition.get_size()
 
@@ -260,12 +264,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_get_type(self):
     """Tests the get_type function and type property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     type = vsgpt_partition.get_type()
     self.assertIsNotNone(type)
@@ -276,12 +281,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_get_volume_offset(self):
     """Tests the get_volume_offset function and volume_offset property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     volume_offset = vsgpt_partition.get_volume_offset()
     self.assertIsNotNone(volume_offset)
@@ -292,12 +298,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_get_offset(self):
     """Tests the get_offset function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     offset = vsgpt_partition.get_offset()
     self.assertIsNotNone(offset)
@@ -306,12 +313,13 @@ class PartitionTypeTests(unittest.TestCase):
 
   def test_get_size(self):
     """Tests the get_size function and size property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vsgpt_partition = pyvsgpt.partition()
 
-    vsgpt_partition.open(unittest.source)
+    vsgpt_partition.open(test_source)
 
     size = vsgpt_partition.get_size()
     self.assertIsNotNone(size)
