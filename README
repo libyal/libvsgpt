@@ -1,7 +1,5 @@
 libvsgpt is a library to access the GUID Partition Table (GPT) volume system.
 
-Note that this project currently only focuses on the analysis of the format.
-
 Project information:
 
 * Status: experimental

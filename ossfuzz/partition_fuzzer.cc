@@ -48,7 +48,9 @@ int LLVMFuzzerTestOneInput(
      size_t size )
 {
 	libbfio_handle_t *file_io_handle = NULL;
+	libvsgpt_partition_t *partition  = NULL;
 	libvsgpt_volume_t *volume        = NULL;
+	int number_of_partitions         = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -76,13 +78,33 @@ int LLVMFuzzerTestOneInput(
 	     LIBVSGPT_OPEN_READ,
 	     NULL ) != 1 )
 	{
-		goto on_error_libvsgpt;
+		goto on_error_libvsgpt_volume;
+	}
+	if( libvsgpt_volume_get_number_of_partitions(
+	     volume,
+	     &number_of_partitions,
+	     NULL ) != 1 )
+	{
+		goto on_error_libvsgpt_volume;
+	}
+	if( number_of_partitions > 0 )
+	{
+		if( libvsgpt_volume_get_partition_by_index(
+		     volume,
+		     0,
+		     &partition,
+		     NULL ) == 1 )
+		{
+			libvsgpt_partition_free(
+			 &partition,
+			 NULL );
+		}
 	}
 	libvsgpt_volume_close(
 	 volume,
 	 NULL );
 
-on_error_libvsgpt:
+on_error_libvsgpt_volume:
 	libvsgpt_volume_free(
 	 &volume,
 	 NULL );
