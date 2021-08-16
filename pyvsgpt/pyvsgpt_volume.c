@@ -317,6 +317,15 @@ void pyvsgpt_volume_free(
 
 		return;
 	}
+	if( pyvsgpt_volume->file_io_handle != NULL )
+	{
+		if( pyvsgpt_volume_close(
+		     pyvsgpt_volume,
+		     NULL ) == NULL )
+		{
+			return;
+		}
+	}
 	if( pyvsgpt_volume->volume != NULL )
 	{
 		Py_BEGIN_ALLOW_THREADS
