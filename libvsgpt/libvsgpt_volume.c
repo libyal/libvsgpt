@@ -1742,7 +1742,7 @@ int libvsgpt_internal_volume_read_partition_entries(
 		}
 		partition_values->entry_index = partition_entry_index;
 		partition_values->offset      = (off64_t) ( partition_entry->start_block_number * internal_volume->io_handle->bytes_per_sector );
-		partition_values->size        = (size64_t) ( ( partition_entry->end_block_number - partition_entry->start_block_number ) * internal_volume->io_handle->bytes_per_sector );
+		partition_values->size        = (size64_t) ( ( partition_entry->end_block_number - partition_entry->start_block_number + 1 ) * internal_volume->io_handle->bytes_per_sector );
 
 		if( libcdata_array_append_entry(
 		     internal_volume->partitions,
