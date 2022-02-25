@@ -179,10 +179,6 @@
 				RelativePath="..\..\tests\vsgpt_test_checksum.c"
 				>
 			</File>
-			<File
-				RelativePath="..\..\tests\vsgpt_test_memory.c"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -195,10 +191,6 @@
 			</File>
 			<File
 				RelativePath="..\..\tests\vsgpt_test_libvsgpt.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\vsgpt_test_memory.h"
 				>
 			</File>
 			<File

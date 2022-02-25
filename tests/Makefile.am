@@ -92,7 +92,6 @@ vsgpt_test_checksum_SOURCES = \
 	vsgpt_test_checksum.c \
 	vsgpt_test_libcerror.h \
 	vsgpt_test_libvsgpt.h \
-	vsgpt_test_memory.c vsgpt_test_memory.h \
 	vsgpt_test_unused.h
 
 vsgpt_test_checksum_LDADD = \

@@ -1,5 +1,5 @@
 environment:
-  pypi_token:
+  PYPI_TOKEN:
     secure: VHuZiUWgTqTciKE2nsv/LtfTn0/FFkQn3PijGWNGeyvEmSeFTIo3zzMgPoVar566aeHXfGzllwpaaRNOS8kERv5ZbC5rOWWf/8GtZcEm0cFJJGrdkTay795+/9/sS7D+g0GzjUjJYBNLoyWrqZzpvkuxyYQKgi/9iulU4j6xu0D0R5uiNhhs5Knwf85jxgscsVmTm+lYlUL5TQ0RdpMZZosKgdQcv1FPd5PVDot1CWqk6DTCTvomKnWs50+MehAIxoy9nBnPMCmoe0lTAhndvGcUuLvf1Zg4HouzHlbd1Lg=
   matrix:
   - TARGET: vs2008
@@ -80,7 +80,7 @@ environment:
   - TARGET: python39-x64
     BUILD_ENVIRONMENT: python
     APPVEYOR_BUILD_WORKER_IMAGE: macos
-    PYTHON: "/usr/local/opt/python@3.9/bin/python3"
+    PYTHON: "/usr/local/opt/python@3.10/bin/python3"
     HOMEBREW_NO_INSTALL_CLEANUP: 1
     CFLAGS: "-I/usr/local/include"
     LDFLAGS: "-L/usr/local/lib"
@@ -231,4 +231,5 @@ artifacts:
 deploy_script:
 - ps: If ($env:APPVEYOR_REPO_TAG -eq "true" -and $isWindows -and $env:BUILD_ENVIRONMENT -eq "python") {
     Invoke-Expression "${env:PYTHON} -m twine upload dist/*.whl --username __token__ --password ${env:PYPI_TOKEN} --skip-existing" }
+- sh: if test ${APPVEYOR_REPO_TAG} = "true" && test ${BUILD_ENVIRONMENT} = "python"; then ${PYTHON} -m twine upload dist/*.whl --username __token__ --password ${PYPI_TOKEN} --skip-existing; fi
 

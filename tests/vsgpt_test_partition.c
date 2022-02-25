@@ -1,7 +1,7 @@
 /*
  * Library partition type test program
  *
- * Copyright (C) 2019-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2019-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
