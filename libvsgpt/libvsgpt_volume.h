@@ -150,6 +150,7 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
      off64_t file_offset,
      libvsgpt_boot_record_t *boot_record,
      uint8_t is_master_boot_record,
+     off64_t first_extended_boot_record_offset,
      int recursion_depth,
      libcerror_error_t **error );
 

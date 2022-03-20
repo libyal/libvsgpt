@@ -1102,6 +1102,7 @@ int libvsgpt_internal_volume_open_read(
 	     master_boot_record,
 	     1,
 	     0,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1809,6 +1810,7 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
      off64_t file_offset,
      libvsgpt_boot_record_t *boot_record,
      uint8_t is_master_boot_record,
+     off64_t first_extended_boot_record_offset,
      int recursion_depth,
      libcerror_error_t **error )
 {
@@ -1881,7 +1883,9 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 		{
 			continue;
 		}
-		if( partition_entry->type == 0x05 )
+		if( ( partition_entry->type == 0x05 )
+		 || ( ( is_master_boot_record != 0 )
+		  &&  ( partition_entry->type == 0x0f ) ) )
 		{
 			if( extended_partition_record != NULL )
 			{
@@ -1894,7 +1898,7 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 
 				goto on_error;
 			}
-			extended_partition_record_offset = file_offset + ( partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector );
+			extended_partition_record_offset = first_extended_boot_record_offset + ( (off64_t) partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -1936,7 +1940,7 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 
 				internal_volume->io_handle->bytes_per_sector *= 2;
 
-				extended_partition_record_offset = partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector;
+				extended_partition_record_offset = (off64_t) partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libcnotify_verbose != 0 )
@@ -1986,7 +1990,7 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 			}
 			partition_values->type = partition_entry->type;
 
-			partition_values->offset = file_offset + ( partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector );
+			partition_values->offset = first_extended_boot_record_offset + ( (off64_t) partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector );
 			partition_values->size   = partition_entry->number_of_sectors * internal_volume->io_handle->bytes_per_sector;
 
 /* TODO offset and size sanity check */
@@ -2024,12 +2028,17 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 
 			goto on_error;
 		}
+		if( is_master_boot_record != 0 )
+		{
+			first_extended_boot_record_offset = extended_partition_record_offset;
+		}
 		if( libvsgpt_internal_volume_read_mbr_partition_entries(
 		     internal_volume,
 		     file_io_handle,
 		     extended_partition_record_offset,
 		     extended_partition_record,
 		     0,
+		     first_extended_boot_record_offset,
 		     recursion_depth + 1,
 		     error ) != 1 )
 		{
