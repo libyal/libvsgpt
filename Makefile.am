@@ -36,7 +36,6 @@ DPKG_FILES = \
 	dpkg/rules \
 	dpkg/libvsgpt.install \
 	dpkg/libvsgpt-dev.install \
-	dpkg/libvsgpt-python.install \
 	dpkg/libvsgpt-python3.install \
 	dpkg/libvsgpt-tools.install \
 	dpkg/source/format
