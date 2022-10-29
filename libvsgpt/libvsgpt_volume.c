@@ -2433,10 +2433,23 @@ int libvsgpt_volume_get_partition_by_index(
 		 "%s: unable to release read/write lock for reading.",
 		 function );
 
-		return( -1 );
+		result = -1;
 	}
 #endif
-	return( result );
+	if( result == -1 )
+	{
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( *partition != NULL )
+	{
+		libvsgpt_partition_free(
+		 partition,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the partition values with the corresponding (partition) entry index
@@ -2723,9 +2736,22 @@ int libvsgpt_volume_get_partition_by_identifier(
 		 "%s: unable to release read/write lock for reading.",
 		 function );
 
-		return( -1 );
+		result = -1;
 	}
 #endif
+	if( result == -1 )
+	{
+		goto on_error;
+	}
 	return( result );
+
+on_error:
+	if( *partition != NULL )
+	{
+		libvsgpt_partition_free(
+		 partition,
+		 NULL );
+	}
+	return( -1 );
 }
 

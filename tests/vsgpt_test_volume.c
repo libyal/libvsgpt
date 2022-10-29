@@ -1594,6 +1594,25 @@ int vsgpt_test_internal_volume_read_partition_table_headers(
 	 "error",
 	 error );
 
+	/* Clean up
+	 */
+	result = libvsgpt_partition_table_header_free(
+	          &( (libvsgpt_internal_volume_t *) volume )->partition_table_header,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "volume->partition_table_header",
+	 ( (libvsgpt_internal_volume_t *) volume )->partition_table_header );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test error cases
 	 */
 	result = libvsgpt_internal_volume_read_partition_table_headers(
