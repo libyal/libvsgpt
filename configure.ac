@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libvsgpt],
- [20230531],
+ [20230813],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
