@@ -37,102 +37,81 @@ class PartitionTypeTests(unittest.TestCase):
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    vsgpt_partition = pyvsgpt.partition()
+    vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_partition.open(test_source)
+    vsgpt_volume.open(test_source)
 
-    size = vsgpt_partition.get_size()
+    try:
+      if not vsgpt_volume.number_of_partitions:
+        raise unittest.SkipTest("missing partitions")
 
-    if size < 4096:
-      # Test read without maximum size.
-      vsgpt_partition.seek_offset(0, os.SEEK_SET)
-
-      data = vsgpt_partition.read_buffer()
-
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), size)
-
-    # Test read with maximum size.
-    vsgpt_partition.seek_offset(0, os.SEEK_SET)
-
-    data = vsgpt_partition.read_buffer(size=4096)
-
-    self.assertIsNotNone(data)
-    self.assertEqual(len(data), min(size, 4096))
-
-    if size > 8:
-      vsgpt_partition.seek_offset(-8, os.SEEK_END)
-
-      # Read buffer on size boundary.
-      data = vsgpt_partition.read_buffer(size=4096)
-
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), 8)
-
-      # Read buffer beyond size boundary.
-      data = vsgpt_partition.read_buffer(size=4096)
-
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), 0)
-
-    # Stress test read buffer.
-    vsgpt_partition.seek_offset(0, os.SEEK_SET)
-
-    remaining_size = size
-
-    for _ in range(1024):
-      read_size = int(random.random() * 4096)
-
-      data = vsgpt_partition.read_buffer(size=read_size)
-
-      self.assertIsNotNone(data)
-
-      data_size = len(data)
-
-      if read_size > remaining_size:
-        read_size = remaining_size
-
-      self.assertEqual(data_size, read_size)
-
-      remaining_size -= data_size
-
-      if not remaining_size:
-        vsgpt_partition.seek_offset(0, os.SEEK_SET)
-
-        remaining_size = size
-
-    with self.assertRaises(ValueError):
-      vsgpt_partition.read_buffer(size=-1)
-
-    vsgpt_partition.close()
-
-    # Test the read without open.
-    with self.assertRaises(IOError):
-      vsgpt_partition.read_buffer(size=4096)
-
-  def test_read_buffer_file_object(self):
-    """Tests the read_buffer function on a file-like object."""
-    test_source = unittest.source
-    if not test_source:
-      raise unittest.SkipTest("missing source")
-
-    if not os.path.isfile(test_source):
-      raise unittest.SkipTest("source not a regular file")
-
-    vsgpt_partition = pyvsgpt.partition()
-
-    with open(test_source, "rb") as file_object:
-      vsgpt_partition.open_file_object(file_object)
+      vsgpt_partition = vsgpt_volume.get_partition(0)
 
       size = vsgpt_partition.get_size()
 
-      # Test normal read.
+      if size < 4096:
+        # Test read without maximum size.
+        vsgpt_partition.seek_offset(0, os.SEEK_SET)
+
+        data = vsgpt_partition.read_buffer()
+
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), size)
+
+      # Test read with maximum size.
+      vsgpt_partition.seek_offset(0, os.SEEK_SET)
+
       data = vsgpt_partition.read_buffer(size=4096)
 
       self.assertIsNotNone(data)
       self.assertEqual(len(data), min(size, 4096))
 
-      vsgpt_partition.close()
+      if size > 8:
+        vsgpt_partition.seek_offset(-8, os.SEEK_END)
+
+        # Read buffer on size boundary.
+        data = vsgpt_partition.read_buffer(size=4096)
+
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), 8)
+
+        # Read buffer beyond size boundary.
+        data = vsgpt_partition.read_buffer(size=4096)
+
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), 0)
+
+      # Stress test read buffer.
+      vsgpt_partition.seek_offset(0, os.SEEK_SET)
+
+      remaining_size = size
+
+      for _ in range(1024):
+        read_size = int(random.random() * 4096)
+
+        data = vsgpt_partition.read_buffer(size=read_size)
+
+        self.assertIsNotNone(data)
+
+        data_size = len(data)
+
+        if read_size > remaining_size:
+          read_size = remaining_size
+
+        self.assertEqual(data_size, read_size)
+
+        remaining_size -= data_size
+
+        if not remaining_size:
+          vsgpt_partition.seek_offset(0, os.SEEK_SET)
+
+          remaining_size = size
+
+      with self.assertRaises(ValueError):
+        vsgpt_partition.read_buffer(size=-1)
+
+    finally:
+      vsgpt_volume.close()
 
   def test_read_buffer_at_offset(self):
     """Tests the read_buffer_at_offset function."""
@@ -140,67 +119,70 @@ class PartitionTypeTests(unittest.TestCase):
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    vsgpt_partition = pyvsgpt.partition()
+    vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_partition.open(test_source)
+    vsgpt_volume.open(test_source)
 
-    size = vsgpt_partition.get_size()
+    try:
+      if not vsgpt_volume.number_of_partitions:
+        raise unittest.SkipTest("missing partitions")
 
-    # Test normal read.
-    data = vsgpt_partition.read_buffer_at_offset(4096, 0)
+      vsgpt_partition = vsgpt_volume.get_partition(0)
 
-    self.assertIsNotNone(data)
-    self.assertEqual(len(data), min(size, 4096))
+      size = vsgpt_partition.get_size()
 
-    if size > 8:
-      # Read buffer on size boundary.
-      data = vsgpt_partition.read_buffer_at_offset(4096, size - 8)
-
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), 8)
-
-      # Read buffer beyond size boundary.
-      data = vsgpt_partition.read_buffer_at_offset(4096, size + 8)
+      # Test normal read.
+      data = vsgpt_partition.read_buffer_at_offset(4096, 0)
 
       self.assertIsNotNone(data)
-      self.assertEqual(len(data), 0)
+      self.assertEqual(len(data), min(size, 4096))
 
-    # Stress test read buffer.
-    for _ in range(1024):
-      random_number = random.random()
+      if size > 8:
+        # Read buffer on size boundary.
+        data = vsgpt_partition.read_buffer_at_offset(4096, size - 8)
 
-      media_offset = int(random_number * size)
-      read_size = int(random_number * 4096)
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), 8)
 
-      data = vsgpt_partition.read_buffer_at_offset(read_size, media_offset)
+        # Read buffer beyond size boundary.
+        data = vsgpt_partition.read_buffer_at_offset(4096, size + 8)
 
-      self.assertIsNotNone(data)
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), 0)
 
-      remaining_size = size - media_offset
+      # Stress test read buffer.
+      for _ in range(1024):
+        random_number = random.random()
 
-      data_size = len(data)
+        media_offset = int(random_number * size)
+        read_size = int(random_number * 4096)
 
-      if read_size > remaining_size:
-        read_size = remaining_size
+        data = vsgpt_partition.read_buffer_at_offset(read_size, media_offset)
 
-      self.assertEqual(data_size, read_size)
+        self.assertIsNotNone(data)
 
-      remaining_size -= data_size
+        remaining_size = size - media_offset
 
-      if not remaining_size:
-        vsgpt_partition.seek_offset(0, os.SEEK_SET)
+        data_size = len(data)
 
-    with self.assertRaises(ValueError):
-      vsgpt_partition.read_buffer_at_offset(-1, 0)
+        if read_size > remaining_size:
+          read_size = remaining_size
 
-    with self.assertRaises(ValueError):
-      vsgpt_partition.read_buffer_at_offset(4096, -1)
+        self.assertEqual(data_size, read_size)
 
-    vsgpt_partition.close()
+        remaining_size -= data_size
 
-    # Test the read without open.
-    with self.assertRaises(IOError):
-      vsgpt_partition.read_buffer_at_offset(4096, 0)
+        if not remaining_size:
+          vsgpt_partition.seek_offset(0, os.SEEK_SET)
+
+      with self.assertRaises(ValueError):
+        vsgpt_partition.read_buffer_at_offset(-1, 0)
+
+      with self.assertRaises(ValueError):
+        vsgpt_partition.read_buffer_at_offset(4096, -1)
+
+    finally:
+      vsgpt_volume.close()
 
   def test_seek_offset(self):
     """Tests the seek_offset function."""
@@ -208,76 +190,62 @@ class PartitionTypeTests(unittest.TestCase):
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    vsgpt_partition = pyvsgpt.partition()
+    vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_partition.open(test_source)
+    vsgpt_volume.open(test_source)
 
-    size = vsgpt_partition.get_size()
+    try:
+      if not vsgpt_volume.number_of_partitions:
+        raise unittest.SkipTest("missing partitions")
 
-    vsgpt_partition.seek_offset(16, os.SEEK_SET)
+      vsgpt_partition = vsgpt_volume.get_partition(0)
 
-    offset = vsgpt_partition.get_offset()
-    self.assertEqual(offset, 16)
+      size = vsgpt_partition.get_size()
 
-    vsgpt_partition.seek_offset(16, os.SEEK_CUR)
-
-    offset = vsgpt_partition.get_offset()
-    self.assertEqual(offset, 32)
-
-    vsgpt_partition.seek_offset(-16, os.SEEK_CUR)
-
-    offset = vsgpt_partition.get_offset()
-    self.assertEqual(offset, 16)
-
-    if size > 16:
-      vsgpt_partition.seek_offset(-16, os.SEEK_END)
-
-      offset = vsgpt_partition.get_offset()
-      self.assertEqual(offset, size - 16)
-
-    vsgpt_partition.seek_offset(16, os.SEEK_END)
-
-    offset = vsgpt_partition.get_offset()
-    self.assertEqual(offset, size + 16)
-
-    # TODO: change IOError into ValueError
-    with self.assertRaises(IOError):
-      vsgpt_partition.seek_offset(-1, os.SEEK_SET)
-
-    # TODO: change IOError into ValueError
-    with self.assertRaises(IOError):
-      vsgpt_partition.seek_offset(-32 - size, os.SEEK_CUR)
-
-    # TODO: change IOError into ValueError
-    with self.assertRaises(IOError):
-      vsgpt_partition.seek_offset(-32 - size, os.SEEK_END)
-
-    # TODO: change IOError into ValueError
-    with self.assertRaises(IOError):
-      vsgpt_partition.seek_offset(0, -1)
-
-    vsgpt_partition.close()
-
-    # Test the seek without open.
-    with self.assertRaises(IOError):
       vsgpt_partition.seek_offset(16, os.SEEK_SET)
 
-  def test_get_type(self):
-    """Tests the get_type function and type property."""
-    test_source = unittest.source
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+      offset = vsgpt_partition.get_offset()
+      self.assertEqual(offset, 16)
 
-    vsgpt_partition = pyvsgpt.partition()
+      vsgpt_partition.seek_offset(16, os.SEEK_CUR)
 
-    vsgpt_partition.open(test_source)
+      offset = vsgpt_partition.get_offset()
+      self.assertEqual(offset, 32)
 
-    type = vsgpt_partition.get_type()
-    self.assertIsNotNone(type)
+      vsgpt_partition.seek_offset(-16, os.SEEK_CUR)
 
-    self.assertIsNotNone(vsgpt_partition.type)
+      offset = vsgpt_partition.get_offset()
+      self.assertEqual(offset, 16)
 
-    vsgpt_partition.close()
+      if size > 16:
+        vsgpt_partition.seek_offset(-16, os.SEEK_END)
+
+        offset = vsgpt_partition.get_offset()
+        self.assertEqual(offset, size - 16)
+
+      vsgpt_partition.seek_offset(16, os.SEEK_END)
+
+      offset = vsgpt_partition.get_offset()
+      self.assertEqual(offset, size + 16)
+
+      # TODO: change IOError into ValueError
+      with self.assertRaises(IOError):
+        vsgpt_partition.seek_offset(-1, os.SEEK_SET)
+
+      # TODO: change IOError into ValueError
+      with self.assertRaises(IOError):
+        vsgpt_partition.seek_offset(-32 - size, os.SEEK_CUR)
+
+      # TODO: change IOError into ValueError
+      with self.assertRaises(IOError):
+        vsgpt_partition.seek_offset(-32 - size, os.SEEK_END)
+
+      # TODO: change IOError into ValueError
+      with self.assertRaises(IOError):
+        vsgpt_partition.seek_offset(0, -1)
+
+    finally:
+      vsgpt_volume.close()
 
   def test_get_volume_offset(self):
     """Tests the get_volume_offset function and volume_offset property."""
@@ -285,16 +253,23 @@ class PartitionTypeTests(unittest.TestCase):
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    vsgpt_partition = pyvsgpt.partition()
+    vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_partition.open(test_source)
+    vsgpt_volume.open(test_source)
 
-    volume_offset = vsgpt_partition.get_volume_offset()
-    self.assertIsNotNone(volume_offset)
+    try:
+      if not vsgpt_volume.number_of_partitions:
+        raise unittest.SkipTest("missing partitions")
 
-    self.assertIsNotNone(vsgpt_partition.volume_offset)
+      vsgpt_partition = vsgpt_volume.get_partition(0)
 
-    vsgpt_partition.close()
+      volume_offset = vsgpt_partition.get_volume_offset()
+      self.assertIsNotNone(volume_offset)
+
+      self.assertIsNotNone(vsgpt_partition.volume_offset)
+
+    finally:
+      vsgpt_volume.close()
 
   def test_get_offset(self):
     """Tests the get_offset function."""
@@ -302,14 +277,21 @@ class PartitionTypeTests(unittest.TestCase):
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    vsgpt_partition = pyvsgpt.partition()
+    vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_partition.open(test_source)
+    vsgpt_volume.open(test_source)
 
-    offset = vsgpt_partition.get_offset()
-    self.assertIsNotNone(offset)
+    try:
+      if not vsgpt_volume.number_of_partitions:
+        raise unittest.SkipTest("missing partitions")
 
-    vsgpt_partition.close()
+      vsgpt_partition = vsgpt_volume.get_partition(0)
+
+      offset = vsgpt_partition.get_offset()
+      self.assertIsNotNone(offset)
+
+    finally:
+      vsgpt_volume.close()
 
   def test_get_size(self):
     """Tests the get_size function and size property."""
@@ -317,25 +299,35 @@ class PartitionTypeTests(unittest.TestCase):
     if not test_source:
       raise unittest.SkipTest("missing source")
 
-    vsgpt_partition = pyvsgpt.partition()
+    vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_partition.open(test_source)
+    vsgpt_volume.open(test_source)
 
-    size = vsgpt_partition.get_size()
-    self.assertIsNotNone(size)
+    try:
+      if not vsgpt_volume.number_of_partitions:
+        raise unittest.SkipTest("missing partitions")
 
-    self.assertIsNotNone(vsgpt_partition.size)
+      vsgpt_partition = vsgpt_volume.get_partition(0)
 
-    vsgpt_partition.close()
+      size = vsgpt_partition.get_size()
+      self.assertIsNotNone(size)
+
+      self.assertIsNotNone(vsgpt_partition.size)
+
+    finally:
+      vsgpt_volume.close()
 
 
 if __name__ == "__main__":
   argument_parser = argparse.ArgumentParser()
 
+  argument_parser.add_argument(
+      "source", nargs="?", action="store", metavar="PATH",
+      default=None, help="path of the source file.")
 
   options, unknown_options = argument_parser.parse_known_args()
   unknown_options.insert(0, sys.argv[0])
 
-
+  setattr(unittest, "source", options.source)
 
   unittest.main(argv=unknown_options, verbosity=2)
