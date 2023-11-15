@@ -40,7 +40,7 @@ void (*vsgpttools_signal_signal_handler)( vsgpttools_signal_t ) = NULL;
 /* Signal handler for Ctrl+C or Ctrl+Break signals
  */
 BOOL WINAPI vsgpttools_signal_handler(
-             unsigned long signal )
+             vsgpttools_signal_t signal )
 {
 	static char *function = "vsgpttools_signal_handler";
 
@@ -112,7 +112,7 @@ int vsgpttools_signal_attach(
 	vsgpttools_signal_signal_handler = signal_handler;
 
 	if( SetConsoleCtrlHandler(
-	     vsgpttools_signal_handler,
+	     (PHANDLER_ROUTINE) vsgpttools_signal_handler,
 	     TRUE ) == 0 )
 	{
 		libcerror_error_set(
@@ -179,7 +179,7 @@ int vsgpttools_signal_detach(
 	static char *function = "vsgpttools_signal_detach";
 
 	if( SetConsoleCtrlHandler(
-	     vsgpttools_signal_handler,
+	     (PHANDLER_ROUTINE) vsgpttools_signal_handler,
 	     FALSE ) == 0 )
 	{
 		libcerror_error_set(

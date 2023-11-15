@@ -19,9 +19,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libvsgpt.h
-	/bin/rm -f libvsgpt/definitions.h
-	/bin/rm -f libvsgpt/features.h
-	/bin/rm -f libvsgpt/types.h
-	/bin/rm -f Makefile
+	-rm -f libvsgpt.h
+	-rm -f libvsgpt/definitions.h
+	-rm -f libvsgpt/features.h
+	-rm -f libvsgpt/types.h
+	-rm -f Makefile
 

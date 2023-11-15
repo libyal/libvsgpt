@@ -85,11 +85,13 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libvsgpt_definitions.h
-	/bin/rm -f libvsgpt.rc
-	/bin/rm -f Makefile
+	-rm -f libvsgpt_definitions.h
+	-rm -f libvsgpt.rc
+	-rm -f Makefile
 
-splint:
+sources-local: $(BUILT_SOURCES)
+
+splint-local:
 	@echo "Running splint on libvsgpt ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libvsgpt_la_SOURCES)
 
