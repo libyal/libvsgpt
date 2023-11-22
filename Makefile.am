@@ -19,8 +19,6 @@ SUBDIRS = \
 	libvsgpt \
 	vsgpttools \
 	pyvsgpt \
-	pyvsgpt-python2 \
-	pyvsgpt-python3 \
 	po \
 	manuals \
 	tests \

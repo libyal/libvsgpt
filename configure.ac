@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libvsgpt],
- [20231115],
+ [20231122],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -113,7 +113,7 @@ dnl Check if libvsgpt Python bindings (pyvsgpt) required headers and functions a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pyvsgpt/pyvsgpt_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -175,8 +175,6 @@ AC_CONFIG_FILES([libfdata/Makefile])
 AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libvsgpt/Makefile])
 AC_CONFIG_FILES([pyvsgpt/Makefile])
-AC_CONFIG_FILES([pyvsgpt-python2/Makefile])
-AC_CONFIG_FILES([pyvsgpt-python3/Makefile])
 AC_CONFIG_FILES([vsgpttools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
