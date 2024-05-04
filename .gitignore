@@ -132,6 +132,7 @@ stamp-h[1-9]
 /vsgpttools/vsgptinfo
 /tests/*.exe
 /tests/input
+/tests/notify_stream.log
 /tests/tmp*
 /tests/vsgpt_test_boot_record
 /tests/vsgpt_test_checksum

@@ -6,9 +6,7 @@ EXTRA_DIST = \
 	libvsgpt.3 \
 	vsgptinfo.1
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f Makefile
 

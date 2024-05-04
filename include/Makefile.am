@@ -15,13 +15,11 @@ EXTRA_DIST = \
 	libvsgpt/features.h.in \
 	libvsgpt/types.h.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libvsgpt.h \
+	libvsgpt/definitions.h \
+	libvsgpt/features.h \
+	libvsgpt/types.h \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libvsgpt.h
-	-rm -f libvsgpt/definitions.h
-	-rm -f libvsgpt/features.h
-	-rm -f libvsgpt/types.h
-	-rm -f Makefile
 
