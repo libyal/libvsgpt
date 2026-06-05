@@ -31,14 +31,17 @@
  */
 #if defined( LIBVSGPT_DLL_EXPORT )
 #define LIBVSGPT_EXTERN __declspec(dllexport)
+#define LIBVSGPT_EXTERN_VARIABLE extern __declspec(dllexport)
 
 #elif defined( LIBVSGPT_DLL_IMPORT )
-#define LIBVSGPT_EXTERN extern __declspec(dllimport)
+#define LIBVSGPT_EXTERN __declspec(dllimport)
+#define LIBVSGPT_EXTERN_VARIABLE extern __declspec(dllimport)
 
 #else
 #define LIBVSGPT_EXTERN extern
+#define LIBVSGPT_EXTERN_VARIABLE extern
 
-#endif
+#endif /* defined( LIBVSGPT_DLL_EXPORT ) */
 
 #endif /* !defined( _LIBVSGPT_EXTERN_H ) */
 

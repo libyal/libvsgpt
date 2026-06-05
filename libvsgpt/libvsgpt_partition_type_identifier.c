@@ -26,15 +26,15 @@
 #include "libvsgpt_libcerror.h"
 #include "libvsgpt_partition_type_identifier.h"
 
-uint8_t libvsgpt_partition_type_identifier_linux_filesystem_data[ 16 ] = {
+const uint8_t libvsgpt_partition_type_identifier_linux_filesystem_data[ 16 ] = {
 	0xaf, 0x3d, 0xc6, 0x0f, 0x83, 0x84, 0x72, 0x47, 0x8e, 0x79, 0x3d, 0x69, 0xd8, 0x47, 0x7d, 0xe4 };
 
-uint8_t libvsgpt_partition_type_identifier_unknown[ 16 ] = {
+const uint8_t libvsgpt_partition_type_identifier_unknown[ 16 ] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
 /* The partition type identifiers
  */
-libvsgpt_partition_type_identifier_definition_t libvsgpt_partition_type_identifier_definitions[ ] = {
+static libvsgpt_partition_type_identifier_definition_t libvsgpt_partition_type_identifier_definitions[ ] = {
 	{ libvsgpt_partition_type_identifier_linux_filesystem_data,	"Linux filesystem data" },
 
 	{ libvsgpt_partition_type_identifier_unknown,			"Unknown" } };
@@ -44,27 +44,28 @@ libvsgpt_partition_type_identifier_definition_t libvsgpt_partition_type_identifi
 const char *libvsgpt_partition_type_identifier_get_description(
              const uint8_t *partition_type_identifier )
 {
-	int iterator = 0;
+	libvsgpt_partition_type_identifier_definition_t *entry = NULL;
+	size_t entry_index                                     = 0;
+	size_t number_of_entries                               = sizeof( libvsgpt_partition_type_identifier_definitions ) / sizeof( libvsgpt_partition_type_identifier_definition_t );
 
 	if( partition_type_identifier == NULL )
 	{
 		return( "Invalid partition type identifier" );
 	}
-	while( memory_compare(
-	        ( libvsgpt_partition_type_identifier_definitions[ iterator ] ).identifier,
-	        libvsgpt_partition_type_identifier_unknown,
-	        16 ) != 0 )
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
 	{
+		entry = &( libvsgpt_partition_type_identifier_definitions[ entry_index ] );
+
 		if( memory_compare(
-		     ( libvsgpt_partition_type_identifier_definitions[ iterator ] ).identifier,
+		     entry->identifier,
 		     partition_type_identifier,
 		     16 ) == 0 )
 		{
 			break;
 		}
-		iterator++;
 	}
-	return(
-	 ( libvsgpt_partition_type_identifier_definitions[ iterator ] ).description );
+	return( entry->description );
 }
 

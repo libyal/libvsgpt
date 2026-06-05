@@ -24,21 +24,28 @@
 
 #include <common.h>
 
+#if !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute )
+#if __has_attribute( visibility )
+#define LIBVSGPT_INTERNAL	__attribute__((visibility("hidden"))) extern
+
+#else
+#define LIBVSGPT_INTERNAL	extern
+
+#endif /* __has_attribute( visibility ) */
+#else
+#define LIBVSGPT_INTERNAL	extern
+
+#endif /* !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute ) */
+
 /* Define HAVE_LOCAL_LIBVSGPT for local use of libvsgpt
  */
 #if !defined( HAVE_LOCAL_LIBVSGPT )
 
 #include <libvsgpt/extern.h>
 
-#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
-#define LIBVSGPT_EXTERN_VARIABLE	extern
-#else
-#define LIBVSGPT_EXTERN_VARIABLE	LIBVSGPT_EXTERN
-#endif
-
 #else
 #define LIBVSGPT_EXTERN		/* extern */
-#define LIBVSGPT_EXTERN_VARIABLE	extern
+#define LIBVSGPT_EXTERN_VARIABLE	LIBVSGPT_INTERNAL
 
 #endif /* !defined( HAVE_LOCAL_LIBVSGPT ) */
 

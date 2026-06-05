@@ -38,14 +38,15 @@ struct libvsgpt_partition_type_identifier_definition
 {
 	/* The partition type identifier stored as a little endian GUID
 	 */
-	uint8_t *identifier;
+	const uint8_t *identifier;
 
 	/* The partition type description
 	 */
 	const char *description;
 };
 
-extern uint8_t libvsgpt_partition_type_identifier_linux_filesystem_data[ 16 ];
+LIBVSGPT_EXTERN_VARIABLE \
+const uint8_t libvsgpt_partition_type_identifier_linux_filesystem_data[ 16 ];
 
 LIBVSGPT_EXTERN \
 const char *libvsgpt_partition_type_identifier_get_description(

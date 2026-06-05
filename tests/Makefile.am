@@ -19,6 +19,10 @@ AM_CPPFLAGS = \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBVSGPT_DLL_IMPORT@
 
+AM_TESTS_ENVIRONMENT = \
+	export PYTHON="@PYTHON@"; \
+	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
+
 if HAVE_PYTHON_TESTS
 TESTS_PYVSGPT = \
 	test_python_module.sh
@@ -328,7 +332,8 @@ vsgpt_test_tools_output_SOURCES = \
 
 vsgpt_test_tools_output_LDADD = \
 	../libvsgpt/libvsgpt.la \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
 
 vsgpt_test_tools_signal_SOURCES = \
 	../vsgpttools/vsgpttools_signal.c ../vsgpttools/vsgpttools_signal.h \
