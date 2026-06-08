@@ -1920,7 +1920,7 @@ int vsgpt_test_volume_get_bytes_per_sector(
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSGPT_DLL_IMPORT ) */
 
-#if defined( HAVE_VSGPT_TEST_RWLOCK )
+#if defined( HAVE_VSGPT_TEST_RWLOCK_HOOK )
 
 	/* Test libvsgpt_volume_get_bytes_per_sector with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
 	 */
@@ -1976,7 +1976,7 @@ int vsgpt_test_volume_get_bytes_per_sector(
 		libcerror_error_free(
 		 &error );
 	}
-#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK_HOOK ) */
 
 	return( 1 );
 
@@ -2051,7 +2051,7 @@ int vsgpt_test_volume_get_number_of_partitions(
 	libcerror_error_free(
 	 &error );
 
-#if defined( HAVE_VSGPT_TEST_RWLOCK )
+#if defined( HAVE_VSGPT_TEST_RWLOCK_HOOK )
 
 	/* Test libvsgpt_volume_get_number_of_partitions with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
 	 */
@@ -2107,7 +2107,7 @@ int vsgpt_test_volume_get_number_of_partitions(
 		libcerror_error_free(
 		 &error );
 	}
-#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK_HOOK ) */
 
 	return( 1 );
 
@@ -2242,7 +2242,7 @@ int vsgpt_test_volume_get_partition_by_index(
 	libcerror_error_free(
 	 &error );
 
-#if defined( HAVE_VSGPT_TEST_RWLOCK )
+#if defined( HAVE_VSGPT_TEST_RWLOCK_HOOK )
 
 	/* Test libvsgpt_volume_get_partition_by_index with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
 	 */
@@ -2300,7 +2300,7 @@ int vsgpt_test_volume_get_partition_by_index(
 		libcerror_error_free(
 		 &error );
 	}
-#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK_HOOK ) */
 
 	return( 1 );
 
@@ -2371,7 +2371,7 @@ int vsgpt_test_volume_has_partition_with_identifier(
 	libcerror_error_free(
 	 &error );
 
-#if defined( HAVE_VSGPT_TEST_RWLOCK )
+#if defined( HAVE_VSGPT_TEST_RWLOCK_HOOK )
 
 	/* Test libvsgpt_volume_has_partition_with_identifier with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
 	 */
@@ -2427,7 +2427,7 @@ int vsgpt_test_volume_has_partition_with_identifier(
 		libcerror_error_free(
 		 &error );
 	}
-#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK_HOOK ) */
 
 	return( 1 );
 
@@ -2559,7 +2559,7 @@ int vsgpt_test_volume_get_partition_by_identifier(
 	libcerror_error_free(
 	 &error );
 
-#if defined( HAVE_VSGPT_TEST_RWLOCK )
+#if defined( HAVE_VSGPT_TEST_RWLOCK_HOOK )
 
 	/* Test libvsgpt_volume_get_partition_by_identifier with pthread_rwlock_rdlock failing in libcthreads_read_write_lock_grab_for_read
 	 */
@@ -2617,7 +2617,7 @@ int vsgpt_test_volume_get_partition_by_identifier(
 		libcerror_error_free(
 		 &error );
 	}
-#endif /* defined( HAVE_VSGPT_TEST_RWLOCK ) */
+#endif /* defined( HAVE_VSGPT_TEST_RWLOCK_HOOK ) */
 
 	return( 1 );
 

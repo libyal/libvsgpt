@@ -171,6 +171,7 @@ vsgpt_test_notify_LDADD = \
 	@LIBCERROR_LIBADD@
 
 vsgpt_test_partition_SOURCES = \
+	vsgpt_test_extern.h \
 	vsgpt_test_functions.c vsgpt_test_functions.h \
 	vsgpt_test_libbfio.h \
 	vsgpt_test_libvsgpt.h \
@@ -347,6 +348,7 @@ vsgpt_test_tools_signal_LDADD = \
 	@LIBCERROR_LIBADD@
 
 vsgpt_test_volume_SOURCES = \
+	vsgpt_test_extern.h \
 	vsgpt_test_functions.c vsgpt_test_functions.h \
 	vsgpt_test_getopt.c vsgpt_test_getopt.h \
 	vsgpt_test_libbfio.h \
