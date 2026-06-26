@@ -1,6 +1,6 @@
-.Dd July  6, 2020
-.Dt vsgptinfo
-.Os libvsgpt
+.Dd June 26, 2026
+.Dt VSGPTINFO 1
+.Os
 .Sh NAME
 .Nm vsgptinfo
 .Nd determines information about a GUID Partition Table (GPT) volume system
@@ -10,7 +10,8 @@
 .Ar source
 .Sh DESCRIPTION
 .Nm vsgptinfo
-is a utility to determine information about a GUID Partition Table (GPT) volume system
+is a utility to determine information about a GUID Partition Table (GPT) \
+volume system
 .Pp
 .Nm vsgptinfo
 is part of the
@@ -20,7 +21,7 @@ package.
 is a library to access the GUID Partition Table (GPT) volume system format
 .Pp
 .Ar source
-is the source file.
+is the source image.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -38,41 +39,33 @@ None
 .Sh EXAMPLES
 .Bd -literal
 # vsgptinfo /dev/sda
-vsgptinfo 20200706
+vsgptinfo 20260626
 .sp
 GUID Partition Table (GPT) information:
+	Disk identifier		: 2d522f96-53ad-4b0b-9271-689a8775f9a0
 	Bytes per sector	: 512
-	Number of partitions	: 4
+	Number of partitions	: 1
 .sp
 Partition: 1
+	Identifier		: f2f05925-ed66-427b-83f3-db2679ff29f1
+	Type identifier		: 0fc63daf-8483-4772-8e79-3d69d8477de4
 	Type			: 0x00 (Empty)
 	Offset			: 1048576 (0x00100000)
-	Size			: 65024
-.sp
-Partition: 2
-	Type			: 0x00 (Empty)
-	Offset			: 2097152 (0x00200000)
-	Size			: 65024
-.sp
-Partition: 3
-	Type			: 0x00 (Empty)
-	Offset			: 3145728 (0x00300000)
-	Size			: 65024
-.sp
-Partition: 4
-	Type			: 0x00 (Empty)
-	Offset			: 17408 (0x00004400)
-	Size			: 65024
+	Size			: 65536
 .sp
 .Ed
 .Sh DIAGNOSTICS
-Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Errors, verbose and debug output are printed to stderr when verbose output \
+\-v is enabled.
 Verbose and debug output are only printed when enabled at compilation.
+.Sh AUTHORS
+.An Joachim Metz <joachim.metz@gmail.com>
 .Sh BUGS
-Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
-https://github.com/libyal/libvsgpt/
-.Sh AUTHOR
-These man pages were written by Joachim Metz.
+Please report bugs of any kind on the project issue tracker: \
+https://github.com/libyal/libvsgpt/issues
 .Sh COPYRIGHT
 Copyright (C) 2019-2026, Joachim Metz <joachim.metz@gmail.com>.
-This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.sp
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A \
+PARTICULAR PURPOSE.

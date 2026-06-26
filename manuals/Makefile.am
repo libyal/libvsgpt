@@ -3,8 +3,7 @@ man_MANS = \
 	vsgptinfo.1
 
 EXTRA_DIST = \
-	libvsgpt.3 \
-	vsgptinfo.1
+	$(man_MANS)
 
 DISTCLEANFILES = \
 	Makefile \
