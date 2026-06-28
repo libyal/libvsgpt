@@ -47,10 +47,19 @@ int LLVMFuzzerTestOneInput(
      const uint8_t *data,
      size_t size )
 {
+	uint8_t buffer[ 512 ];
+	uint8_t guid[ 16 ];
+
 	libbfio_handle_t *file_io_handle = NULL;
 	libvsgpt_partition_t *partition  = NULL;
 	libvsgpt_volume_t *volume        = NULL;
+	off64_t partition_offset         = 0;
+	off64_t volume_offset            = 0;
+	size64_t partition_size          = 0;
+	uint32_t value_32bit             = 0;
+	uint8_t value_8bit               = 0;
 	int number_of_partitions         = 0;
+	int read_iterator                = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -93,12 +102,77 @@ int LLVMFuzzerTestOneInput(
 		     volume,
 		     0,
 		     &partition,
-		     NULL ) == 1 )
+		     NULL ) != 1 )
 		{
-			libvsgpt_partition_free(
-			 &partition,
-			 NULL );
+			goto on_error_libvsgpt_volume;
 		}
+		if( libvsgpt_partition_get_entry_index(
+		     partition,
+		     &value_32bit,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvsgpt_partition;
+		}
+		if( libvsgpt_partition_get_identifier(
+		     partition,
+		     guid,
+		     16,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvsgpt_partition;
+		}
+		if( libvsgpt_partition_get_type_identifier(
+		     partition,
+		     guid,
+		     16,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvsgpt_partition;
+		}
+		if( libvsgpt_partition_get_type(
+		     partition,
+		     &value_8bit,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvsgpt_partition;
+		}
+		if( libvsgpt_partition_get_volume_offset(
+		     partition,
+		     &volume_offset,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvsgpt_partition;
+		}
+		if( libvsgpt_partition_get_size(
+		     partition,
+		     &partition_size,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvsgpt_partition;
+		}
+		for( read_iterator = 0;
+		     read_iterator < 128;
+		     read_iterator++ )
+		{
+			if( partition_offset >= partition_size )
+			{
+				break;
+			}
+			if( libvsgpt_partition_read_buffer_at_offset(
+			     partition,
+			     buffer,
+			     497,
+			     partition_offset,
+			     NULL ) == -1 )
+			{
+				goto on_error_libvsgpt_partition;
+			}
+			partition_offset += 497;
+		}
+on_error_libvsgpt_partition:
+		libvsgpt_partition_free(
+		 &partition,
+		 NULL );
 	}
 	libvsgpt_volume_close(
 	 volume,

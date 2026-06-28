@@ -47,8 +47,12 @@ int LLVMFuzzerTestOneInput(
      const uint8_t *data,
      size_t size )
 {
+	uint8_t guid[ 16 ];
+
 	libbfio_handle_t *file_io_handle = NULL;
 	libvsgpt_volume_t *volume        = NULL;
+	uint32_t value_32bit             = 0;
+	int number_of_partitions         = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -74,6 +78,28 @@ int LLVMFuzzerTestOneInput(
 	     volume,
 	     file_io_handle,
 	     LIBVSGPT_OPEN_READ,
+	     NULL ) != 1 )
+	{
+		goto on_error_libvsgpt;
+	}
+	if( libvsgpt_volume_get_bytes_per_sector(
+	     volume,
+	     &value_32bit,
+	     NULL ) != 1 )
+	{
+		goto on_error_libvsgpt;
+	}
+	if( libvsgpt_volume_get_disk_identifier(
+	     volume,
+	     guid,
+	     16,
+	     NULL ) != 1 )
+	{
+		goto on_error_libvsgpt;
+	}
+	if( libvsgpt_volume_get_number_of_partitions(
+	     volume,
+	     &number_of_partitions,
 	     NULL ) != 1 )
 	{
 		goto on_error_libvsgpt;
