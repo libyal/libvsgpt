@@ -1508,7 +1508,6 @@ int libvsgpt_internal_volume_read_partition_entries(
 	size_t data_offset                            = 0;
 	size_t partition_entries_data_size            = 0;
 	ssize_t read_count                            = 0;
-	uint32_t maximum_number_of_partition_entries  = 0;
 	uint32_t partition_entry_index                = 0;
 	int entry_index                               = 0;
 
@@ -1550,9 +1549,7 @@ int libvsgpt_internal_volume_read_partition_entries(
 
 		return( -1 );
 	}
-	maximum_number_of_partition_entries = ( 32 * internal_volume->io_handle->bytes_per_sector ) / internal_volume->partition_table_header->partition_entry_data_size;
-
-	if( internal_volume->partition_table_header->number_of_partition_entries > maximum_number_of_partition_entries )
+	if( internal_volume->partition_table_header->number_of_partition_entries > 256 )
 	{
 		libcerror_error_set(
 		 error,

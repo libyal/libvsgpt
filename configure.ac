@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libvsgpt],
-  [20260626],
+  [20260731],
   [https://github.com/libyal/libvsgpt/issues])
 
 AC_CONFIG_SRCDIR(
