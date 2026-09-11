@@ -2128,42 +2128,61 @@ int vsgpt_test_volume_get_partition_by_index(
 {
 	libcerror_error_t *error        = NULL;
 	libvsgpt_partition_t *partition = 0;
+	int number_of_partitions        = 0;
 	int result                      = 0;
+
+	/* Initialize test
+	 */
+	result = libvsgpt_volume_get_number_of_partitions(
+	          volume,
+	          &number_of_partitions,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
-	result = libvsgpt_volume_get_partition_by_index(
-	          volume,
-	          0,
-	          &partition,
-	          &error );
+	if( number_of_partitions > 0 )
+	{
+		result = libvsgpt_volume_get_partition_by_index(
+		          volume,
+		          0,
+		          &partition,
+		          &error );
 
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+		VSGPT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 
-	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition",
-	 partition );
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "partition",
+		 partition );
 
-	result = libvsgpt_partition_free(
-	          &partition,
-	          &error );
+		result = libvsgpt_partition_free(
+		          &partition,
+		          &error );
 
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
+		VSGPT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	/* Test error cases
 	 */
 	result = libvsgpt_volume_get_partition_by_index(
@@ -2320,13 +2339,14 @@ int vsgpt_test_volume_has_partition_with_identifier(
      libvsgpt_volume_t *volume )
 {
 	libcerror_error_t *error = NULL;
+	int number_of_partitions = 0;
 	int result               = 0;
 
-	/* Test regular cases
+	/* Initialize test
 	 */
-	result = libvsgpt_volume_has_partition_with_identifier(
+	result = libvsgpt_volume_get_number_of_partitions(
 	          volume,
-	          0,
+	          &number_of_partitions,
 	          &error );
 
 	VSGPT_TEST_ASSERT_EQUAL_INT(
@@ -2338,20 +2358,38 @@ int vsgpt_test_volume_has_partition_with_identifier(
 	 "error",
 	 error );
 
-	result = libvsgpt_volume_has_partition_with_identifier(
-	          volume,
-	          0xffffffffUL,
-	          &error );
+	/* Test regular cases
+	 */
+	if( number_of_partitions > 0 )
+	{
+		result = libvsgpt_volume_has_partition_with_identifier(
+		          volume,
+		          0,
+		          &error );
 
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 0 );
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+		VSGPT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 
+		result = libvsgpt_volume_has_partition_with_identifier(
+		          volume,
+		          0xffffffffUL,
+		          &error );
+
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 0 );
+
+		VSGPT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	/* Test error cases
 	 */
 	result = libvsgpt_volume_has_partition_with_identifier(
@@ -2448,42 +2486,61 @@ int vsgpt_test_volume_get_partition_by_identifier(
 {
 	libcerror_error_t *error        = NULL;
 	libvsgpt_partition_t *partition = 0;
+	int number_of_partitions        = 0;
 	int result                      = 0;
+
+	/* Initialize test
+	 */
+	result = libvsgpt_volume_get_number_of_partitions(
+	          volume,
+	          &number_of_partitions,
+	          &error );
+
+	VSGPT_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSGPT_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
-	result = libvsgpt_volume_get_partition_by_identifier(
-	          volume,
-	          0,
-	          &partition,
-	          &error );
+	if( number_of_partitions > 0 )
+	{
+		result = libvsgpt_volume_get_partition_by_identifier(
+		          volume,
+		          0,
+		          &partition,
+		          &error );
 
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+		VSGPT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 
-	VSGPT_TEST_ASSERT_IS_NOT_NULL(
-	 "partition",
-	 partition );
+		VSGPT_TEST_ASSERT_IS_NOT_NULL(
+		 "partition",
+		 partition );
 
-	result = libvsgpt_partition_free(
-	          &partition,
-	          &error );
+		result = libvsgpt_partition_free(
+		          &partition,
+		          &error );
 
-	VSGPT_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
+		VSGPT_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-	VSGPT_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
+		VSGPT_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	result = libvsgpt_volume_get_partition_by_identifier(
 	          volume,
 	          0xffffffffUL,

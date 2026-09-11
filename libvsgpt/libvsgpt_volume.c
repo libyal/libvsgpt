@@ -1533,12 +1533,8 @@ int libvsgpt_internal_volume_read_partition_entries(
 
 		return( -1 );
 	}
-#if ( SIZEOF_SIZE_T <= 4 )
 	if( ( internal_volume->partition_table_header->partition_entry_data_size < 128 )
-	 || ( internal_volume->partition_table_header->partition_entry_data_size > (size_t) SSIZE_MAX ) )
-#else
-	if( internal_volume->partition_table_header->partition_entry_data_size < 128 )
-#endif
+	 || ( internal_volume->partition_table_header->partition_entry_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -1560,9 +1556,13 @@ int libvsgpt_internal_volume_read_partition_entries(
 
 		return( -1 );
 	}
+	if( internal_volume->partition_table_header->number_of_partition_entries == 0 )
+	{
+		return( 1 );
+	}
 	partition_entries_data_size = (size_t) internal_volume->partition_table_header->partition_entry_data_size * (size_t) internal_volume->partition_table_header->number_of_partition_entries;
 
-	if( partition_entries_data_size > (size_t) SSIZE_MAX )
+	if( partition_entries_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
 	{
 		libcerror_error_set(
 		 error,

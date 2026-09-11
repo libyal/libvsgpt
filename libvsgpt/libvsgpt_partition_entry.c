@@ -265,7 +265,7 @@ int libvsgpt_partition_entry_read_data(
 
 		return( -1 );
 	}
-	if( ( data_size < sizeof( vsgpt_partition_entry_t) )
+	if( ( data_size < sizeof( vsgpt_partition_entry_t ) )
 	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
