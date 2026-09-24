@@ -28,173 +28,178 @@ import pyvsgpt
 
 
 class VolumeTypeTests(unittest.TestCase):
-  """Tests the volume type."""
+    """Tests the volume type."""
 
-  def test_signal_abort(self):
-    """Tests the signal_abort function."""
-    vsgpt_volume = pyvsgpt.volume()
+    def test_signal_abort(self):
+        """Tests the signal_abort function."""
+        vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_volume.signal_abort()
+        vsgpt_volume.signal_abort()
 
-  def test_open(self):
-    """Tests the open function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+    def test_open(self):
+        """Tests the open function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    vsgpt_volume = pyvsgpt.volume()
+        vsgpt_volume = pyvsgpt.volume()
 
-    vsgpt_volume.open(test_source)
+        vsgpt_volume.open(test_source)
 
-    with self.assertRaises(IOError):
-      vsgpt_volume.open(test_source)
+        with self.assertRaises(IOError):
+            vsgpt_volume.open(test_source)
 
-    vsgpt_volume.close()
-
-    with self.assertRaises(TypeError):
-      vsgpt_volume.open(None)
-
-    with self.assertRaises(ValueError):
-      vsgpt_volume.open(test_source, mode="w")
-
-  def test_open_file_object(self):
-    """Tests the open_file_object function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
-
-    if not os.path.isfile(test_source):
-      raise unittest.SkipTest("source not a regular file")
-
-    vsgpt_volume = pyvsgpt.volume()
-
-    with open(test_source, "rb") as file_object:
-
-      vsgpt_volume.open_file_object(file_object)
-
-      with self.assertRaises(IOError):
-        vsgpt_volume.open_file_object(file_object)
-
-      vsgpt_volume.close()
-
-      with self.assertRaises(TypeError):
-        vsgpt_volume.open_file_object(None)
-
-      with self.assertRaises(ValueError):
-        vsgpt_volume.open_file_object(file_object, mode="w")
-
-  def test_close(self):
-    """Tests the close function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
-
-    vsgpt_volume = pyvsgpt.volume()
-
-    with self.assertRaises(IOError):
-      vsgpt_volume.close()
-
-  def test_open_close(self):
-    """Tests the open and close functions."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      return
-
-    vsgpt_volume = pyvsgpt.volume()
-
-    # Test open and close.
-    vsgpt_volume.open(test_source)
-    vsgpt_volume.close()
-
-    # Test open and close a second time to validate clean up on close.
-    vsgpt_volume.open(test_source)
-    vsgpt_volume.close()
-
-    if os.path.isfile(test_source):
-      with open(test_source, "rb") as file_object:
-
-        # Test open_file_object and close.
-        vsgpt_volume.open_file_object(file_object)
         vsgpt_volume.close()
 
-        # Test open_file_object and close a second time to validate clean up on close.
-        vsgpt_volume.open_file_object(file_object)
+        with self.assertRaises(TypeError):
+            vsgpt_volume.open(None)
+
+        with self.assertRaises(ValueError):
+            vsgpt_volume.open(test_source, mode="w")
+
+    def test_open_file_object(self):
+        """Tests the open_file_object function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        if not os.path.isfile(test_source):
+            raise unittest.SkipTest("source not a regular file")
+
+        vsgpt_volume = pyvsgpt.volume()
+
+        with open(test_source, "rb") as file_object:
+
+            vsgpt_volume.open_file_object(file_object)
+
+            with self.assertRaises(IOError):
+                vsgpt_volume.open_file_object(file_object)
+
+            vsgpt_volume.close()
+
+            with self.assertRaises(TypeError):
+                vsgpt_volume.open_file_object(None)
+
+            with self.assertRaises(ValueError):
+                vsgpt_volume.open_file_object(file_object, mode="w")
+
+    def test_close(self):
+        """Tests the close function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        vsgpt_volume = pyvsgpt.volume()
+
+        with self.assertRaises(IOError):
+            vsgpt_volume.close()
+
+    def test_open_close(self):
+        """Tests the open and close functions."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            return
+
+        vsgpt_volume = pyvsgpt.volume()
+
+        # Test open and close.
+        vsgpt_volume.open(test_source)
         vsgpt_volume.close()
 
-        # Test open_file_object and close and dereferencing file_object.
-        vsgpt_volume.open_file_object(file_object)
-        del file_object
+        # Test open and close a second time to validate clean up on close.
+        vsgpt_volume.open(test_source)
         vsgpt_volume.close()
 
-  def test_get_bytes_per_sector(self):
-    """Tests the get_bytes_per_sector function and bytes_per_sector property."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+        if os.path.isfile(test_source):
+            with open(test_source, "rb") as file_object:
 
-    vsgpt_volume = pyvsgpt.volume()
+                # Test open_file_object and close.
+                vsgpt_volume.open_file_object(file_object)
+                vsgpt_volume.close()
 
-    vsgpt_volume.open(test_source)
+                # Test open_file_object and close a second time to validate clean up on close.
+                vsgpt_volume.open_file_object(file_object)
+                vsgpt_volume.close()
 
-    try:
-      bytes_per_sector = vsgpt_volume.get_bytes_per_sector()
-      self.assertIsNotNone(bytes_per_sector)
+                # Test open_file_object and close and dereferencing file_object.
+                vsgpt_volume.open_file_object(file_object)
+                del file_object
+                vsgpt_volume.close()
 
-      self.assertIsNotNone(vsgpt_volume.bytes_per_sector)
+    def test_get_bytes_per_sector(self):
+        """Tests the get_bytes_per_sector function and bytes_per_sector property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    finally:
-      vsgpt_volume.close()
+        vsgpt_volume = pyvsgpt.volume()
 
-  def test_get_number_of_partitions(self):
-    """Tests the get_number_of_partitions function and number_of_partitions property."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+        vsgpt_volume.open(test_source)
 
-    vsgpt_volume = pyvsgpt.volume()
+        try:
+            bytes_per_sector = vsgpt_volume.get_bytes_per_sector()
+            self.assertIsNotNone(bytes_per_sector)
 
-    vsgpt_volume.open(test_source)
+            self.assertIsNotNone(vsgpt_volume.bytes_per_sector)
 
-    try:
-      number_of_partitions = vsgpt_volume.get_number_of_partitions()
-      self.assertIsNotNone(number_of_partitions)
+        finally:
+            vsgpt_volume.close()
 
-      self.assertIsNotNone(vsgpt_volume.number_of_partitions)
+    def test_get_number_of_partitions(self):
+        """Tests the get_number_of_partitions function and number_of_partitions property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    finally:
-      vsgpt_volume.close()
+        vsgpt_volume = pyvsgpt.volume()
 
-  def test_get_partition(self):
-    """Tests the get_partition function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+        vsgpt_volume.open(test_source)
 
-    vsgpt_volume = pyvsgpt.volume()
+        try:
+            number_of_partitions = vsgpt_volume.get_number_of_partitions()
+            self.assertIsNotNone(number_of_partitions)
 
-    vsgpt_volume.open(test_source)
+            self.assertIsNotNone(vsgpt_volume.number_of_partitions)
 
-    try:
-      if not vsgpt_volume.number_of_partitions:
-        raise unittest.SkipTest("missing partitions")
+        finally:
+            vsgpt_volume.close()
 
-      partition = vsgpt_volume.get_partition(0)
-      self.assertIsNotNone(partition)
+    def test_get_partition(self):
+        """Tests the get_partition function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    finally:
-      vsgpt_volume.close()
+        vsgpt_volume = pyvsgpt.volume()
+
+        vsgpt_volume.open(test_source)
+
+        try:
+            if not vsgpt_volume.number_of_partitions:
+                raise unittest.SkipTest("missing partitions")
+
+            partition = vsgpt_volume.get_partition(0)
+            self.assertIsNotNone(partition)
+
+        finally:
+            vsgpt_volume.close()
 
 
 if __name__ == "__main__":
-  argument_parser = argparse.ArgumentParser()
+    argument_parser = argparse.ArgumentParser()
 
-  argument_parser.add_argument(
-      "source", nargs="?", action="store", metavar="PATH",
-      default=None, help="path of the source file.")
+    argument_parser.add_argument(
+        "source",
+        nargs="?",
+        action="store",
+        metavar="PATH",
+        default=None,
+        help="path of the source file.",
+    )
 
-  options, unknown_options = argument_parser.parse_known_args()
-  unknown_options.insert(0, sys.argv[0])
+    options, unknown_options = argument_parser.parse_known_args()
+    unknown_options.insert(0, sys.argv[0])
 
-  setattr(unittest, "source", options.source)
+    setattr(unittest, "source", options.source)
 
-  unittest.main(argv=unknown_options, verbosity=2)
+    unittest.main(argv=unknown_options, verbosity=2)
