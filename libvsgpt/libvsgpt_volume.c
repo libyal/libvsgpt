@@ -1506,7 +1506,7 @@ int libvsgpt_internal_volume_read_partition_entries(
 	uint8_t *partition_entries_data               = NULL;
 	static char *function                         = "libvsgpt_internal_volume_read_partition_entries";
 	size_t data_offset                            = 0;
-	size_t partition_entries_data_size            = 0;
+	size64_t partition_entries_data_size          = 0;
 	ssize_t read_count                            = 0;
 	uint32_t partition_entry_index                = 0;
 	int entry_index                               = 0;
@@ -1560,9 +1560,9 @@ int libvsgpt_internal_volume_read_partition_entries(
 	{
 		return( 1 );
 	}
-	partition_entries_data_size = (size_t) internal_volume->partition_table_header->partition_entry_data_size * (size_t) internal_volume->partition_table_header->number_of_partition_entries;
+	partition_entries_data_size = (size64_t) internal_volume->partition_table_header->partition_entry_data_size * (size64_t) internal_volume->partition_table_header->number_of_partition_entries;
 
-	if( partition_entries_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
+	if( partition_entries_data_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
 	{
 		libcerror_error_set(
 		 error,
@@ -1574,7 +1574,7 @@ int libvsgpt_internal_volume_read_partition_entries(
 		return( -1 );
 	}
 	partition_entries_data = (uint8_t *) memory_allocate(
-	                                      sizeof( uint8_t ) * partition_entries_data_size );
+	                                      sizeof( uint8_t ) * (size_t) partition_entries_data_size );
 
 	if( partition_entries_data == NULL )
 	{
@@ -1600,7 +1600,7 @@ int libvsgpt_internal_volume_read_partition_entries(
 	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              partition_entries_data,
-	              partition_entries_data_size,
+	              (size_t) partition_entries_data_size,
 	              file_offset,
 	              error );
 
@@ -1625,7 +1625,7 @@ int libvsgpt_internal_volume_read_partition_entries(
 		 function );
 		libcnotify_print_data(
 		 partition_entries_data,
-		 partition_entries_data_size,
+		 (size_t) partition_entries_data_size,
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
@@ -1987,8 +1987,8 @@ int libvsgpt_internal_volume_read_mbr_partition_entries(
 			}
 			partition_values->type = partition_entry->type;
 
-			partition_values->offset = first_extended_boot_record_offset + ( (off64_t) partition_entry->start_address_lba * internal_volume->io_handle->bytes_per_sector );
-			partition_values->size   = partition_entry->number_of_sectors * internal_volume->io_handle->bytes_per_sector;
+			partition_values->offset = first_extended_boot_record_offset + ( (off64_t) partition_entry->start_address_lba * (off64_t) internal_volume->io_handle->bytes_per_sector );
+			partition_values->size   = (size64_t) partition_entry->number_of_sectors * (size64_t) internal_volume->io_handle->bytes_per_sector;
 
 /* TODO offset and size sanity check */
 
